@@ -37,6 +37,12 @@ class DataFlowListView(generic.ObjectListView):
     table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm
+    template_name = "netbox_data_flows/dataflow_list.html"
+
+    def get_extra_context(self, request):
+        return {
+            "as_rules": False,
+        }
 
 
 class DataFlowCreateView(generic.ObjectEditView):
@@ -86,3 +92,10 @@ class DataFlowRuleListView(generic.ObjectListView):
     table = tables.DataFlowRuleTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm
+    template_name = "netbox_data_flows/dataflow_list.html"
+
+    def get_extra_context(self, request):
+        return {
+            "as_rules": True,
+            "actions": ("export",),
+        }
