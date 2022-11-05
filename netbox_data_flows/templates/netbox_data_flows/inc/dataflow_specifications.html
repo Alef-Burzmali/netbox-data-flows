@@ -1,0 +1,107 @@
+{% load form_helpers %}
+
+{% block dataflow_specifications %}
+  <div class="field-group mb-3">
+    <div class="row mb-2">
+      <h6 class="offset-sm-3">Protocol and ports</h6>
+    </div>
+
+    {% render_field form.protocol %}
+    {% render_field form.source_ports %}
+    {% render_field form.destination_ports %}
+  </div>
+
+  <div class="field-group mb-3">
+    <div class="row mb-2">
+      <h6 class="offset-sm-3">Source</h6>
+    </div>
+
+    <div class="row mb-2">
+      <div class="offset-sm-3">
+        <ul class="nav nav-pills" role="tablist">
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="source_device_tab" data-bs-toggle="tab" aria-controls="source_device" data-bs-target="#source_device" class="nav-link {% if form.initial.source_device or not form.initial.source_virtual_machine and not form.initial.source_prefix and not form.initial.source_ipaddress %}active{% endif %}">
+              Device
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="source_vm_tab" data-bs-toggle="tab" aria-controls="source_vm" data-bs-target="#source_vm" class="nav-link {% if form.initial.source_virtual_machine %}active{% endif %}">
+              Virtual Machine
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="source_prefix_tab" data-bs-toggle="tab" aria-controls="source_prefix" data-bs-target="#source_prefix" class="nav-link {% if form.initial.source_prefix %}active{% endif %}">
+              Prefix
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="source_ip_tab" data-bs-toggle="tab" aria-controls="source_ip" data-bs-target="#source_ip" class="nav-link {% if form.initial.source_ipaddress %}active{% endif %}">
+              IP Address
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-content p-0 border-0">
+      <div class="tab-pane {% if form.initial.source_device or not form.initial.source_virtual_machine and not form.initial.source_prefix and not form.initial.source_ipaddress %}active{% endif %}" id="source_device" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.source_device %}
+      </div>
+      <div class="tab-pane {% if form.initial.source_virtual_machine %}active{% endif %}" id="source_vm" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.source_virtual_machine %}
+      </div>
+      <div class="tab-pane {% if form.initial.source_prefix %}active{% endif %}" id="source_prefix" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.source_prefix %}
+      </div>
+      <div class="tab-pane {% if form.initial.source_ipaddress %}active{% endif %}" id="source_ip" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.source_ipaddress %}
+      </div>
+    </div>
+  </div>
+
+  <div class="field-group mb-3">
+    <div class="row mb-2">
+      <h6 class="offset-sm-3">Destination</h6>
+    </div>
+
+    <div class="row mb-2">
+      <div class="offset-sm-3">
+        <ul class="nav nav-pills" role="tablist">
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="destination_device_tab" data-bs-toggle="tab" aria-controls="destination_device" data-bs-target="#destination_device" class="nav-link {% if form.initial.destination_device or not form.initial.destination_virtual_machine and not form.initial.destination_prefix and not form.initial.destination_ipaddress %}active{% endif %}">
+              Device
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="destination_vm_tab" data-bs-toggle="tab" aria-controls="destination_vm" data-bs-target="#destination_vm" class="nav-link {% if form.initial.destination_virtual_machine %}active{% endif %}">
+              Virtual Machine
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="destination_prefix_tab" data-bs-toggle="tab" aria-controls="destination_prefix" data-bs-target="#destination_prefix" class="nav-link {% if form.initial.destination_prefix %}active{% endif %}">
+              Prefix
+            </button>
+          </li>
+          <li role="presentation" class="nav-item">
+            <button role="tab" type="button" id="destination_ip_tab" data-bs-toggle="tab" aria-controls="destination_ip" data-bs-target="#destination_ip" class="nav-link {% if form.initial.destination_ipaddress %}active{% endif %}">
+              IP Address
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="tab-content p-0 border-0">
+      <div class="tab-pane {% if form.initial.destination_device or not form.initial.destination_virtual_machine and not form.initial.destination_prefix and not form.initial.destination_ipaddress %}active{% endif %}" id="destination_device" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.destination_device %}
+      </div>
+      <div class="tab-pane {% if form.initial.destination_virtual_machine %}active{% endif %}" id="destination_vm" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.destination_virtual_machine %}
+      </div>
+      <div class="tab-pane {% if form.initial.destination_prefix %}active{% endif %}" id="destination_prefix" role="tabpanel" aria-labeled-by="device_tab">
+        {% render_field form.destination_prefix %}
+      </div>
+      <div class="tab-pane {% if form.initial.destination_ipaddress %}active{% endif %}" id="destination_ip" role="tabpanel" aria-labeled-by="vm_tab">
+        {% render_field form.destination_ipaddress %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

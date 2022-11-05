@@ -1,0 +1,55 @@
+{% extends 'generic/object_edit.html' %}
+{% load form_helpers %}
+
+{% block form %}
+  {# Render hidden fields #}
+  {% for field in form.hidden_fields %}
+    {{ field }}
+  {% endfor %}
+
+  {# Application, name and parent #}
+  {% with fieldset=form.fieldsets.0 %}
+    {% with group=fieldset.0 fields=fieldset.1 %}
+      <div class="field-group mb-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">{{ group }}</h5>
+        </div>
+
+        {% for name in fields %}
+          {% with field=form|getfield:name %}
+            {% if not field.field.widget.is_hidden %}
+              {% render_field field %}
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+      </div>
+    {% endwith %}
+  {% endwith %}
+
+  {# Specifications #}
+  {% with fieldset=form.fieldsets.1 %}
+    {% with group=fieldset.0 fields=fieldset.1 %}
+      <div class="field-group mb-5">
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">{{ group }}</h5>
+        </div>
+
+        {% include "netbox_data_flows/inc/dataflow_specifications.html" %}
+      </div>
+    {% endwith %}
+  {% endwith %}
+
+  {% if form.custom_fields %}
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Custom Fields</h5>
+    </div>
+    {% render_custom_fields form %}
+  {% endif %}
+
+  {% if form.comments %}
+    <div class="field-group mb-5">
+      <h5 class="text-center">Comments</h5>
+      {% render_field form.comments %}
+    </div>
+  {% endif %}
+{% endblock %}

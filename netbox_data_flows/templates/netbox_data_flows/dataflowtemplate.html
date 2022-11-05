@@ -1,0 +1,92 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:dataflow_list' %}?application_id={{ object.application.pk }}">{{ object.application }}</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-4">
+      <div class="card">
+        <h5 class="card-header">Data Flow</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.inherited_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+            <th scope="row">Parent</th>
+              <td>
+                {{ object.parent|placeholder|linkify }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-8">
+      <div class="card">
+        <h5 class="card-header">Specifications</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Protocol</th>
+              <td>{{ object.get_protocol_display|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Source</th>
+              <td>{{ object.source|placeholder|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Source ports</th>
+              <td>{{ object.source_port_list|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Destination ports</th>
+              <td>{{ object.destination_port_list|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Destination</th>
+              <td>{{ object.destination|placeholder|linkify }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+
+  {% if children_table %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Children Data Flows</h5>
+        <div class="card-body table-responsive">
+          {% render_table children_table %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock content %}
