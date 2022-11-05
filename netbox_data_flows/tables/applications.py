@@ -52,11 +52,6 @@ class ApplicationTable(NetBoxTable):
     role = tables.Column(
         linkify=True,
     )
-    service_count = columns.LinkedCountColumn(
-        viewname="ipam:service_list",
-        url_params={"application_id": "pk"},
-        verbose_name="Services",
-    )
     dataflow_count = columns.LinkedCountColumn(
         viewname="plugins:netbox_data_flows:dataflow_list",
         url_params={"application_id": "pk"},
@@ -74,11 +69,10 @@ class ApplicationTable(NetBoxTable):
             "name",
             "role",
             "comments",
-            "service_count",
             "dataflow_count",
             "tags",
             "created",
             "last_updated",
             "actions",
         )
-        default_columns = ("name", "role", "service_count", "dataflow_count")
+        default_columns = ("name", "role", "dataflow_count")

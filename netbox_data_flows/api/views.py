@@ -33,7 +33,6 @@ class ApplicationViewSet(NetBoxModelViewSet):
         "role",
         "tags",
     ).annotate(
-        service_count=Count("services", distinct=True),
         dataflow_count=Count("dataflows", distinct=True),
     )
     serializer_class = ApplicationSerializer

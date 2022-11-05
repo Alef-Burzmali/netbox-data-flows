@@ -4,7 +4,7 @@ from django_filters import FilterSet
 from netbox.filtersets import NetBoxModelFilterSet
 
 from dcim.models import Device
-from ipam.models import Service, Prefix, IPAddress
+from ipam.models import Prefix, IPAddress
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows.models import (

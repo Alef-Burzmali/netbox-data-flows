@@ -14,8 +14,6 @@ from utilities.forms import (
     TagFilterField,
 )
 
-from ipam.models import Service
-
 from netbox_data_flows.models import (
     Application,
     ApplicationRole,
@@ -38,9 +36,6 @@ class ApplicationForm(NetBoxModelForm):
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(), required=False
     )
-    services = DynamicModelMultipleChoiceField(
-        queryset=Service.objects.all(), required=False
-    )
     comments = CommentField()
 
     fieldsets = (
@@ -53,7 +48,6 @@ class ApplicationForm(NetBoxModelForm):
                 "tags",
             ),
         ),
-        ("Services", ("services",)),
     )
 
     class Meta:
@@ -62,7 +56,6 @@ class ApplicationForm(NetBoxModelForm):
             "name",
             "role",
             "description",
-            "services",
             "comments",
             "tags",
         )

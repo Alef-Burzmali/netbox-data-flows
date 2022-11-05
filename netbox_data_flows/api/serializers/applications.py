@@ -40,7 +40,6 @@ class ApplicationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:netbox_data_flows-api:application-detail"
     )
-    service_count = serializers.IntegerField(read_only=True)
     dataflow_count = serializers.IntegerField(read_only=True)
     role = NestedApplicationRoleSerializer()
 
@@ -58,6 +57,5 @@ class ApplicationSerializer(NetBoxModelSerializer):
             "custom_fields",
             "created",
             "last_updated",
-            "service_count",
             "dataflow_count",
         )

@@ -52,12 +52,6 @@ class Application(NetBoxModel):
         help_text="The role of this application",
     )
     comments = models.TextField(blank=True)
-    services = models.ManyToManyField(
-        to="ipam.Service",
-        related_name="applications",
-        blank=True,
-        help_text="The network services exposed by this application",
-    )
 
     class Meta:
         ordering = ("name",)
