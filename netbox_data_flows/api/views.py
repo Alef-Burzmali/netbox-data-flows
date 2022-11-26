@@ -1,16 +1,12 @@
 from django.db.models import Count
 from rest_framework.routers import APIRootView
+from rest_framework.viewsets import ModelViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 
 from netbox_data_flows import filtersets, models
 
-from .serializers import (
-    ApplicationRoleSerializer,
-    ApplicationSerializer,
-    DataFlowSerializer,
-    DataFlowTemplateSerializer,
-)
+from . import serializers
 
 
 class DataFlowsRootView(APIRootView):
@@ -24,7 +20,7 @@ class ApplicationRoleViewSet(NetBoxModelViewSet):
     ).annotate(
         application_count=Count("applications"),
     )
-    serializer_class = ApplicationRoleSerializer
+    serializer_class = serializers.ApplicationRoleSerializer
     filterset_class = filtersets.ApplicationRoleFilterSet
 
 
@@ -35,7 +31,7 @@ class ApplicationViewSet(NetBoxModelViewSet):
     ).annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
-    serializer_class = ApplicationSerializer
+    serializer_class = serializers.ApplicationSerializer
     filterset_class = filtersets.ApplicationFilterSet
 
 
@@ -53,7 +49,7 @@ class DataFlowViewSet(NetBoxModelViewSet):
         "tags",
     )
 
-    serializer_class = DataFlowSerializer
+    serializer_class = serializers.DataFlowSerializer
     filterset_class = filtersets.DataFlowFilterSet
 
 
@@ -70,5 +66,24 @@ class DataFlowTemplateViewSet(NetBoxModelViewSet):
         "tags",
     )
 
-    serializer_class = DataFlowTemplateSerializer
+    serializer_class = serializers.DataFlowTemplateSerializer
     filterset_class = filtersets.DataFlowTemplateFilterSet
+
+
+class ObjectAliasTargetViewSet(NetBoxModelViewSet):
+    queryset = models.ObjectAliasTarget.objects.prefetch_related(
+        "aliased_object",
+    )
+
+    serializer_class = serializers.ObjectAliasTargetSerializer
+    # filterset_class = filtersets.DataFlowFilterSet
+
+
+class ObjectAliasViewSet(NetBoxModelViewSet):
+    queryset = models.ObjectAlias.objects.prefetch_related(
+        "targets",
+        "tags",
+    )
+
+    serializer_class = serializers.ObjectAliasSerializer
+    filterset_class = filtersets.ObjectAliasFilterSet

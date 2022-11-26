@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from netbox.filtersets import NetBoxModelFilterSet
 
 from netbox_data_flows.models import (

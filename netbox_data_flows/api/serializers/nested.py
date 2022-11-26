@@ -2,12 +2,7 @@ from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
 
-from netbox_data_flows.models import (
-    Application,
-    ApplicationRole,
-    DataFlow,
-    DataFlowTemplate,
-)
+from netbox_data_flows import models
 
 
 __all__ = (
@@ -15,6 +10,8 @@ __all__ = (
     "NestedApplicationRoleSerializer",
     "NestedDataFlowSerializer",
     "NestedDataFlowTemplateSerializer",
+    "NestedObjectAliasSerializer",
+    "NestedObjectAliasTargetSerializer",
 )
 
 
@@ -29,7 +26,7 @@ class NestedApplicationRoleSerializer(WritableNestedSerializer):
     )
 
     class Meta:
-        model = ApplicationRole
+        model = models.ApplicationRole
         fields = ("id", "url", "display", "slug")
 
 
@@ -40,7 +37,7 @@ class NestedApplicationSerializer(WritableNestedSerializer):
     role = NestedApplicationRoleSerializer()
 
     class Meta:
-        model = Application
+        model = models.Application
         fields = ("id", "url", "display", "role")
 
 
@@ -57,7 +54,7 @@ class NestedDataFlowSerializer(WritableNestedSerializer):
     application = NestedApplicationSerializer()
 
     class Meta:
-        model = DataFlow
+        model = models.DataFlow
         fields = (
             "id",
             "url",
@@ -76,5 +73,39 @@ class NestedDataFlowTemplateSerializer(WritableNestedSerializer):
     _depth = serializers.IntegerField(source="level", read_only=True)
 
     class Meta:
-        model = DataFlowTemplate
+        model = models.DataFlowTemplate
         fields = ("id", "url", "display", "name", "status", "_depth")
+
+
+#
+# Object aliases
+#
+
+
+class NestedObjectAliasTargetSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail"
+    )
+
+    class Meta:
+        model = models.ObjectAliasTarget
+        fields = (
+            "id",
+            "url",
+            "type",
+        )
+
+
+class NestedObjectAliasSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name="plugins-api:netbox_data_flows-api:objectalias-detail"
+    )
+
+    class Meta:
+        model = models.ObjectAlias
+        fields = (
+            "id",
+            "url",
+            "name",
+            "description",
+        )

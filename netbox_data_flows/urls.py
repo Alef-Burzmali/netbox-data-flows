@@ -204,4 +204,51 @@ urlpatterns = (
         views.DataFlowRuleListView.as_view(),
         name="dataflow_rules",
     ),
+    # Object Alias
+    path(
+        "aliases/",
+        views.ObjectAliasListView.as_view(),
+        name="objectalias_list",
+    ),
+    path(
+        "aliases/add/",
+        views.ObjectAliasEditView.as_view(),
+        name="objectalias_add",
+    ),
+    path(
+        "aliases/import/",
+        views.ObjectAliasBulkImportView.as_view(),
+        name="objectalias_import",
+    ),
+    path(
+        "aliases/edit/",
+        views.ObjectAliasBulkEditView.as_view(),
+        name="objectalias_bulk_edit",
+    ),
+    path(
+        "aliases/delete/",
+        views.ObjectAliasBulkDeleteView.as_view(),
+        name="objectalias_bulk_delete",
+    ),
+    path(
+        "aliases/<int:pk>/",
+        views.ObjectAliasView.as_view(),
+        name="objectalias",
+    ),
+    path(
+        "aliases/<int:pk>/edit/",
+        views.ObjectAliasEditView.as_view(),
+        name="objectalias_edit",
+    ),
+    path(
+        "aliases/<int:pk>/delete/",
+        views.ObjectAliasDeleteView.as_view(),
+        name="objectalias_delete",
+    ),
+    path(
+        "aliases/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="objectalias_changelog",
+        kwargs={"model": models.ObjectAlias},
+    ),
 )

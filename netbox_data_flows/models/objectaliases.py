@@ -8,6 +8,7 @@ from django.db import models
 from django.urls import reverse
 
 from netbox.models import NetBoxModel
+from utilities.querysets import RestrictedQuerySet
 
 from netbox_data_flows.choices import ObjectAliasTypeChoices
 
@@ -15,7 +16,6 @@ from netbox_data_flows.choices import ObjectAliasTypeChoices
 __all__ = (
     "ObjectAlias",
     "ObjectAliasTarget",
-    "OBJECTALIAS_ASSIGNMENT_MODELS",
 )
 
 
@@ -62,7 +62,7 @@ class ObjectAliasTarget(models.Model):
     aliased_object_type = models.ForeignKey(
         to=ContentType,
         limit_choices_to=OBJECTALIAS_ASSIGNMENT_MODELS,
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="+",
     )
     aliased_object_id = models.PositiveBigIntegerField()
@@ -82,6 +82,8 @@ class ObjectAliasTarget(models.Model):
                 name="netbox_data_flows_objectaliastarget_type_id",
             ),
         )
+
+    objects = RestrictedQuerySet.as_manager()
 
     def get_absolute_url(self):
         return self.aliased_object.get_absolute_url()
@@ -141,39 +143,33 @@ class ObjectAliasTarget(models.Model):
         other_model = other._model
         other = other.aliased_object
 
+        attr_mapping = {
+            "ipaddress": "address",
+            "iprange": "range",
+            "prefix": "prefix",
+        }
+
         if own_model == "ipaddress":
             return (other_model == "ipaddress") and (
                 other.address == own.address
             )
 
-        elif own_model == "iprange":
-            if other_model == "ipaddress":
-                return other.address in own.range
-            elif other_model == "iprange":
-                return other.range in own.range
-            elif other_model == "prefix":
-                return other.prefix in own.range
-            else:
-                raise RuntimeError(
-                    f"ObjectAliasTarget has a unsupported model: {other_model}"
-                )
-
-        elif own_model == "prefix":
-            if other_model == "ipaddress":
-                return other.address in own.prefix
-            elif other_model == "iprange":
-                return other.range in own.prefix
-            elif other_model == "prefix":
-                return other.prefix in own.prefix
-            else:
-                raise RuntimeError(
-                    f"ObjectAliasTarget has a unsupported model: {other_model}"
-                )
-
-        else:
+        try:
+            own = getattr(own, attr_mapping[own_model])
+        except KeyError:
             raise RuntimeError(
                 f"ObjectAliasTarget has a unsupported model: {own_model}"
             )
+
+        try:
+            other = getattr(own, attr_mapping[other_model])
+        except KeyError:
+            raise RuntimeError(
+                f"ObjectAliasTarget has a unsupported model: {other_model}"
+            )
+
+        return other in own
+            
 
     def _compute_type(self):
         if self._model == "ipaddress":
@@ -225,6 +221,9 @@ class ObjectAlias(NetBoxModel):
             "type",
             "name",
         )
+
+    def get_absolute_url(self):
+        return reverse("plugins:netbox_data_flows:objectalias", args=[self.pk])
 
     def __str__(self):
         return self.name
