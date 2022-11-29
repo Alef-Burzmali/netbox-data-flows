@@ -24,16 +24,7 @@ from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
 from ipam.models import Prefix, IPAddress
 from virtualization.models import VirtualMachine
 
-from netbox_data_flows.models import (
-    Application,
-    ApplicationRole,
-    DataFlow,
-)
-from netbox_data_flows.choices import (
-    DataFlowInheritedStatusChoices,
-    DataFlowProtocolChoices,
-    DataFlowStatusChoices,
-)
+from netbox_data_flows import models, choices
 
 
 __all__ = (
@@ -49,7 +40,12 @@ __all__ = (
 #
 
 
-class DataFlowFormBase(NetBoxModelForm):
+class DataFlowForm(NetBoxModelForm):
+    application = DynamicModelChoiceField(
+        queryset=models.Application.objects.all(),
+        help_text="Application that this data flow is part of.",
+    )
+
     comments = CommentField()
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(
@@ -66,21 +62,6 @@ class DataFlowFormBase(NetBoxModelForm):
         required=False,
     )
 
-
-
-class DataFlowEditForm(DataFlowFormBase):
-    application = DynamicModelChoiceField(
-        queryset=Application.objects.all(),
-        help_text="Application that this data flow (and all of its descendants) is part of.",
-    )
-    parent = DynamicModelChoiceField(
-        queryset=DataFlow.objects.all(),
-        required=False,
-        query_params={
-            "application_id": "$application",
-        },
-        help_text="Direct parent of this Data Flow. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants.",
-    )
     # TODO:
     # sources
     # destinations
@@ -91,8 +72,8 @@ class DataFlowEditForm(DataFlowFormBase):
             (
                 "application",
                 "name",
+                "description",
                 "status",
-                "parent",
                 "tags",
             ),
         ),
@@ -101,45 +82,27 @@ class DataFlowEditForm(DataFlowFormBase):
             (
                 "protocol",
                 "source_ports",
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
                 "destination_ports",
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
             ),
         ),
     )
 
     class Meta:
-        model = DataFlow
+        model = models.DataFlow
         fields = (
             "application",
             "name",
+            "description",
             "status",
-            "parent",
             "comments",
             "tags",
             "protocol",
             "source_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
             "destination_ports",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
         )
         widgets = {
             "protocol": StaticSelect(),
         }
-
-
 
 
 #
@@ -148,22 +111,20 @@ class DataFlowEditForm(DataFlowFormBase):
 
 
 class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
-    model = DataFlow
+    model = models.DataFlow
 
-        queryset=DataFlow.objects.all(),
-        required=False,
-    )
     application = DynamicModelChoiceField(
-        queryset=Application.objects.all(),
+        queryset=models.Application.objects.all(),
+        required=False,
     )
 
     status = forms.ChoiceField(
-        choices=add_blank_choice(DataFlowStatusChoices),
+        choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
         widget=StaticSelect(),
     )
     protocol = forms.ChoiceField(
-        choices=add_blank_choice(DataFlowProtocolChoices),
+        choices=add_blank_choice(choices.DataFlowProtocolChoices),
         required=False,
         widget=StaticSelect(),
     )
@@ -191,8 +152,9 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             "Data Flow",
             (
                 "application",
+                "name",
+                "description",
                 "status",
-                "parent",
             ),
         ),
         (
@@ -205,7 +167,8 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         ),
     )
     nullable_fields = (
-        "parent",
+        "application",
+        "description",
         "protocol",
         "source_ports",
         "destination_ports",
@@ -213,14 +176,11 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class DataFlowCSVForm(NetBoxModelCSVForm):
-    parent = CSVModelChoiceField(
-        queryset=DataFlow.objects.all(),
+    application = CSVModelChoiceField(
+        queryset=models.Application.objects.all(),
         required=False,
         to_field_name="name",
     )
-    application = CSVModelChoiceField(
-        queryset=Application.objects.all(),
-        to_field_name="name",
     )
     status = CSVChoiceField(
         choices=add_blank_choice(DataFlowStatusChoices),
@@ -250,12 +210,12 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
     # destinations
 
     class Meta:
-        model = DataFlow
+        model = models.DataFlow
         fields = (
             "application",
             "name",
+            "description",
             "status",
-            "parent",
             "protocol",
             "source_ports",
             "destination_ports",
@@ -267,7 +227,17 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
 #
 
 
-class DataFlowFilterFormBase(NetBoxModelFilterSetForm):
+class DataFlowFilterForm(NetBoxModelFilterSetForm):
+    model = models.DataFlow
+
+    application = DynamicModelMultipleChoiceField(
+        queryset=models.Application.objects.all(), required=False
+    )
+    application_role = DynamicModelMultipleChoiceField(
+        queryset=models.ApplicationRole.objects.all(), required=False
+    )
+    tag = TagFilterField(model)
+
     status = forms.ChoiceField(
         choices=add_blank_choice(DataFlowStatusChoices),
         required=False,
@@ -296,21 +266,6 @@ class DataFlowFilterFormBase(NetBoxModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
-
-    class Meta:
-        abstract = True
-
-
-class DataFlowFilterForm(DataFlowFilterFormBase):
-    model = DataFlow
-    tag = TagFilterField(model)
-
-    application = DynamicModelMultipleChoiceField(
-        queryset=Application.objects.all(), required=False
-    )
-    application_role = DynamicModelMultipleChoiceField(
-        queryset=ApplicationRole.objects.all(), required=False
-    )
     # TODO:
     # sources
     # destinations

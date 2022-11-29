@@ -3,20 +3,7 @@ from django_filters import FilterSet
 
 from netbox.filtersets import NetBoxModelFilterSet
 
-from dcim.models import Device
-from ipam.models import Prefix, IPAddress
-from virtualization.models import VirtualMachine
-
-from netbox_data_flows.models import (
-    Application,
-    ApplicationRole,
-    DataFlow,
-)
-from netbox_data_flows.choices import (
-    DataFlowProtocolChoices,
-    DataFlowStatusChoices,
-)
-
+from netbox_data_flows import models, choices
 
 from .addins import *
 from .filters import *
@@ -27,11 +14,11 @@ __all__ = ("DataFlowFilterSet",)
 class DataFlowFilterSet(
     ApplicationFilterSetAddin,
     InheritedStatusFilterSetAddin,
-    FilterSet,
+    NetBoxModelFilterSet,
 ):
 
     protocol = MultipleChoiceFilter(
-        choices=DataFlowProtocolChoices,
+        choices=choices.DataFlowProtocolChoices,
     )
     source_ports = MultiValueNumericArrayFilter(
         method="filter_ports",
@@ -63,7 +50,12 @@ class DataFlowFilterSet(
     )
 
     class Meta:
-        abstract = True
+        model = models.DataFlow
+        fields = (
+            "id",
+            "name",
+            "status",
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -86,27 +78,3 @@ class DataFlowFilterSet(
             query |= Q(**{field_db: [port]})
 
         return queryset.filter(query)
-
-
-class DataFlowFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):
-    parent_id = TreeNodeMultipleChoiceFilter(
-        queryset=DataFlow.objects.all(),
-        lookup_expr="in",
-        label="Parent (ID)",
-    )
-    parent = TreeNodeMultipleChoiceFilter(
-        queryset=DataFlow.objects.all(),
-        lookup_expr="in",
-        to_field_name="name",
-        label="Parent (name)",
-    )
-
-    class Meta:
-        model = DataFlow
-        fields = (
-            "id",
-            "name",
-            "status",
-        )
-
-
