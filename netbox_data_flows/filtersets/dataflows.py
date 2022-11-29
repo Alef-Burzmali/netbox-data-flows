@@ -40,85 +40,25 @@ class DataFlowFilterSet(
         method="filter_ports",
     )
 
-    source_device_id = ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label="Device (ID)",
+    sources_id = ModelMultipleChoiceFilter(
+        queryset=models.ObjectAlias.objects.all(),
+        label="Sources (ID)",
         method="filter_sources",
     )
-    source_device = ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label="Device (Name)",
-        method="filter_sources",
-    )
-    source_virtual_machine_id = ModelMultipleChoiceFilter(
-        queryset=VirtualMachine.objects.all(),
-        label="VirtualMachine (ID)",
-        method="filter_sources",
-    )
-    source_virtual_machine = ModelMultipleChoiceFilter(
-        queryset=VirtualMachine.objects.all(),
-        label="VirtualMachine (Name)",
-        method="filter_sources",
-    )
-    source_prefix_id = ModelMultipleChoiceFilter(
-        queryset=Prefix.objects.all(),
-        label="Prefix (ID)",
-        method="filter_sources",
-    )
-    source_prefix = ModelMultipleChoiceFilter(
-        queryset=Prefix.objects.all(),
-        label="Prefix (Name)",
-        method="filter_sources",
-    )
-    source_ipaddress_id = ModelMultipleChoiceFilter(
-        queryset=IPAddress.objects.all(),
-        label="IPAddress (ID)",
-        method="filter_sources",
-    )
-    source_ipaddress = ModelMultipleChoiceFilter(
-        queryset=IPAddress.objects.all(),
-        label="IPAddress (Name)",
+    sources = ModelMultipleChoiceFilter(
+        queryset=models.ObjectAlias.objects.all(),
+        label="Sources (Name)",
         method="filter_sources",
     )
 
-    destination_device_id = ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label="Device (ID)",
+    destinations_id = ModelMultipleChoiceFilter(
+        queryset=models.ObjectAlias.objects.all(),
+        label="Destinations (ID)",
         method="filter_destinations",
     )
-    destination_device = ModelMultipleChoiceFilter(
-        queryset=Device.objects.all(),
-        label="Device (Name)",
-        method="filter_destinations",
-    )
-    destination_virtual_machine_id = ModelMultipleChoiceFilter(
-        queryset=VirtualMachine.objects.all(),
-        label="VirtualMachine (ID)",
-        method="filter_destinations",
-    )
-    destination_virtual_machine = ModelMultipleChoiceFilter(
-        queryset=VirtualMachine.objects.all(),
-        label="VirtualMachine (Name)",
-        method="filter_destinations",
-    )
-    destination_prefix_id = ModelMultipleChoiceFilter(
-        queryset=Prefix.objects.all(),
-        label="Prefix (ID)",
-        method="filter_destinations",
-    )
-    destination_prefix = ModelMultipleChoiceFilter(
-        queryset=Prefix.objects.all(),
-        label="Prefix (Name)",
-        method="filter_destinations",
-    )
-    destination_ipaddress_id = ModelMultipleChoiceFilter(
-        queryset=IPAddress.objects.all(),
-        label="IPAddress (ID)",
-        method="filter_destinations",
-    )
-    destination_ipaddress = ModelMultipleChoiceFilter(
-        queryset=IPAddress.objects.all(),
-        label="IPAddress (Name)",
+    destinations = ModelMultipleChoiceFilter(
+        queryset=models.ObjectAlias.objects.all(),
+        label="Destinations (Name)",
         method="filter_destinations",
     )
 
@@ -146,45 +86,6 @@ class DataFlowFilterSet(
             query |= Q(**{field_db: [port]})
 
         return queryset.filter(query)
-
-    # OR all the sources
-    def filter_sources(self, queryset, field_name, value):
-        if not hasattr(self, "_sources"):
-            setattr(self, "_sources", {})
-
-        self._sources[field_name] = value
-        return queryset
-
-    # OR all the destinations
-    def filter_destinations(self, queryset, field_name, value):
-        if not hasattr(self, "_destinations"):
-            setattr(self, "_destinations", {})
-
-        self._destinations[field_name] = value
-        return queryset
-
-    @property
-    def qs(self):
-        # OR(sources) AND OR(destinations)
-        qs = super().qs
-
-        if hasattr(self, "_sources"):
-            query = Q()
-            for key, values in self._sources.items():
-                for v in values:
-                    query |= Q(**{key: v})
-
-            qs = qs.filter(query)
-
-        if hasattr(self, "_destinations"):
-            query = Q()
-            for key, values in self._destinations.items():
-                for v in values:
-                    query |= Q(**{key: v})
-
-            qs = qs.filter(query)
-
-        return qs
 
 
 class DataFlowFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):

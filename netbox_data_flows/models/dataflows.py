@@ -19,6 +19,7 @@ from netbox_data_flows.choices import (
 )
 
 from .applications import Application
+from .objectaliases import ObjectAlias
 
 
 __all__ = ("DataFlow",)
@@ -82,6 +83,14 @@ class DataFlowBase(MPTTModel):
         choices=DataFlowProtocolChoices,
         blank=True,
     )
+    sources = models.ManyToManyField(
+        ObjectAlias,
+        related_name="dataflow_sources",
+    )
+    destinations = models.ManyToManyField(
+        ObjectAlias,
+        related_name="dataflow_destinations",
+    )
 
     # ports
     source_ports = ArrayField(
@@ -108,100 +117,17 @@ class DataFlowBase(MPTTModel):
     @property
     def source_port_list(self):
         if not self.source_ports:
-            if self.source or self.destination:
-                return "Any"
+            return "Any"
 
         return array_to_string(self.source_ports)
 
     @property
     def destination_port_list(self):
         if not self.destination_ports:
-            if self.source or self.destination:
-                return "Any"
+            return "Any"
 
         return array_to_string(self.destination_ports)
 
-    # sources
-    source_prefix = models.ForeignKey(
-        to="ipam.Prefix",
-        on_delete=models.CASCADE,
-        related_name="+",
-        blank=True,
-        null=True,
-    )
-    source_device = models.ForeignKey(
-        to="dcim.Device",
-        on_delete=models.CASCADE,
-        related_name="+",
-        blank=True,
-        null=True,
-    )
-    source_virtual_machine = models.ForeignKey(
-        to="virtualization.VirtualMachine",
-        on_delete=models.CASCADE,
-        related_name="+",
-        null=True,
-        blank=True,
-    )
-    source_ipaddress = models.ForeignKey(
-        to="ipam.IPAddress",
-        on_delete=models.CASCADE,
-        related_name="+",
-        null=True,
-        blank=True,
-        verbose_name="Source IP address",
-    )
-
-    @property
-    def source(self):
-        return (
-            self.source_prefix
-            or self.source_device
-            or self.source_virtual_machine
-            or self.source_ipaddress
-            or None
-        )
-
-    # destination
-    destination_prefix = models.ForeignKey(
-        to="ipam.Prefix",
-        on_delete=models.CASCADE,
-        related_name="+",
-        blank=True,
-        null=True,
-    )
-    destination_device = models.ForeignKey(
-        to="dcim.Device",
-        on_delete=models.CASCADE,
-        related_name="+",
-        blank=True,
-        null=True,
-    )
-    destination_virtual_machine = models.ForeignKey(
-        to="virtualization.VirtualMachine",
-        on_delete=models.CASCADE,
-        related_name="+",
-        null=True,
-        blank=True,
-    )
-    destination_ipaddress = models.ForeignKey(
-        to="ipam.IPAddress",
-        on_delete=models.CASCADE,
-        related_name="+",
-        null=True,
-        blank=True,
-        verbose_name="Destination IP address",
-    )
-
-    @property
-    def destination(self):
-        return (
-            self.destination_prefix
-            or self.destination_device
-            or self.destination_virtual_machine
-            or self.destination_ipaddress
-            or None
-        )
 
     class Meta:
         abstract = True
@@ -231,61 +157,6 @@ class DataFlowBase(MPTTModel):
                     "parent": f"Cannot assign self or child {self._meta.verbose_name} as parent."
                 }
             )
-
-        # A Data Flow must have at most 1 type of sources
-        sources = 0
-        if self.source_prefix:
-            sources += 1
-        if self.source_device:
-            sources += 1
-        if self.source_virtual_machine:
-            sources += 1
-        if self.source_ipaddress:
-            sources += 1
-
-        if sources > 1:
-            raise ValidationError(
-                "A data flow cannot be associated with several types of sources. Use children data flows instead."
-            )
-
-        # A Data Flow must have at most 1 type of destinations
-        destinations = 0
-        if self.destination_prefix:
-            destinations += 1
-        if self.destination_device:
-            destinations += 1
-        if self.destination_virtual_machine:
-            destinations += 1
-        if self.destination_ipaddress:
-            destinations += 1
-
-        if destinations > 1:
-            raise ValidationError(
-                "A data flow cannot be associated with several types of destinations. Use children data flows instead."
-            )
-
-        # If we have a start of specification, ensure it is complete
-        if (
-            self.protocol
-            or self.destination_ports
-            or self.source_ports
-            or self.source
-            or self.destination
-        ):
-            # If there is a specification, there must be a protocol
-            if not self.protocol:
-                raise ValidationError(
-                    {
-                        "protocol": "A Protocol is mandatory if a specification is given."
-                    }
-                )
-
-            # If there is a specification, there must be a source or a destination
-            if not self.source and not self.destination:
-                raise ValidationError(
-                    "At least a Source or a Destination is mandatory if a specification is given."
-                )
-
 
 
 
@@ -324,14 +195,8 @@ class DataFlow(DataFlowBase, NetBoxModel):
         "protocol",
         "source_ports",
         "destination_ports",
-        "source_device",
-        "source_prefix",
-        "source_ipaddress",
-        "source_virtual_machine",
-        "destination_device",
-        "destination_ipaddress",
-        "destination_prefix",
-        "destination_virtual_machine",
+        "sources",
+        "destinations",
     )
 
     @property
@@ -347,9 +212,10 @@ class DataFlow(DataFlowBase, NetBoxModel):
     def clean(self):
         super().clean()
 
-        if self.parent and not isinstance(self.parent, self.__class__):
+        # There must be a source or a destination
+        if not self.sources and not self.destinations:
             raise ValidationError(
-                "Only a DataFlow can be the parent of another DataFlow (error during clone)"
+                "At least a Source or a Destination must be given."
             )
 
         if self.parent and self.parent.application != self.application:

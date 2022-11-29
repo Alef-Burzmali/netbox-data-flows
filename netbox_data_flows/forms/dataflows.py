@@ -66,52 +66,6 @@ class DataFlowFormBase(NetBoxModelForm):
         required=False,
     )
 
-    source_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        help_text="Source Device (HW) of the Data Flow. Only one device and only one type of source can be selected per Data Flow.",
-    )
-    source_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        help_text="Source Virtual Machine of the Data Flow. Only one VM and only one type of source can be selected per Data Flow.",
-    )
-    source_prefix = DynamicModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        help_text="Source IP Prefix of the Data Flow. Only one prefix and only one type of source can be selected per Data Flow.",
-    )
-    source_ipaddress = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Source IP Address",
-        help_text="Source IP Address of the Data Flow. Only one address and only one type of source can be selected per Data Flow.",
-    )
-
-    destination_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        help_text="Destination Device (HW) of the Data Flow. Only one device and only one type of destination can be selected per Data Flow.",
-    )
-    destination_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        help_text="Destination Virtual Machine of the Data Flow. Only one VM and only one type of destination can be selected per Data Flow.",
-    )
-    destination_prefix = DynamicModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        help_text="Destination IP Prefix of the Data Flow. Only one prefix and only one type of destination can be selected per Data Flow.",
-    )
-    destination_ipaddress = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Destination IP Address",
-        help_text="Destination IP Address of the Data Flow. Only one address and only one type of destination can be selected per Data Flow.",
-    )
-
-    class Meta:
-        abstract = True
 
 
 class DataFlowEditForm(DataFlowFormBase):
@@ -127,6 +81,9 @@ class DataFlowEditForm(DataFlowFormBase):
         },
         help_text="Direct parent of this Data Flow. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants.",
     )
+    # TODO:
+    # sources
+    # destinations
 
     fieldsets = (
         (
@@ -225,50 +182,9 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
     )
 
-    source_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        help_text="Source Device (HW) of the Data Flow. Only one device and only one type of source can be selected per Data Flow.",
-    )
-    source_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        help_text="Source Virtual Machine of the Data Flow. Only one VM and only one type of source can be selected per Data Flow.",
-    )
-    source_prefix = DynamicModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        help_text="Source IP Prefix of the Data Flow. Only one prefix and only one type of source can be selected per Data Flow.",
-    )
-    source_ipaddress = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Source IP Address",
-        help_text="Source IP Address of the Data Flow. Only one address and only one type of source can be selected per Data Flow.",
-    )
-
-    destination_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        help_text="Destination Device (HW) of the Data Flow. Only one device and only one type of destination can be selected per Data Flow.",
-    )
-    destination_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        help_text="Destination Virtual Machine of the Data Flow. Only one VM and only one type of destination can be selected per Data Flow.",
-    )
-    destination_prefix = DynamicModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        help_text="Destination IP Prefix of the Data Flow. Only one prefix and only one type of destination can be selected per Data Flow.",
-    )
-    destination_ipaddress = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Destination IP Address",
-        help_text="Destination IP Address of the Data Flow. Only one address and only one type of destination can be selected per Data Flow.",
-    )
-
+    # TODO:
+    # sources
+    # destinations
 
     fieldsets = (
         (
@@ -284,15 +200,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             (
                 "protocol",
                 "source_ports",
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
                 "destination_ports",
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
             ),
         ),
     )
@@ -300,15 +208,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         "parent",
         "protocol",
         "source_ports",
-        "source_device",
-        "source_virtual_machine",
-        "source_prefix",
-        "source_ipaddress",
         "destination_ports",
-        "destination_device",
-        "destination_virtual_machine",
-        "destination_prefix",
-        "destination_ipaddress",
     )
 
 
@@ -345,57 +245,9 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
         required=False,
     )
 
-    source_device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Source Device (HW) of the Data Flow. Only one device and only one type of source can be selected per Data Flow.",
-    )
-    source_virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Source Virtual Machine of the Data Flow. Only one VM and only one type of source can be selected per Data Flow.",
-    )
-    source_prefix = CSVModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Source IP Prefix of the Data Flow. Only one prefix and only one type of source can be selected per Data Flow.",
-    )
-    source_ipaddress = CSVModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        to_field_name="name",
-        label="Source IP Address",
-        help_text="Source IP Address of the Data Flow. Only one address and only one type of source can be selected per Data Flow.",
-    )
-
-    destination_device = CSVModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Destination Device (HW) of the Data Flow. Only one device and only one type of destination can be selected per Data Flow.",
-    )
-    destination_virtual_machine = CSVModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Destination Virtual Machine of the Data Flow. Only one VM and only one type of destination can be selected per Data Flow.",
-    )
-    destination_prefix = CSVModelChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        to_field_name="name",
-        help_text="Destination IP Prefix of the Data Flow. Only one prefix and only one type of destination can be selected per Data Flow.",
-    )
-    destination_ipaddress = CSVModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        to_field_name="name",
-        label="Destination IP Address",
-        help_text="Destination IP Address of the Data Flow. Only one address and only one type of destination can be selected per Data Flow.",
-    )
+    # TODO:
+    # sources
+    # destinations
 
     class Meta:
         model = DataFlow
@@ -406,15 +258,7 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
             "parent",
             "protocol",
             "source_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
             "destination_ports",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
         )
 
 
@@ -452,47 +296,6 @@ class DataFlowFilterFormBase(NetBoxModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
-    source_device = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        label="Source devices",
-    )
-    source_virtual_machine = DynamicModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        label="Source virtual machines",
-    )
-    source_prefix = DynamicModelMultipleChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        label="Source prefixes",
-    )
-    source_ipaddress = DynamicModelMultipleChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Source IP Addresses",
-    )
-
-    destination_device = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        label="Destination devices",
-    )
-    destination_virtual_machine = DynamicModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        label="Destination virtual machines",
-    )
-    destination_prefix = DynamicModelMultipleChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        label="Destination prefixes",
-    )
-    destination_ipaddress = DynamicModelMultipleChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label="Destination IP Addresses",
-    )
 
     class Meta:
         abstract = True
@@ -508,6 +311,9 @@ class DataFlowFilterForm(DataFlowFilterFormBase):
     application_role = DynamicModelMultipleChoiceField(
         queryset=ApplicationRole.objects.all(), required=False
     )
+    # TODO:
+    # sources
+    # destinations
 
     fieldsets = (
         (
@@ -528,22 +334,22 @@ class DataFlowFilterForm(DataFlowFilterFormBase):
                 "destination_ports",
             ),
         ),
-        (
-            "Source (Any matching)",
-            (
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
-            ),
-        ),
-        (
-            "Destination (Any matching)",
-            (
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
-            ),
-        ),
+        # (
+        #     "Source (Any matching)",
+        #     (
+        #         "source_device",
+        #         "source_virtual_machine",
+        #         "source_prefix",
+        #         "source_ipaddress",
+        #     ),
+        # ),
+        # (
+        #     "Destination (Any matching)",
+        #     (
+        #         "destination_device",
+        #         "destination_virtual_machine",
+        #         "destination_prefix",
+        #         "destination_ipaddress",
+        #     ),
+        # ),
     )
