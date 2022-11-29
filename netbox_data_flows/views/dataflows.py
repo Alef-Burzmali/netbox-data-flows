@@ -6,7 +6,6 @@ from netbox_data_flows import filtersets, forms, models, tables
 __all__ = (
     "DataFlowView",
     "DataFlowListView",
-    "DataFlowCreateView",
     "DataFlowEditView",
     "DataFlowDeleteView",
     "DataFlowBulkImportView",
@@ -45,15 +44,9 @@ class DataFlowListView(generic.ObjectListView):
         }
 
 
-class DataFlowCreateView(generic.ObjectEditView):
-    queryset = models.DataFlow.objects.all()
-    form = forms.DataFlowCreateForm
-    template_name = "netbox_data_flows/dataflow_create.html"
-
-
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
-    form = forms.DataFlowEditForm
+    form = forms.DataFlowForm
     template_name = "netbox_data_flows/dataflow_edit.html"
 
 
@@ -86,9 +79,7 @@ class DataFlowBulkDeleteView(generic.BulkDeleteView):
 
 
 class DataFlowRuleListView(generic.ObjectListView):
-    queryset = models.DataFlow.objects.exclude(protocol="").exclude(
-        pk__in=models.DataFlow.get_disabled_queryset().only("pk")
-    )
+    queryset = models.DataFlow.objects.exclude(protocol="")
     table = tables.DataFlowRuleTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm

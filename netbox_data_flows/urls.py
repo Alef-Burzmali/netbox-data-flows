@@ -113,7 +113,7 @@ urlpatterns = (
     ),
     path(
         "dataflows/add/",
-        views.DataFlowCreateView.as_view(),
+        views.DataFlowEditView.as_view(),
         name="dataflow_add",
     ),
     path(
