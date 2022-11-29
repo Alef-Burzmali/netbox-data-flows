@@ -154,15 +154,6 @@ class DataFlow(NetBoxModel):
         "destinations",
     )
 
-    def clean(self):
-        super().clean()
-
-        # There must be a source or a destination
-        if not self.sources and not self.destinations:
-            raise ValidationError(
-                "At least a Source or a Destination must be given."
-            )
-
     def __str__(self):
         return self.name
 

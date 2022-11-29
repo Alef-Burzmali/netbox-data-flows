@@ -18,16 +18,6 @@ __all__ = (
 class DataFlowView(generic.ObjectView):
     queryset = models.DataFlow.objects.prefetch_related("application")
 
-    def get_extra_context(self, request, instance):
-        children_table = tables.DataFlowTable(
-            instance.get_descendants(include_self=False)
-        )
-        children_table.configure(request)
-
-        return {
-            "children_table": children_table,
-        }
-
 
 class DataFlowListView(generic.ObjectListView):
     queryset = models.DataFlow.objects.prefetch_related(
