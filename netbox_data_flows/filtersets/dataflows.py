@@ -89,3 +89,11 @@ class DataFlowFilterSet(
             query |= Q(**{field_db: [port]})
 
         return queryset.filter(query)
+
+    def filter_sources(self, queryset, field_name, value):
+        # TODO
+        return queryset
+
+    def filter_destinations(self, queryset, field_name, value):
+        # TODO
+        return queryset
