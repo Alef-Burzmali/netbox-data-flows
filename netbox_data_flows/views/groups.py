@@ -21,6 +21,7 @@ class DataFlowGroupView(generic.ObjectView):
         "application",
         "application__role",
         "parent",
+        "dataflows",
     )
 
     def get_extra_context(self, request, instance):
@@ -29,9 +30,7 @@ class DataFlowGroupView(generic.ObjectView):
         )
         children_table.configure(request)
 
-        dataflows_table = tables.DataFlowTable(
-            instance.get_dataflows(include_descendants=True)
-        )
+        dataflows_table = tables.DataFlowTable(instance.dataflows.all())
         dataflows_table.configure(request)
 
         return {

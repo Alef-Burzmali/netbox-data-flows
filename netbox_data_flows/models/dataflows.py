@@ -16,8 +16,6 @@ from netbox_data_flows.choices import (
     DataFlowInheritedStatusChoices,
 )
 
-from .applications import Application
-from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
 
 
@@ -33,7 +31,7 @@ class DataFlow(NetBoxModel):
         blank=True,
     )
     application = models.ForeignKey(
-        to=Application,
+        to="Application",
         on_delete=models.CASCADE,
         related_name="dataflows",
         blank=True,
@@ -41,7 +39,7 @@ class DataFlow(NetBoxModel):
         db_index=True,
     )
     group = models.ForeignKey(
-        to=DataFlowGroup,
+        to="DataFlowGroup",
         on_delete=models.CASCADE,
         related_name="dataflows",
         blank=True,

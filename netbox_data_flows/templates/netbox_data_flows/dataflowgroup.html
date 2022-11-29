@@ -1,0 +1,75 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:dataflowgroup_list' %}?application_id={{ object.application.pk }}">{{ object.application }}</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Data Flow Group</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Application</th>
+              <td>{{ object.application|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.inherited_status_display bg_color=object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Parent</th>
+              <td>
+                {{ object.parent|placeholder|linkify }}
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Child Groups</h5>
+        <div class="card-body table-responsive">
+          {% render_table children_table %}
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+
+  {% if dataflows_table %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Data Flows</h5>
+        <div class="card-body table-responsive">
+          {% render_table dataflows_table %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+        {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock content %}
