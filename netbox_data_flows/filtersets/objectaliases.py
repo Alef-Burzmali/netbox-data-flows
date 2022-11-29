@@ -1,21 +1,30 @@
 from django.db.models import Q
 
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
 
-from netbox_data_flows.models import (
-    ObjectAlias,
-    ObjectAliasTarget,
+from netbox_data_flows import models
+
+from .filters import *
+
+
+__all__ = (
+    "ObjectAliasTargetFilterSet",
+    "ObjectAliasFilterSet",
 )
 
-from .filters import ModelMultipleChoiceFilter
 
+class ObjectAliasTargetFilterSet(BaseFilterSet):
+    class Meta:
+        model = models.ObjectAliasTarget
+        fields = ("id",)
 
-__all__ = ("ObjectAliasFilterSet",)
+    def search(self, queryset, name, value):
+        return queryset
 
 
 class ObjectAliasFilterSet(NetBoxModelFilterSet):
     class Meta:
-        model = ObjectAlias
+        model = models.ObjectAlias
         fields = (
             "id",
             "name",

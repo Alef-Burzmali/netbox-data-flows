@@ -37,7 +37,7 @@ class DataFlowStatusChoices(ChoiceSet):
     )
 
 
-class DataFlowInheritedStatusChoices(ChoiceSet):
+class DataFlowInheritedStatusChoices(DataFlowStatusChoices):
     """List of statuses for data flows"""
 
     STATUS_ENABLED = "enabled"
@@ -48,16 +48,4 @@ class DataFlowInheritedStatusChoices(ChoiceSet):
         (STATUS_ENABLED, "Enabled", "green"),
         (STATUS_DISABLED, "Disabled", "red"),
         (STATUS_INHERITED_DISABLED, "Disabled (Inherited)", "orange"),
-    )
-
-
-class ObjectAliasTypeChoices(ChoiceSet):
-    """Types of ObjectAliases"""
-
-    TYPE_NETWORK = "net"
-    TYPE_HOST = "host"
-
-    CHOICES = (
-        (TYPE_NETWORK, "Network", "green"),
-        (TYPE_HOST, "Host", "blue"),
     )

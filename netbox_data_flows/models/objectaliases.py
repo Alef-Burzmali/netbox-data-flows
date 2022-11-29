@@ -10,8 +10,6 @@ from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
-from netbox_data_flows.choices import ObjectAliasTypeChoices
-
 
 __all__ = (
     "ObjectAlias",
@@ -20,6 +18,7 @@ __all__ = (
 
 
 # Object types allowed in aliases
+# TODO: Add connector to ObjectAlias
 OBJECTALIAS_ASSIGNMENT_MODELS = models.Q(
     models.Q(app_label="ipam", model="prefix")
     | models.Q(app_label="ipam", model="iprange")
@@ -33,6 +32,8 @@ class ObjectAliasTarget(models.Model):
 
     Provide a common interface for working with different DCIM types and a
     type for Many-to-Many generic relationships with any of these types.
+
+    This object is intended to be transparent to the user.
     """
 
     @classmethod
@@ -40,7 +41,7 @@ class ObjectAliasTarget(models.Model):
         query = models.Q()
         for t in targets:
             ct = ContentType.objects.get_for_model(t.__class__)
-            query |= models.Q(aliased_object_type=ct, aliased_object_id=t.pk)
+            query |= models.Q(target_type=ct, target_id=t.pk)
 
         return cls.objects.filter(query)
 
@@ -49,36 +50,27 @@ class ObjectAliasTarget(models.Model):
         """Return an existing instance for this target or create one"""
         instance = cls.get_target(target).first()
         if not instance:
-            instance = cls(aliased_object=target)
+            instance = cls(target=target)
 
         return instance
 
-    type = models.CharField(
-        editable=False,
-        max_length=5,
-        choices=ObjectAliasTypeChoices,
-        default=ObjectAliasTypeChoices.TYPE_NETWORK,
-    )
-    aliased_object_type = models.ForeignKey(
+    target_type = models.ForeignKey(
         to=ContentType,
         limit_choices_to=OBJECTALIAS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name="+",
     )
-    aliased_object_id = models.PositiveBigIntegerField()
-    aliased_object = GenericForeignKey(
-        ct_field="aliased_object_type",
-        fk_field="aliased_object_id",
+    target_id = models.PositiveBigIntegerField()
+    target = GenericForeignKey(
+        ct_field="target_type",
+        fk_field="target_id",
     )
 
     class Meta:
-        ordering = (
-            "type",
-            "aliased_object_id",
-        )
+        ordering = ("target_id",)
         constraints = (
             models.UniqueConstraint(
-                fields=("aliased_object_type", "aliased_object_id"),
+                fields=("target_type", "target_id"),
                 name="netbox_data_flows_objectaliastarget_type_id",
             ),
         )
@@ -86,7 +78,7 @@ class ObjectAliasTarget(models.Model):
     objects = RestrictedQuerySet.as_manager()
 
     def get_absolute_url(self):
-        return self.aliased_object.get_absolute_url()
+        return self.target.get_absolute_url()
 
     def __str__(self):
         return self.name
@@ -94,19 +86,19 @@ class ObjectAliasTarget(models.Model):
     @property
     def name(self):
         if self._model == "ipaddress":
-            address = str(self.aliased_object).split("/")[0]
+            address = str(self.target).split("/")[0]
             if self.parent:
                 return f"{self.parent} ({address})"
             else:
                 return address
         else:
-            return str(self.aliased_object)
+            return str(self.target)
 
     @property
     def parent(self):
         if self._model == "ipaddress":
             try:
-                return self.aliased_object.assigned_object.parent_object
+                return self.target.assigned_object.parent_object
             except AttributeError:
                 return None
         else:
@@ -117,9 +109,9 @@ class ObjectAliasTarget(models.Model):
         if self._model == "ipaddress":
             return 1
         elif self._model == "iprange":
-            return self.aliased_object.size
+            return self.target.size
         elif self._model == "prefix":
-            return 2**self.aliased_object.mask_length
+            return 2**self.target.mask_length
         else:
             raise RuntimeError(
                 f"ObjectAliasTarget has a unsupported model: {self._model}"
@@ -127,21 +119,16 @@ class ObjectAliasTarget(models.Model):
 
     @property
     def family(self):
-        return self.aliased_object.family
+        return self.target.family
 
     @property
     def _model(self):
-        return self.aliased_object_type.model
+        return self.target_type.model
 
     def __contains__(self, other):
         assert isinstance(
             other, self.__class__
         ), f"{self.__class__} can only be compared to other {self.__class__}"
-
-        own_model = self._model
-        own = self.aliased_object
-        other_model = other._model
-        other = other.aliased_object
 
         attr_mapping = {
             "ipaddress": "address",
@@ -149,41 +136,26 @@ class ObjectAliasTarget(models.Model):
             "prefix": "prefix",
         }
 
-        if own_model == "ipaddress":
-            return (other_model == "ipaddress") and (
-                other.address == own.address
-            )
-
-        try:
-            own = getattr(own, attr_mapping[own_model])
-        except KeyError:
-            raise RuntimeError(
-                f"ObjectAliasTarget has a unsupported model: {own_model}"
-            )
-
-        try:
-            other = getattr(own, attr_mapping[other_model])
-        except KeyError:
-            raise RuntimeError(
-                f"ObjectAliasTarget has a unsupported model: {other_model}"
-            )
-
-        return other in own
-            
-
-    def _compute_type(self):
         if self._model == "ipaddress":
-            self.type = ObjectAliasTypeChoices.TYPE_HOST
-        else:
-            self.type = ObjectAliasTypeChoices.TYPE_NETWORK
+            return (other._model == "ipaddress") and (
+                other.target.address == self.target.address
+            )
 
-    def save(self, *args, **kwargs):
-        self._compute_type()
-        super().save(*args, **kwargs)
+        try:
+            own_value = getattr(self.target, attr_mapping[self._model])
+        except KeyError:
+            raise RuntimeError(
+                f"ObjectAliasTarget has a unsupported model: {self._model}"
+            )
 
-    def clean(self):
-        super().clean()
-        self._compute_type()
+        try:
+            other_value = getattr(other.target, attr_mapping[other._model])
+        except KeyError:
+            raise RuntimeError(
+                f"ObjectAliasTarget has a unsupported model: {other._model}"
+            )
+
+        return other_value in own_value
 
 
 class ObjectAlias(NetBoxModel):
@@ -195,7 +167,7 @@ class ObjectAlias(NetBoxModel):
         help_text="The name of the ObjectAlias",
     )
     description = models.CharField(
-        max_length=100,
+        max_length=200,
         blank=True,
     )
     size = models.PositiveSmallIntegerField(
@@ -203,24 +175,16 @@ class ObjectAlias(NetBoxModel):
         default=0,
         help_text="The size of the ObjectAlias's networks or hosts, for sorting",
     )
-    type = models.CharField(
-        editable=False,
-        max_length=5,
-        choices=ObjectAliasTypeChoices,
-        default=ObjectAliasTypeChoices.TYPE_NETWORK,
-        help_text="The type of ObjectAlias's targets",
-    )
 
+    # We cannot have ManyToMany relations to GenericForeignKeys, hence the
+    # intermediary Target type
     targets = models.ManyToManyField(
         ObjectAliasTarget,
         related_name="aliases",
     )
 
     class Meta:
-        ordering = (
-            "type",
-            "name",
-        )
+        ordering = ("name",)
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:objectalias", args=[self.pk])
@@ -230,27 +194,11 @@ class ObjectAlias(NetBoxModel):
 
     def save(self, *args, **kwargs):
         if self.pk:
-            # clean() has ensured all children have the same type
-            self.type = self.targets[0].type
-
-            size = sum(t.size for t in self.targets)
-            self.size = int(math.log2(size))
+            # Compute our logarithmic size
+            if self.targets:
+                size = sum(t.size for t in self.targets)
+                self.size = int(math.log2(size))
+            else:
+                self.size = 0
 
         super().save(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        if not self.pk:
-            return
-
-        if not self.targets:
-            raise ValidationError(
-                "The ObjectAlias must have a least one target"
-            )
-
-        self.type = self.targets[0].type
-        if not all(t.type == self.type for t in self.targets):
-            raise ValidationError(
-                "The ObjectAlias must contain only networks (Prefix or Range) OR hosts (IP Addresses)"
-            )
