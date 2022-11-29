@@ -1,13 +1,13 @@
 from django.db.models import Q
 
-from netbox.filtersets import NetBoxModelFilterSet
-
-from netbox_data_flows.models import (
-    Application,
-    ApplicationRole,
+from netbox.filtersets import (
+    NetBoxModelFilterSet,
+    OrganizationalModelFilterSet,
 )
 
-from .filters import ModelMultipleChoiceFilter
+from netbox_data_flows import models
+
+from .filters import *
 
 
 __all__ = (
@@ -16,37 +16,33 @@ __all__ = (
 )
 
 
-class ApplicationRoleFilterSet(NetBoxModelFilterSet):
+class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
     class Meta:
-        model = ApplicationRole
-        fields = (
-            "id",
-            "name",
-        )
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-
-        return queryset.filter(name__icontains=value)
-
-
-class ApplicationFilterSet(NetBoxModelFilterSet):
-    role_id = ModelMultipleChoiceFilter(
-        queryset=ApplicationRole.objects.all(),
-        label="Application Role (ID)",
-    )
-    role = ModelMultipleChoiceFilter(
-        queryset=ApplicationRole.objects.all(),
-        label="Application Role (Name)",
-    )
-
-    class Meta:
-        model = Application
+        model = models.ApplicationRole
         fields = (
             "id",
             "name",
             "description",
+        )
+
+
+class ApplicationFilterSet(NetBoxModelFilterSet):
+    role_id = ModelMultipleChoiceFilter(
+        queryset=models.ApplicationRole.objects.all(),
+        label="Application Role (ID)",
+    )
+    role = ModelMultipleChoiceFilter(
+        queryset=models.ApplicationRole.objects.all(),
+        label="Application Role (Name)",
+    )
+
+    class Meta:
+        model = models.Application
+        fields = (
+            "id",
+            "name",
+            "description",
+            "role",
         )
 
     def search(self, queryset, name, value):

@@ -2,7 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 
-from netbox.models import NetBoxModel
+from netbox.models import NetBoxModel, OrganizationalModel
 
 
 __all__ = (
@@ -11,18 +11,13 @@ __all__ = (
 )
 
 
-class ApplicationRole(NetBoxModel):
+class ApplicationRole(OrganizationalModel):
     """Functional role of an application, e.g.: "Infrastructure", "Management", "Business" """
 
-    name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(max_length=100, unique=True)
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-
-    class Meta:
-        ordering = ("name",)
+    # Inherited fields:
+    # name - unique
+    # slug - unique
+    # description
 
     def __str__(self):
         return self.name
