@@ -11,7 +11,7 @@ from ipam.api.serializers import (
 )
 from virtualization.api.serializers import NestedVirtualMachineSerializer
 
-from netbox_data_flows.models import DataFlow, DataFlowTemplate
+from netbox_data_flows.models import DataFlow
 from netbox_data_flows.choices import (
     DataFlowProtocolChoices,
     DataFlowStatusChoices,
@@ -21,14 +21,10 @@ from netbox_data_flows.choices import (
 from .nested import (
     NestedApplicationSerializer,
     NestedDataFlowSerializer,
-    NestedDataFlowTemplateSerializer,
 )
 
 
-__all__ = (
-    "DataFlowSerializer",
-    "DataFlowTemplateSerializer",
-)
+__all__ = ("DataFlowSerializer",)
 
 
 class DataFlowSerializerBase(serializers.Serializer):
@@ -85,47 +81,6 @@ class DataFlowSerializer(NetBoxModelSerializer, DataFlowSerializerBase):
             "url",
             "display",
             "application",
-            "name",
-            "status",
-            "inherited_status",
-            "parent",
-            "_depth",
-            "comments",
-            "tags",
-            "custom_fields",
-            "created",
-            "last_updated",
-            "protocol",
-            "source_ports",
-            "destination_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        )
-
-
-class DataFlowTemplateSerializer(
-    NetBoxModelSerializer, DataFlowSerializerBase
-):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflowtemplate-detail"
-    )
-    parent = NestedDataFlowTemplateSerializer(
-        required=False, allow_null=True, default=None
-    )
-    _depth = serializers.IntegerField(source="level", read_only=True)
-
-    class Meta:
-        model = DataFlowTemplate
-        fields = (
-            "id",
-            "url",
-            "display",
             "name",
             "status",
             "inherited_status",

@@ -9,7 +9,6 @@ __all__ = (
     "NestedApplicationSerializer",
     "NestedApplicationRoleSerializer",
     "NestedDataFlowSerializer",
-    "NestedDataFlowTemplateSerializer",
     "NestedObjectAliasSerializer",
     "NestedObjectAliasTargetSerializer",
 )
@@ -64,17 +63,6 @@ class NestedDataFlowSerializer(WritableNestedSerializer):
             "status",
             "_depth",
         )
-
-
-class NestedDataFlowTemplateSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflowtemplate-detail"
-    )
-    _depth = serializers.IntegerField(source="level", read_only=True)
-
-    class Meta:
-        model = models.DataFlowTemplate
-        fields = ("id", "url", "display", "name", "status", "_depth")
 
 
 #

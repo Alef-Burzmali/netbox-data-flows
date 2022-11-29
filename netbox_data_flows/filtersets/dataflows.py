@@ -11,7 +11,6 @@ from netbox_data_flows.models import (
     Application,
     ApplicationRole,
     DataFlow,
-    DataFlowTemplate,
 )
 from netbox_data_flows.choices import (
     DataFlowProtocolChoices,
@@ -27,10 +26,9 @@ from .filters import (
     TreeNodeMultipleChoiceFilter,
 )
 
-__all__ = (
-    "DataFlowFilterSet",
-    "DataFlowTemplateFilterSet",
-)
+
+__all__ = ("DataFlowFilterSet",)
+
 
 
 class DataFlowFilterSetBase(FilterSet):
@@ -251,24 +249,3 @@ class DataFlowFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):
 
         return queryset.filter(application__role__in=[v.pk for v in value])
 
-
-class DataFlowTemplateFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):
-    parent_id = TreeNodeMultipleChoiceFilter(
-        queryset=DataFlowTemplate.objects.all(),
-        lookup_expr="in",
-        label="Parent (ID)",
-    )
-    parent = TreeNodeMultipleChoiceFilter(
-        queryset=DataFlowTemplate.objects.all(),
-        lookup_expr="in",
-        to_field_name="name",
-        label="Parent (name)",
-    )
-
-    class Meta:
-        model = DataFlowTemplate
-        fields = (
-            "id",
-            "name",
-            "status",
-        )

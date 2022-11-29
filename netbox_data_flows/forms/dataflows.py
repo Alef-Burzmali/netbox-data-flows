@@ -28,7 +28,6 @@ from netbox_data_flows.models import (
     Application,
     ApplicationRole,
     DataFlow,
-    DataFlowTemplate,
 )
 from netbox_data_flows.choices import (
     DataFlowInheritedStatusChoices,
@@ -40,13 +39,9 @@ from netbox_data_flows.choices import (
 __all__ = (
     "DataFlowCreateForm",
     "DataFlowEditForm",
-    "DataFlowTemplateForm",
     "DataFlowBulkEditForm",
     "DataFlowCSVForm",
-    "DataFlowTemplateBulkEditForm",
-    "DataFlowTemplateCSVForm",
     "DataFlowFilterForm",
-    "DataFlowTemplateFilterForm",
 )
 
 #
@@ -119,66 +114,6 @@ class DataFlowFormBase(NetBoxModelForm):
         abstract = True
 
 
-class DataFlowTemplateForm(DataFlowFormBase):
-    parent = DynamicModelChoiceField(
-        queryset=DataFlowTemplate.objects.all(),
-        required=False,
-        help_text="Direct parent of this Data Flow. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants. Cloning a template clones all its descendants.",
-    )
-
-    fieldsets = (
-        (
-            "Data Flow Template",
-            (
-                "name",
-                "status",
-                "parent",
-                "tags",
-            ),
-        ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
-                "destination_ports",
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
-            ),
-        ),
-    )
-
-    class Meta:
-        model = DataFlowTemplate
-        fields = (
-            "name",
-            "status",
-            "parent",
-            "comments",
-            "tags",
-            "protocol",
-            "source_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-            "destination_ports",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        )
-        widgets = {
-            "protocol": StaticSelect(),
-        }
-
-
 class DataFlowEditForm(DataFlowFormBase):
     application = DynamicModelChoiceField(
         queryset=Application.objects.all(),
@@ -223,7 +158,7 @@ class DataFlowEditForm(DataFlowFormBase):
     )
 
     class Meta:
-        model = DataFlowTemplate
+        model = DataFlow
         fields = (
             "application",
             "name",
@@ -248,88 +183,6 @@ class DataFlowEditForm(DataFlowFormBase):
         }
 
 
-class DataFlowCreateForm(DataFlowEditForm):
-    dataflow_template = DynamicModelChoiceField(
-        queryset=DataFlowTemplate.objects.all(),
-        required=False,
-        help_text=(
-            "Template to use as base for this Data Flow. "
-            "You will be able to edit the specifications of the new Data Flow after saving. "
-            "If this template has children, they will be cloned too."
-        ),
-    )
-
-    class Meta:
-        model = DataFlowTemplate
-        fields = (
-            "dataflow_template",
-            "application",
-            "name",
-            "status",
-            "parent",
-            "comments",
-            "tags",
-            "protocol",
-            "source_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-            "destination_ports",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        )
-        widgets = {
-            "protocol": StaticSelect(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Fields which may be populated from a DataFlowTemplate are not required
-        for field in (
-            "name",
-            "status",
-        ):
-            self.fields[field].required = False
-            del self.fields[field].widget.attrs["required"]
-
-    def clean(self):
-        super().clean()
-
-        if self.cleaned_data["dataflow_template"]:
-            # Create a new DataFlow from the specified template
-            dataflow_template = self.cleaned_data["dataflow_template"]
-
-            for field in (
-                "name",
-                "status",
-                "comments",
-                "protocol",
-                "source_ports",
-                "destination_ports",
-                "source_ports",
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
-                "destination_ports",
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
-            ):
-                if not self.cleaned_data[field]:
-                    self.cleaned_data[field] = getattr(
-                        dataflow_template, field
-                    )
-
-        elif not all(self.cleaned_data[f] for f in ("name", "status")):
-            raise forms.ValidationError(
-                "Must specify name and status if not using a template."
-            )
 
 
 #
@@ -337,12 +190,14 @@ class DataFlowCreateForm(DataFlowEditForm):
 #
 
 
-class DataFlowTemplateBulkEditForm(NetBoxModelBulkEditForm):
-    model = DataFlowTemplate
+class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
+    model = DataFlow
 
-    parent = DynamicModelChoiceField(
-        queryset=DataFlowTemplate.objects.all(),
+        queryset=DataFlow.objects.all(),
         required=False,
+    )
+    application = DynamicModelChoiceField(
+        queryset=Application.objects.all(),
     )
 
     status = forms.ChoiceField(
@@ -414,58 +269,6 @@ class DataFlowTemplateBulkEditForm(NetBoxModelBulkEditForm):
         help_text="Destination IP Address of the Data Flow. Only one address and only one type of destination can be selected per Data Flow.",
     )
 
-    fieldsets = (
-        (
-            "Data Flow Template",
-            (
-                "status",
-                "parent",
-            ),
-        ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
-                "destination_ports",
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
-            ),
-        ),
-    )
-    nullable_fields = (
-        "parent",
-        "protocol",
-        "source_ports",
-        "source_device",
-        "source_virtual_machine",
-        "source_prefix",
-        "source_ipaddress",
-        "destination_ports",
-        "destination_device",
-        "destination_virtual_machine",
-        "destination_prefix",
-        "destination_ipaddress",
-    )
-
-
-class DataFlowBulkEditForm(DataFlowTemplateBulkEditForm):
-    model = DataFlow
-
-    application = DynamicModelChoiceField(
-        queryset=Application.objects.all(),
-        required=False,
-    )
-    parent = DynamicModelChoiceField(
-        queryset=DataFlow.objects.all(),
-        required=False,
-    )
 
     fieldsets = (
         (
@@ -509,10 +312,14 @@ class DataFlowBulkEditForm(DataFlowTemplateBulkEditForm):
     )
 
 
-class DataFlowTemplateCSVForm(NetBoxModelCSVForm):
+class DataFlowCSVForm(NetBoxModelCSVForm):
     parent = CSVModelChoiceField(
-        queryset=DataFlowTemplate.objects.all(),
+        queryset=DataFlow.objects.all(),
         required=False,
+        to_field_name="name",
+    )
+    application = CSVModelChoiceField(
+        queryset=Application.objects.all(),
         to_field_name="name",
     )
     status = CSVChoiceField(
@@ -588,38 +395,6 @@ class DataFlowTemplateCSVForm(NetBoxModelCSVForm):
         to_field_name="name",
         label="Destination IP Address",
         help_text="Destination IP Address of the Data Flow. Only one address and only one type of destination can be selected per Data Flow.",
-    )
-
-    class Meta:
-        model = DataFlow
-        fields = (
-            "name",
-            "status",
-            "parent",
-            "protocol",
-            "source_ports",
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-            "destination_ports",
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        )
-
-
-class DataFlowCSVForm(DataFlowTemplateCSVForm):
-    application = CSVModelChoiceField(
-        queryset=Application.objects.all(),
-        required=True,
-        to_field_name="name",
-    )
-    parent = CSVModelChoiceField(
-        queryset=DataFlow.objects.all(),
-        required=False,
-        to_field_name="name",
     )
 
     class Meta:
@@ -740,48 +515,6 @@ class DataFlowFilterForm(DataFlowFilterFormBase):
             (
                 "application",
                 "application_role",
-                "status",
-                "inherited_status",
-                "tag",
-            ),
-        ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "destination_ports",
-            ),
-        ),
-        (
-            "Source (Any matching)",
-            (
-                "source_device",
-                "source_virtual_machine",
-                "source_prefix",
-                "source_ipaddress",
-            ),
-        ),
-        (
-            "Destination (Any matching)",
-            (
-                "destination_device",
-                "destination_virtual_machine",
-                "destination_prefix",
-                "destination_ipaddress",
-            ),
-        ),
-    )
-
-
-class DataFlowTemplateFilterForm(DataFlowFilterFormBase):
-    model = DataFlowTemplate
-    tag = TagFilterField(model)
-
-    fieldsets = (
-        (
-            "Data Flow Template",
-            (
                 "status",
                 "inherited_status",
                 "tag",

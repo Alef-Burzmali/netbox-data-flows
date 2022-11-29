@@ -67,27 +67,6 @@ menu_items = (
         ),
     ),
     PluginMenuItem(
-        link="plugins:netbox_data_flows:dataflowtemplate_list",
-        link_text="Data Flow Templates",
-        permissions=["netbox_data_flows.view_dataflowtemplate"],
-        buttons=(
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:dataflowtemplate_add",
-                title="Add",
-                icon_class="mdi mdi-plus-thick",
-                color=ButtonColorChoices.GREEN,
-                permissions=["netbox_data_flows.add_dataflowtemplate"],
-            ),
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:dataflowtemplate_import",
-                title="Import",
-                icon_class="mdi mdi-upload",
-                color=ButtonColorChoices.CYAN,
-                permissions=["netbox_data_flows.add_dataflowtemplate"],
-            ),
-        ),
-    ),
-    PluginMenuItem(
         link="plugins:netbox_data_flows:objectalias_list",
         link_text="Object Aliases",
         permissions=["netbox_data_flows.view_objectalias"],

@@ -105,53 +105,6 @@ urlpatterns = (
         name="application_journal",
         kwargs={"model": models.Application},
     ),
-    # Data Flow Templates
-    path(
-        "dataflow-templates/",
-        views.DataFlowTemplateListView.as_view(),
-        name="dataflowtemplate_list",
-    ),
-    path(
-        "dataflow-templates/add/",
-        views.DataFlowTemplateEditView.as_view(),
-        name="dataflowtemplate_add",
-    ),
-    path(
-        "dataflow-templates/import/",
-        views.DataFlowTemplateBulkImportView.as_view(),
-        name="dataflowtemplate_import",
-    ),
-    path(
-        "dataflow-templates/edit/",
-        views.DataFlowTemplateBulkEditView.as_view(),
-        name="dataflowtemplate_bulk_edit",
-    ),
-    path(
-        "dataflow-templates/delete/",
-        views.DataFlowTemplateBulkDeleteView.as_view(),
-        name="dataflowtemplate_bulk_delete",
-    ),
-    path(
-        "dataflow-templates/<int:pk>/",
-        views.DataFlowTemplateView.as_view(),
-        name="dataflowtemplate",
-    ),
-    path(
-        "dataflow-templates/<int:pk>/edit/",
-        views.DataFlowTemplateEditView.as_view(),
-        name="dataflowtemplate_edit",
-    ),
-    path(
-        "dataflow-templates/<int:pk>/delete/",
-        views.DataFlowTemplateDeleteView.as_view(),
-        name="dataflowtemplate_delete",
-    ),
-    path(
-        "dataflow-templates/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="dataflowtemplate_changelog",
-        kwargs={"model": models.DataFlowTemplate},
-    ),
     # Data Flow
     path(
         "dataflows/",

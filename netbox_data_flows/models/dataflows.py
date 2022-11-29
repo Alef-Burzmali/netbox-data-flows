@@ -21,10 +21,7 @@ from netbox_data_flows.choices import (
 from .applications import Application
 
 
-__all__ = (
-    "DataFlow",
-    "DataFlowTemplate",
-)
+__all__ = ("DataFlow",)
 
 
 class DataFlowBase(MPTTModel):
@@ -290,68 +287,6 @@ class DataFlowBase(MPTTModel):
                 )
 
 
-class DataFlowTemplate(DataFlowBase, NetBoxModel):
-    """A template of a data flow between sources and destinations"""
-
-    class Meta:
-        ordering = ("name",)
-        constraints = (
-            models.UniqueConstraint(
-                fields=("parent", "name"),
-                name="netbox_data_flows_dataflowtemplate_parent_name",
-            ),
-            models.UniqueConstraint(
-                fields=("name",),
-                name="netbox_data_flows_dataflowtemplate_name",
-                condition=models.Q(parent=None),
-            ),
-        )
-
-    clone_fields = (
-        "parent",
-        "name",
-        "status",
-        "comments",
-        "protocol",
-        "source_ports",
-        "destination_ports",
-        "source_device",
-        "source_prefix",
-        "source_ipaddress",
-        "source_virtual_machine",
-        "destination_device",
-        "destination_ipaddress",
-        "destination_prefix",
-        "destination_virtual_machine",
-    )
-
-    def __str__(self):
-        return f"Template: {self.name}"
-
-    def get_absolute_url(self):
-        return reverse(
-            "plugins:netbox_data_flows:dataflowtemplate", args=[self.pk]
-        )
-
-    def clean(self):
-        super().clean()
-
-        if self.parent and not isinstance(self.parent, self.__class__):
-            raise ValidationError(
-                "Only a DataFlowTemplate can be the parent of another DataFlowTemplate (error during clone)"
-            )
-
-    def validate_unique(self, exclude=None):
-        if self.parent is None:
-            dataflows = DataFlowTemplate.objects.exclude(pk=self.pk)
-            if dataflows.filter(name=self.name, parent__isnull=True).exists():
-                raise ValidationError(
-                    {
-                        "name": "A data flow template with this name already exists."
-                    }
-                )
-
-        super().validate_unique(exclude=exclude)
 
 
 class DataFlow(DataFlowBase, NetBoxModel):

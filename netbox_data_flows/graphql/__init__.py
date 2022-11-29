@@ -17,9 +17,6 @@ class Query(ObjectType):
     dataflow = ObjectField(DataFlowType)
     dataflow_list = ObjectListField(DataFlowType)
 
-    dataflow_template = ObjectField(DataFlowTemplateType)
-    dataflow_template_list = ObjectListField(DataFlowTemplateType)
-
     objectalias = ObjectField(ObjectAliasType)
     objectalias_list = ObjectListField(ObjectAliasType)
 

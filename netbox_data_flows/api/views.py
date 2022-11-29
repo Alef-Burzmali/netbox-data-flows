@@ -53,23 +53,6 @@ class DataFlowViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DataFlowFilterSet
 
 
-class DataFlowTemplateViewSet(NetBoxModelViewSet):
-    queryset = models.DataFlowTemplate.objects.prefetch_related(
-        "source_device",
-        "source_virtual_machine",
-        "source_prefix",
-        "source_ipaddress",
-        "destination_device",
-        "destination_virtual_machine",
-        "destination_prefix",
-        "destination_ipaddress",
-        "tags",
-    )
-
-    serializer_class = serializers.DataFlowTemplateSerializer
-    filterset_class = filtersets.DataFlowTemplateFilterSet
-
-
 class ObjectAliasTargetViewSet(NetBoxModelViewSet):
     queryset = models.ObjectAliasTarget.objects.prefetch_related(
         "aliased_object",
