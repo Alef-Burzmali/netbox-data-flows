@@ -4,8 +4,11 @@ from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 
 from . import models, views
 
-urlpatterns = (
-    # Application Roles
+
+urlpatterns = tuple()
+
+# Application Roles
+urlpatterns += (
     path(
         "application-roles/",
         views.ApplicationRoleListView.as_view(),
@@ -52,7 +55,10 @@ urlpatterns = (
         name="applicationrole_changelog",
         kwargs={"model": models.ApplicationRole},
     ),
-    # Applications
+)
+
+# Applications
+urlpatterns += (
     path(
         "applications/",
         views.ApplicationListView.as_view(),
@@ -105,7 +111,60 @@ urlpatterns = (
         name="application_journal",
         kwargs={"model": models.Application},
     ),
-    # Data Flow
+)
+
+# Data Flow Groups
+urlpatterns += (
+    path(
+        "dataflow-groups/",
+        views.DataFlowGroupListView.as_view(),
+        name="dataflowgroup_list",
+    ),
+    path(
+        "dataflow-groups/add/",
+        views.DataFlowGroupEditView.as_view(),
+        name="dataflowgroup_add",
+    ),
+    path(
+        "dataflow-groups/import/",
+        views.DataFlowGroupBulkImportView.as_view(),
+        name="dataflowgroup_import",
+    ),
+    path(
+        "dataflow-groups/edit/",
+        views.DataFlowGroupBulkEditView.as_view(),
+        name="dataflowgroup_bulk_edit",
+    ),
+    path(
+        "dataflow-groups/delete/",
+        views.DataFlowGroupBulkDeleteView.as_view(),
+        name="dataflowgroup_bulk_delete",
+    ),
+    path(
+        "dataflow-groups/<int:pk>/",
+        views.DataFlowGroupView.as_view(),
+        name="dataflowgroup",
+    ),
+    path(
+        "dataflow-groups/<int:pk>/edit/",
+        views.DataFlowGroupEditView.as_view(),
+        name="dataflowgroup_edit",
+    ),
+    path(
+        "dataflow-groups/<int:pk>/delete/",
+        views.DataFlowGroupDeleteView.as_view(),
+        name="dataflowgroup_delete",
+    ),
+    path(
+        "dataflow-groups/<int:pk>/changelog/",
+        ObjectChangeLogView.as_view(),
+        name="dataflowgroup_changelog",
+        kwargs={"model": models.DataFlowGroup},
+    ),
+)
+
+# Data Flows
+urlpatterns += (
     path(
         "dataflows/",
         views.DataFlowListView.as_view(),
@@ -157,7 +216,10 @@ urlpatterns = (
         views.DataFlowRuleListView.as_view(),
         name="dataflow_rules",
     ),
-    # Object Alias
+)
+
+# Object Aliases
+urlpatterns += (
     path(
         "aliases/",
         views.ObjectAliasListView.as_view(),

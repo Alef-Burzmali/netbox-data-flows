@@ -2,89 +2,58 @@ from extras.plugins import PluginMenuButton, PluginMenuItem
 from utilities.choices import ButtonColorChoices
 
 
+#
+# Utility functions
+#
+
+APP_LABEL = "plugins:netbox_data_flows"
+
+# clone of netbox.navigation_menu.get_model_item, but for plugin
+def get_model_item(model_name, label, actions=("add", "import")):
+    return PluginMenuItem(
+        link=f"{APP_LABEL}:{model_name}_list",
+        link_text=label,
+        permissions=[f"{APP_LABEL}.view_{model_name}"],
+        buttons=get_model_buttons(model_name, actions),
+    )
+
+
+# clone of netbox.navigation_menu.get_model_buttons, but for plugin
+def get_model_buttons(model_name, actions=("add", "import")):
+    buttons = []
+
+    if "add" in actions:
+        buttons.append(
+            PluginMenuButton(
+                link=f"{APP_LABEL}:{model_name}_add",
+                title="Add",
+                icon_class="mdi mdi-plus-thick",
+                permissions=[f"{APP_LABEL}.add_{model_name}"],
+                color=ButtonColorChoices.GREEN,
+            )
+        )
+    if "import" in actions:
+        buttons.append(
+            PluginMenuButton(
+                link=f"{APP_LABEL}:{model_name}_import",
+                title="Import",
+                icon_class="mdi mdi-upload",
+                permissions=[f"{APP_LABEL}.add_{model_name}"],
+                color=ButtonColorChoices.CYAN,
+            )
+        )
+
+    return buttons
+
+
+#
+# Nav menus
+#
+
 menu_items = (
-    PluginMenuItem(
-        link="plugins:netbox_data_flows:application_list",
-        link_text="Applications",
-        permissions=["netbox_data_flows.view_application"],
-        buttons=(
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:application_add",
-                title="Add",
-                icon_class="mdi mdi-plus-thick",
-                color=ButtonColorChoices.GREEN,
-                permissions=["netbox_data_flows.add_application"],
-            ),
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:application_import",
-                title="Import",
-                icon_class="mdi mdi-upload",
-                color=ButtonColorChoices.CYAN,
-                permissions=["netbox_data_flows.add_application"],
-            ),
-        ),
-    ),
-    PluginMenuItem(
-        link="plugins:netbox_data_flows:applicationrole_list",
-        link_text="Application Roles",
-        permissions=["netbox_data_flows.view_applicationrole"],
-        buttons=(
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:applicationrole_add",
-                title="Add",
-                icon_class="mdi mdi-plus-thick",
-                color=ButtonColorChoices.GREEN,
-                permissions=["netbox_data_flows.add_applicationrole"],
-            ),
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:applicationrole_import",
-                title="Import",
-                icon_class="mdi mdi-upload",
-                color=ButtonColorChoices.CYAN,
-                permissions=["netbox_data_flows.add_applicationrole"],
-            ),
-        ),
-    ),
-    PluginMenuItem(
-        link="plugins:netbox_data_flows:dataflow_list",
-        link_text="Data Flows",
-        permissions=["netbox_data_flows.view_dataflow"],
-        buttons=(
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:dataflow_add",
-                title="Add",
-                icon_class="mdi mdi-plus-thick",
-                color=ButtonColorChoices.GREEN,
-                permissions=["netbox_data_flows.add_dataflow"],
-            ),
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:dataflow_import",
-                title="Import",
-                icon_class="mdi mdi-upload",
-                color=ButtonColorChoices.CYAN,
-                permissions=["netbox_data_flows.add_dataflow"],
-            ),
-        ),
-    ),
-    PluginMenuItem(
-        link="plugins:netbox_data_flows:objectalias_list",
-        link_text="Object Aliases",
-        permissions=["netbox_data_flows.view_objectalias"],
-        buttons=(
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:objectalias_add",
-                title="Add",
-                icon_class="mdi mdi-plus-thick",
-                color=ButtonColorChoices.GREEN,
-                permissions=["netbox_data_flows.add_objectalias"],
-            ),
-            PluginMenuButton(
-                link="plugins:netbox_data_flows:objectalias_import",
-                title="Import",
-                icon_class="mdi mdi-upload",
-                color=ButtonColorChoices.CYAN,
-                permissions=["netbox_data_flows.add_objectalias"],
-            ),
-        ),
-    ),
+    get_model_item("application", "Applications"),
+    get_model_item("applicationrole", "Application Roles"),
+    get_model_item("dataflow", "Data Flows"),
+    get_model_item("dataflowgroup", "Data Flow Groups"),
+    get_model_item("objectalias", "Object Aliases"),
 )
