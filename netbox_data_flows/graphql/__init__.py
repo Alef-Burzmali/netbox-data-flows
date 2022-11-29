@@ -4,6 +4,7 @@ from netbox.graphql.fields import ObjectField, ObjectListField
 
 from .applications import *
 from .dataflows import *
+from .groups import *
 from .objectaliases import *
 
 
@@ -17,8 +18,14 @@ class Query(ObjectType):
     dataflow = ObjectField(DataFlowType)
     dataflow_list = ObjectListField(DataFlowType)
 
+    dataflowgroup = ObjectField(DataFlowGroupType)
+    dataflowgroup_list = ObjectListField(DataFlowGroupType)
+
     objectalias = ObjectField(ObjectAliasType)
     objectalias_list = ObjectListField(ObjectAliasType)
+
+    objectaliastarget = ObjectField(ObjectAliasTargetType)
+    objectaliastarget_list = ObjectListField(ObjectAliasTargetType)
 
 
 schema = Query

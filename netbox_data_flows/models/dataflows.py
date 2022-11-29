@@ -17,6 +17,7 @@ from netbox_data_flows.choices import (
 )
 
 from .applications import Application
+from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
 
 
@@ -39,6 +40,13 @@ class DataFlow(NetBoxModel):
         null=True,
         db_index=True,
     )
+    group = models.ForeignKey(
+        to=DataFlowGroup,
+        on_delete=models.CASCADE,
+        related_name="dataflows",
+        blank=True,
+        null=True,
+    )
     comments = models.TextField(blank=True)
 
     #
@@ -55,6 +63,8 @@ class DataFlow(NetBoxModel):
     def inherited_status(self):
         if self.status == DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
+        elif self.group:
+            return self.group.inherited_status
         else:
             return self.status
 
@@ -127,11 +137,13 @@ class DataFlow(NetBoxModel):
     class Meta:
         ordering = (
             "application",
+            "group",
             "name",
         )
 
     clone_fields = (
         "application",
+        "group",
         "status",
         "name",
         "comments",

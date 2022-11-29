@@ -16,6 +16,17 @@ class DataFlowFilterSet(
     InheritedStatusFilterSetAddin,
     NetBoxModelFilterSet,
 ):
+    group_id = ModelMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        lookup_expr="in",
+        label="Data Flow Group (ID)",
+    )
+    group = ModelMultipleChoiceFilter(
+        queryset=models.DataFlow.objects.all(),
+        lookup_expr="in",
+        to_field_name="name",
+        label="Data Flow Group (name)",
+    )
 
     protocol = MultipleChoiceFilter(
         choices=choices.DataFlowProtocolChoices,

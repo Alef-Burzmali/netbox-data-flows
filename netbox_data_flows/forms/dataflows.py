@@ -28,8 +28,7 @@ from netbox_data_flows import models, choices
 
 
 __all__ = (
-    "DataFlowCreateForm",
-    "DataFlowEditForm",
+    "DataFlowForm",
     "DataFlowBulkEditForm",
     "DataFlowCSVForm",
     "DataFlowFilterForm",
@@ -44,6 +43,14 @@ class DataFlowForm(NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         help_text="Application that this data flow is part of.",
+    )
+    group = DynamicModelChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        query_params={
+            "application_id": "$application",
+        },
+        help_text="Direct parent of this Data Flow. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants.",
     )
 
     comments = CommentField()
@@ -71,6 +78,7 @@ class DataFlowForm(NetBoxModelForm):
             "Data Flow",
             (
                 "application",
+                "group",
                 "name",
                 "description",
                 "status",
@@ -91,6 +99,7 @@ class DataFlowForm(NetBoxModelForm):
         model = models.DataFlow
         fields = (
             "application",
+            "group",
             "name",
             "description",
             "status",
@@ -115,6 +124,10 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
 
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
+        required=False,
+    )
+    group = DynamicModelChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
         required=False,
     )
 
@@ -152,6 +165,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             "Data Flow",
             (
                 "application",
+                "group",
                 "name",
                 "description",
                 "status",
@@ -168,6 +182,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     )
     nullable_fields = (
         "application",
+        "group",
         "description",
         "protocol",
         "source_ports",
@@ -181,13 +196,17 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
         required=False,
         to_field_name="name",
     )
+    group = CSVModelChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        help_text="Data flow group",
     )
     status = CSVChoiceField(
-        choices=add_blank_choice(DataFlowStatusChoices),
+        choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=True,
     )
     protocol = CSVChoiceField(
-        choices=add_blank_choice(DataFlowStatusChoices),
+        choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
     )
     source_ports = NumericArrayField(
@@ -213,6 +232,7 @@ class DataFlowCSVForm(NetBoxModelCSVForm):
         model = models.DataFlow
         fields = (
             "application",
+            "group",
             "name",
             "description",
             "status",
@@ -236,20 +256,23 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     application_role = DynamicModelMultipleChoiceField(
         queryset=models.ApplicationRole.objects.all(), required=False
     )
+    group = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(), required=False
+    )
     tag = TagFilterField(model)
 
     status = forms.ChoiceField(
-        choices=add_blank_choice(DataFlowStatusChoices),
+        choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
         widget=StaticSelect(),
     )
     inherited_status = forms.ChoiceField(
-        choices=add_blank_choice(DataFlowStatusChoices),
+        choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
         widget=StaticSelect(),
     )
     protocol = MultipleChoiceField(
-        choices=add_blank_choice(DataFlowProtocolChoices),
+        choices=add_blank_choice(choices.DataFlowProtocolChoices),
         required=False,
     )
 
@@ -276,6 +299,7 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             (
                 "application",
                 "application_role",
+                "group",
                 "status",
                 "inherited_status",
                 "tag",
