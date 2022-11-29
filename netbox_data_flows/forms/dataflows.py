@@ -42,6 +42,7 @@ __all__ = (
 class DataFlowForm(NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
+        required=False,
         help_text="Application that this data flow is part of.",
     )
     group = DynamicModelChoiceField(

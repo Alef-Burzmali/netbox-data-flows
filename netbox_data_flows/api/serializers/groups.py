@@ -8,12 +8,12 @@ from netbox_data_flows import models, choices
 from .nested import *
 
 
-__all__ = ("DataFlowSerializer",)
+__all__ = ("DataFlowGroupSerializer",)
 
 
-class DataFlowSerializer(NetBoxModelSerializer):
+class DataFlowGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflow-detail"
+        view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail"
     )
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
@@ -22,38 +22,22 @@ class DataFlowSerializer(NetBoxModelSerializer):
         required=False,
         read_only=True,
     )
-    protocol = ChoiceField(
-        choices=choices.DataFlowProtocolChoices, required=False
-    )
-
-    sources = SerializedPKRelatedField(
-        queryset=models.ObjectAlias.objects.all(),
-        serializer=NestedObjectAliasSerializer,
-        required=False,
-        many=True,
-    )
-    destinations = SerializedPKRelatedField(
-        queryset=models.ObjectAlias.objects.all(),
-        serializer=NestedObjectAliasSerializer,
-        required=False,
-        many=True,
-    )
 
     application = NestedApplicationSerializer(
         required=False, allow_null=True, default=None
     )
-    group = NestedDataFlowGroupSerializer(
+    parent = NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
 
     class Meta:
-        model = models.DataFlow
+        model = models.DataFlowGroup
         fields = (
             "id",
             "url",
             "display",
             "application",
-            "group",
+            "parent",
             "name",
             "description",
             "status",
@@ -63,9 +47,4 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "custom_fields",
             "created",
             "last_updated",
-            "protocol",
-            "source_ports",
-            "destination_ports",
-            "sources",
-            "destinations",
         )

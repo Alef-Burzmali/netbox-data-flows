@@ -6,11 +6,9 @@ from netbox.api.serializers import (
     GenericObjectSerializer,
 )
 
-from netbox_data_flows.models import ObjectAlias, ObjectAliasTarget
+from netbox_data_flows import models, choices
 
-# from .nested import (
-#    NestedObjectAliasTargetSerializer,
-# )
+from .nested import *
 
 
 __all__ = (
@@ -23,18 +21,18 @@ class ObjectAliasTargetSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail"
     )
-    aliased_object = GenericObjectSerializer(
+    target = GenericObjectSerializer(
         required=True,
         many=False,
     )
 
     class Meta:
-        model = ObjectAliasTarget
+        model = models.ObjectAliasTarget
         fields = (
             "id",
             "url",
             "type",
-            "aliased_object",
+            "target",
         )
 
 
@@ -42,10 +40,15 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:netbox_data_flows-api:objectalias-detail"
     )
-    targets = ObjectAliasTargetSerializer(required=True, many=True)
+    targets = SerializedPKRelatedField(
+        queryset=models.ObjectAliasTarget.objects.all(),
+        serializer=ObjectAliasTargetSerializer,
+        required=True,
+        many=True,
+    )
 
     class Meta:
-        model = ObjectAlias
+        model = models.ObjectAlias
         fields = (
             "id",
             "url",

@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from netbox.api.serializers import NetBoxModelSerializer
 
-from netbox_data_flows.models import Application, ApplicationRole
+from netbox_data_flows import models, choices
 
-from .nested import NestedApplicationRoleSerializer
+from .nested import *
 
 
 __all__ = (
@@ -20,7 +20,7 @@ class ApplicationRoleSerializer(NetBoxModelSerializer):
     application_count = serializers.IntegerField(read_only=True)
 
     class Meta:
-        model = ApplicationRole
+        model = models.ApplicationRole
         fields = (
             "id",
             "url",
@@ -44,7 +44,7 @@ class ApplicationSerializer(NetBoxModelSerializer):
     role = NestedApplicationRoleSerializer()
 
     class Meta:
-        model = Application
+        model = models.Application
         fields = (
             "id",
             "url",

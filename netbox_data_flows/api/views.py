@@ -38,14 +38,9 @@ class ApplicationViewSet(NetBoxModelViewSet):
 class DataFlowViewSet(NetBoxModelViewSet):
     queryset = models.DataFlow.objects.prefetch_related(
         "application",
-        "source_device",
-        "source_virtual_machine",
-        "source_prefix",
-        "source_ipaddress",
-        "destination_device",
-        "destination_virtual_machine",
-        "destination_prefix",
-        "destination_ipaddress",
+        "group",
+        "sources",
+        "destinations",
         "tags",
     )
 
@@ -53,13 +48,24 @@ class DataFlowViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DataFlowFilterSet
 
 
+class DataFlowGroupViewSet(NetBoxModelViewSet):
+    queryset = models.DataFlowGroup.objects.prefetch_related(
+        "application",
+        "parent",
+        "tags",
+    )
+
+    serializer_class = serializers.DataFlowGroupSerializer
+    filterset_class = filtersets.DataFlowGroupFilterSet
+
+
 class ObjectAliasTargetViewSet(NetBoxModelViewSet):
     queryset = models.ObjectAliasTarget.objects.prefetch_related(
-        "aliased_object",
+        "target",
     )
 
     serializer_class = serializers.ObjectAliasTargetSerializer
-    # filterset_class = filtersets.DataFlowFilterSet
+    filterset_class = filtersets.ObjectAliasTargetFilterSet
 
 
 class ObjectAliasViewSet(NetBoxModelViewSet):
