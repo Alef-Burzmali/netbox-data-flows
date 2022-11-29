@@ -17,25 +17,18 @@ from netbox_data_flows.choices import (
     DataFlowStatusChoices,
 )
 
-from .filters import (
-    ChoiceFilter,
-    ModelMultipleChoiceFilter,
-    MultipleChoiceFilter,
-    MultiValueNumberFilter,
-    MultiValueNumericArrayFilter,
-    TreeNodeMultipleChoiceFilter,
-)
 
+from .addins import *
+from .filters import *
 
 __all__ = ("DataFlowFilterSet",)
 
 
-
-class DataFlowFilterSetBase(FilterSet):
-    inherited_status = ChoiceFilter(
-        choices=DataFlowStatusChoices,
-        method="filter_inherited_status",
-    )
+class DataFlowFilterSet(
+    ApplicationFilterSetAddin,
+    InheritedStatusFilterSetAddin,
+    FilterSet,
+):
 
     protocol = MultipleChoiceFilter(
         choices=DataFlowProtocolChoices,
@@ -170,19 +163,6 @@ class DataFlowFilterSetBase(FilterSet):
         self._destinations[field_name] = value
         return queryset
 
-    def filter_inherited_status(self, queryset, field_name, value):
-        if not value:
-            return queryset
-
-        disabled = self.Meta.model.get_disabled_queryset().only("pk")
-
-        if value == DataFlowStatusChoices.STATUS_DISABLED:
-            queryset = queryset.filter(pk__in=disabled)
-        else:
-            queryset = queryset.exclude(pk__in=disabled)
-
-        return queryset
-
     @property
     def qs(self):
         # OR(sources) AND OR(destinations)
@@ -208,21 +188,6 @@ class DataFlowFilterSetBase(FilterSet):
 
 
 class DataFlowFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):
-    application_id = ModelMultipleChoiceFilter(
-        queryset=Application.objects.all(),
-        label="Application (ID)",
-    )
-    application = ModelMultipleChoiceFilter(
-        queryset=Application.objects.all(),
-        label="Application (Name)",
-    )
-
-    application_role = ModelMultipleChoiceFilter(
-        queryset=ApplicationRole.objects.all(),
-        label="Application Roles",
-        method="filter_application_role",
-    )
-
     parent_id = TreeNodeMultipleChoiceFilter(
         queryset=DataFlow.objects.all(),
         lookup_expr="in",
@@ -243,9 +208,4 @@ class DataFlowFilterSet(NetBoxModelFilterSet, DataFlowFilterSetBase):
             "status",
         )
 
-    def filter_application_role(self, queryset, field_name, value):
-        if not value:
-            return queryset
-
-        return queryset.filter(application__role__in=[v.pk for v in value])
 
