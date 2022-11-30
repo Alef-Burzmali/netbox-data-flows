@@ -3,6 +3,7 @@ from django.db.models import Count
 from netbox.views import generic
 
 from netbox_data_flows import filtersets, forms, models, tables
+from netbox_data_flows.utils.aliases import AddAliasesView
 
 
 __all__ = (
@@ -13,6 +14,7 @@ __all__ = (
     "ObjectAliasBulkImportView",
     "ObjectAliasBulkEditView",
     "ObjectAliasBulkDeleteView",
+    "ObjectAliasAddTargetView",
 )
 
 
@@ -78,3 +80,13 @@ class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
     queryset = models.ObjectAlias.objects.all()
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
+
+
+class ObjectAliasAddTargetView(AddAliasesView):
+    """Add ObjectAliasTarget(s) to an ObjectAlias"""
+
+    queryset = models.ObjectAlias.objects.all()
+    form = forms.ObjectAliasAddTargetForm
+    alias_model = models.ObjectAliasTarget
+    aliases_attribute = "targets"
+    # template_name = "netbox_data_flows/objectalias_addtarget.html"

@@ -251,6 +251,11 @@ urlpatterns += (
         name="objectalias",
     ),
     path(
+        "aliases/<int:pk>/add/",
+        views.ObjectAliasAddTargetView.as_view(),
+        name="objectalias_addtarget",
+    ),
+    path(
         "aliases/<int:pk>/edit/",
         views.ObjectAliasEditView.as_view(),
         name="objectalias_edit",

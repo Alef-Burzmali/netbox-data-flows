@@ -8,16 +8,19 @@ from netbox.forms import (
 )
 from utilities.forms import (
     TagFilterField,
+    DynamicModelMultipleChoiceField,
 )
 
-from netbox_data_flows.models import (
-    ObjectAlias,
-)
+from ipam.models import Prefix, IPRange, IPAddress
+
+from netbox_data_flows import models
+from netbox_data_flows.utils.aliases import AddAliasesForm
 
 __all__ = (
     "ObjectAliasForm",
     "ObjectAliasBulkEditForm",
     "ObjectAliasCSVForm",
+    "ObjectAliasAddTargetForm",
 )
 
 #
@@ -38,7 +41,7 @@ class ObjectAliasForm(NetBoxModelForm):
     )
 
     class Meta:
-        model = ObjectAlias
+        model = models.ObjectAlias
         fields = ("name", "description", "tags")
 
 
@@ -48,7 +51,7 @@ class ObjectAliasForm(NetBoxModelForm):
 
 
 class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
-    model = ObjectAlias
+    model = models.ObjectAlias
 
     description = forms.CharField(max_length=200, required=False)
 
@@ -63,7 +66,7 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
 
 class ObjectAliasCSVForm(NetBoxModelCSVForm):
     class Meta:
-        model = ObjectAlias
+        model = models.ObjectAlias
         fields = (
             "name",
             "description",
@@ -76,5 +79,33 @@ class ObjectAliasCSVForm(NetBoxModelCSVForm):
 
 
 class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
-    model = ObjectAlias
+    model = models.ObjectAlias
     tag = TagFilterField(model)
+
+
+#
+# Special forms
+#
+
+
+class ObjectAliasAddTargetForm(AddAliasesForm):
+    model = models.ObjectAlias
+    aliased_fields = (
+        "aliased_prefixes",
+        "aliased_ipranges",
+        "aliased_ipaddresses",
+    )
+
+    aliased_prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(), required=False, label="Aliased Prefixes"
+    )
+    aliased_ipranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        label="Aliased IP Ranges",
+    )
+    aliased_ipaddresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label="Aliased IP Addresses",
+    )
