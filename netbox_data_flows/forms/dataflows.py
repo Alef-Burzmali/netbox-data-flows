@@ -70,9 +70,14 @@ class DataFlowForm(NetBoxModelForm):
         required=False,
     )
 
-    # TODO:
-    # sources
-    # destinations
+    sources = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+    )
+    destinations = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+    )
 
     fieldsets = (
         (
@@ -92,6 +97,8 @@ class DataFlowForm(NetBoxModelForm):
                 "protocol",
                 "source_ports",
                 "destination_ports",
+                "sources",
+                "destinations",
             ),
         ),
     )
@@ -109,6 +116,8 @@ class DataFlowForm(NetBoxModelForm):
             "protocol",
             "source_ports",
             "destination_ports",
+            "sources",
+            "destinations",
         )
         widgets = {
             "protocol": StaticSelect(),
@@ -157,9 +166,14 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
     )
 
-    # TODO:
-    # sources
-    # destinations
+    sources = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+    )
+    destinations = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+    )
 
     fieldsets = (
         (
@@ -178,6 +192,8 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
                 "protocol",
                 "source_ports",
                 "destination_ports",
+                "sources",
+                "destinations",
             ),
         ),
     )
@@ -188,6 +204,8 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         "protocol",
         "source_ports",
         "destination_ports",
+        "sources",
+        "destinations",
     )
 
 

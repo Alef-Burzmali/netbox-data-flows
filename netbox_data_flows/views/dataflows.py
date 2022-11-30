@@ -45,7 +45,7 @@ class DataFlowListView(generic.ObjectListView):
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
     form = forms.DataFlowForm
-    template_name = "netbox_data_flows/dataflow_edit.html"
+    # template_name = "netbox_data_flows/dataflow_edit.html"
 
 
 class DataFlowDeleteView(generic.ObjectDeleteView):

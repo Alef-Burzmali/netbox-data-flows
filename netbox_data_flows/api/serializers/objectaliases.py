@@ -31,6 +31,7 @@ class ObjectAliasTargetSerializer(NetBoxModelSerializer):
         fields = (
             "id",
             "url",
+            "display",
             "target",
         )
 
@@ -51,6 +52,7 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
         fields = (
             "id",
             "url",
+            "display",
             "name",
             "description",
             "size",

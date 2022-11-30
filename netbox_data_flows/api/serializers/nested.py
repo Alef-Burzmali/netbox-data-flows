@@ -106,6 +106,7 @@ class NestedObjectAliasTargetSerializer(WritableNestedSerializer):
         fields = (
             "id",
             "url",
+            "display",
         )
 
 
@@ -119,6 +120,7 @@ class NestedObjectAliasSerializer(WritableNestedSerializer):
         fields = (
             "id",
             "url",
+            "display",
             "name",
             "description",
         )
