@@ -5,8 +5,9 @@ systems and applications.
 
 ## WARNING
 
-This plugin is considered Work in Progress. There are no guarantee on the
-stability of the models and the availability of migrations for each updates.
+This plugin is considered Work in Progress (Alpha 2). There are no guarantee
+on the stability of the models and the availability of migrations for each
+updates.
 YOU MAY LOOSE ALL YOUR DATA IF YOU USE THIS PLUGIN IN PRODUCTION!
 
 ## Dependencies
@@ -32,52 +33,69 @@ applications or infrastructure. Examples of applications:
   - Network management
   - ...
   
-Applications can be assigned an **Application Role**. An application role is a
-label to help you categorize your applications. Examples of roles:
+**Application Role** is a label to help you categorize your applications.
+Each Application may have one Application Role.
+Examples of roles:
   - Infrastructure
   - Business Division 1
   - ...
-  
-Applications can be assigned one or more Services. This has no effect and will
-be removed in a future version.
-*WIP:* remove Services assigned to applications.
 
-**Data Flows** modelize a network connection between two objects. A Data Flow
-must be assigned to an application. Data Flows can be organized in hierarchical
-trees to simplify their management. All Data Flows of the same tree must belong
-to the same application.
+**Data Flows** modelize a network connection between two objects. They may be
+assigned to an Application
 
-Data Flows may or may not have a specification (source, destination, ports and
-protocol). The specification of a parent has no effect on its children;
-however, if a parent is disabled, all its descendants are implicitly disabled
-too.
+Data Flows should have a source, a destination, a protocol, source ports and
+destination ports. Only the protocol is mandatory. 
 
-If a specification is given, it must have a protocol and at least a source or
-a destination. Missing ports, sources or destinations are considered as "Any".
-At most one source and one destination can be given.
-Supported source and destination objects are:
-  - Devices
-  - Virtual Machines
-  - Prefixes
-  - IP Addresses
+**Data Flow Groups** form a forest of groups. A tree can be assigned to a
+single Application. Data Flow Groups can be enabled and disabled and inherit
+the status of their parent. Disabled Data Flow Groups disable all the Data
+Flows contained within.
 
-*WIP:* it is planned to introduce a new "Alias"/"Group" object to regroup
-several objects in a single source or destination and to allow only Devices,
-Virtual Machines, Prefixes and IP Ranges. Services / IP Addresses will be
-allowed only if they belong to the Device or Virtual Machine.
+**Object Aliases** are a group of references to other NetBox objects. Object
+Aliases are used as sources and destinations of Data Flows and corresponds to
+the groups or aliases used in firewall configuration. Internally, Object
+Aliases contain Object Alias Targets, because Django cannot create ManyToMany
+relationships to generic objects. Object Alias Targets are not exposed in the
+interface and should be transparent for the user.
 
-**Data Flow Templates** are template of data flows with or without a
-specification that are not assigned to any application. It is possible to
-create a new Data Flow from a existing template. Templates are also organized
-in trees. Children are not copied when a template is copied.
+Object Aliases currently supports:
+  - IP Addresses (ipam.ipaddress)
+  - IP Ranges (ipam.iprange)
+  - Prefixes (ipam.prefix)
+If an IP Address is assigned to a device or virtual machine, that device is
+also displayed.
 
-## Usage
+## Know bugs and limitations
+  - Filters are not tested
+  - REST API and GraphQL API are not tested
+  - Data Flow statuses have no effect
+  - Data Flow as Rules is bugged
+  - There is no backlink from a device to its Data Flows
 
-Use the filter forms in the table views and the filterset of the API to list
-the data flows with certain ports, sources or destinations, or the data flows
-involving specific devices.
+## Planned Evolution
+  - Include data's type/nature and link to data flows or at rest on devices
+
+## Nomenclature
+
+The name of Data Flows, Data Flow Groups and Object Aliases is not
+constrained. You may wish to enforce your own validation rules in your
+configuration, e.g.:
+
+```
+CUSTOM_VALIDATORS = {
+    "netbox_data_flows.objectalias": [
+        {
+            "name": {
+                "regex": "(host|net)_[a-z_]+"
+            },
+        }
+    ]
+}
+```
 
 ## Conversion to rules
+
+*Not implemented yet in v0.2.0*
 
 Once your Data Flows are documented, use the "Data Flow Rules" view to see
 all the enabled Data Flows with a specification in a flat view. This can be

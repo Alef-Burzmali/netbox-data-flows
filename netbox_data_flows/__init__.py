@@ -1,11 +1,11 @@
 from extras.plugins import PluginConfig
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 class DataFlowsConfig(PluginConfig):
     name = "netbox_data_flows"
-    verbose_name = " NetBox Data Flows"
+    verbose_name = "Data Flows"
     description = "NetBox plugin to document applications and data flows"
     version = __version__
     base_url = "data-flows"
