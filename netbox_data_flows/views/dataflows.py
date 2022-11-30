@@ -16,7 +16,15 @@ __all__ = (
 
 
 class DataFlowView(generic.ObjectView):
-    queryset = models.DataFlow.objects.prefetch_related("application")
+    queryset = models.DataFlow.objects.prefetch_related(
+        "application", "sources", "destinations"
+    )
+
+    def get_extra_context(self, request, instance):
+        return {
+            "sources": instance.sources.all(),
+            "destinations": instance.destinations.all(),
+        }
 
 
 class DataFlowListView(generic.ObjectListView):

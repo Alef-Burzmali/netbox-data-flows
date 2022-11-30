@@ -53,10 +53,6 @@
               <td>{{ object.get_protocol_display|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Source</th>
-              <td>{{ object.source|placeholder|linkify }}</td>
-            </tr>
-            <tr>
               <th scope="row">Source ports</th>
               <td>{{ object.source_port_list|placeholder }}</td>
             </tr>
@@ -64,10 +60,32 @@
               <th scope="row">Destination ports</th>
               <td>{{ object.destination_port_list|placeholder }}</td>
             </tr>
-            <tr>
-              <th scope="row">Destination</th>
-              <td>{{ object.destination|placeholder|linkify }}</td>
-            </tr>
+            {% for o in sources %}
+              <tr>
+                {% if forloop.first %}
+                  <th scope="row" rowspan="{{ sources|length }}">Sources</th>
+                {% endif %}
+                <td>{{ o|linkify }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <th scope="row">Sources</th>
+                <td>{{ ""|placeholder }}</td>
+              </tr>
+            {% endfor %}
+            {% for o in destinations %}
+              <tr>
+                {% if forloop.first %}
+                  <th scope="row" rowspan="{{ destinations|length }}">Destinations</th>
+                {% endif %}
+                <td>{{ o|linkify }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <th scope="row">Destinations</th>
+                <td>{{ ""|placeholder }}</td>
+              </tr>
+            {% endfor %}
           </table>
         </div>
       </div>

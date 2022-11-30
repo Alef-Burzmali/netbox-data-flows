@@ -15,6 +15,7 @@ from netbox_data_flows.choices import (
     DataFlowStatusChoices,
     DataFlowInheritedStatusChoices,
 )
+from netbox_data_flows.utils import object_list_to_string
 
 from .objectaliases import ObjectAlias
 
@@ -131,6 +132,16 @@ class DataFlow(NetBoxModel):
             return "Any"
 
         return array_to_string(self.destination_ports)
+
+    @property
+    def source_list(self):
+        sources = self.sources.all()
+        return object_list_to_string(sources, linkify=True)
+
+    @property
+    def destination_list(self):
+        destinations = self.destinations.all()
+        return object_list_to_string(destinations, linkify=True)
 
     class Meta:
         ordering = (

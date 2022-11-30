@@ -23,6 +23,9 @@ class DataFlowTable(NetBoxTable):
         linkify=True,
         accessor=tables.A("application__role"),
     )
+    group = tables.Column(
+        linkify=True,
+    )
     name = columns.MPTTColumn(
         linkify=True,
     )
@@ -37,23 +40,13 @@ class DataFlowTable(NetBoxTable):
         accessor=tables.A("destination_port_list"),
         order_by=tables.A("destination_ports"),
     )
-    source = tables.Column(
-        linkify=True,
-        order_by=(
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-        ),
+    sources = tables.Column(
+        accessor=tables.A("source_list"),
+        order_by=None,
     )
-    destination = tables.Column(
-        linkify=True,
-        order_by=(
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        ),
+    destinations = tables.Column(
+        accessor=tables.A("destination_list"),
+        order_by=None,
     )
 
     tags = columns.TagColumn(
@@ -67,12 +60,13 @@ class DataFlowTable(NetBoxTable):
             "id",
             "application",
             "application_role",
+            "group",
             "name",
             "status",
             "protocol",
-            "source",
+            "sources",
             "source_ports",
-            "destination",
+            "destinations",
             "destination_ports",
             "parent",
             "depth",
@@ -83,12 +77,13 @@ class DataFlowTable(NetBoxTable):
         )
         default_columns = (
             "application",
+            "group",
             "name",
             "status",
             "protocol",
-            "source",
+            "sources",
             "source_ports",
-            "destination",
+            "destinations",
             "destination_ports",
         )
 
@@ -104,6 +99,9 @@ class DataFlowRuleTable(NetBoxTable):
         linkify=True,
         accessor=tables.A("application__role"),
     )
+    group = tables.Column(
+        linkify=True,
+    )
     name = columns.MPTTColumn(
         linkify=True,
     )
@@ -118,23 +116,15 @@ class DataFlowRuleTable(NetBoxTable):
         accessor=tables.A("destination_port_list"),
         order_by=tables.A("destination_ports"),
     )
-    source = tables.Column(
+    sources = tables.Column(
         linkify=True,
-        order_by=(
-            "source_device",
-            "source_virtual_machine",
-            "source_prefix",
-            "source_ipaddress",
-        ),
+        accessor=tables.A("source_list"),
+        order_by=None,
     )
-    destination = tables.Column(
+    destinations = tables.Column(
         linkify=True,
-        order_by=(
-            "destination_device",
-            "destination_virtual_machine",
-            "destination_prefix",
-            "destination_ipaddress",
-        ),
+        accessor=tables.A("destination_list"),
+        order_by=None,
     )
     tags = columns.TagColumn(
         url_name="plugins:netbox_data_flows:dataflow_rules"
@@ -147,12 +137,13 @@ class DataFlowRuleTable(NetBoxTable):
             "id",
             "description",
             "application",
+            "group",
             "name",
             "status",
             "protocol",
-            "source",
+            "sources",
             "source_ports",
-            "destination",
+            "destinations",
             "destination_ports",
             "parent",
             "depth",
@@ -163,9 +154,9 @@ class DataFlowRuleTable(NetBoxTable):
         )
         default_columns = (
             "protocol",
-            "source",
+            "sources",
             "source_ports",
-            "destination",
+            "destinations",
             "destination_ports",
             "description",
         )
