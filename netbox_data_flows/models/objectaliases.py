@@ -10,6 +10,8 @@ from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
+from netbox_data_flows.utils.helpers import get_assignment_querystring
+
 
 __all__ = (
     "ObjectAlias",
@@ -23,12 +25,9 @@ OBJECTALIAS_ASSIGNMENT_MODELS = (
     ("ipam", "iprange"),
     ("ipam", "ipaddress"),
 )
-
-OBJECTALIAS_ASSIGNMENT_MODELS_Q = models.Q()
-for app_label, model in OBJECTALIAS_ASSIGNMENT_MODELS:
-    OBJECTALIAS_ASSIGNMENT_MODELS_Q |= models.Q(
-        app_label=app_label, model=model
-    )
+OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(
+    OBJECTALIAS_ASSIGNMENT_MODELS
+)
 
 
 class ObjectAliasTarget(models.Model):
@@ -69,7 +68,7 @@ class ObjectAliasTarget(models.Model):
 
     target_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to=OBJECTALIAS_ASSIGNMENT_MODELS_Q,
+        limit_choices_to=OBJECTALIAS_ASSIGNMENT_QS,
         on_delete=models.PROTECT,
         related_name="+",
     )
