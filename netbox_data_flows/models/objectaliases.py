@@ -96,13 +96,17 @@ class ObjectAliasTarget(models.Model):
         return self.name
 
     @property
+    def type_verbose_name(self):
+        return self.target._meta.verbose_name
+
+    @property
     def name(self):
         if self._model == "ipaddress":
             address = str(self.target).split("/")[0]
             if self.parent:
-                return f"{self.parent} ({address})"
+                return f"{self.target} ({self.parent})"
             else:
-                return address
+                return str(self.target)
         else:
             return str(self.target)
 

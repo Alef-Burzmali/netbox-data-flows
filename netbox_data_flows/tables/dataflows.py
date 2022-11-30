@@ -42,11 +42,11 @@ class DataFlowTable(NetBoxTable):
     )
     sources = tables.Column(
         accessor=tables.A("source_list"),
-        order_by=None,
+        orderable=False,
     )
     destinations = tables.Column(
         accessor=tables.A("destination_list"),
-        order_by=None,
+        orderable=False,
     )
 
     tags = columns.TagColumn(
@@ -119,12 +119,12 @@ class DataFlowRuleTable(NetBoxTable):
     sources = tables.Column(
         linkify=True,
         accessor=tables.A("source_list"),
-        order_by=None,
+        orderable=False,
     )
     destinations = tables.Column(
         linkify=True,
         accessor=tables.A("destination_list"),
-        order_by=None,
+        orderable=False,
     )
     tags = columns.TagColumn(
         url_name="plugins:netbox_data_flows:dataflow_rules"

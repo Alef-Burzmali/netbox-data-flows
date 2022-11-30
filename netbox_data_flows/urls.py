@@ -212,6 +212,12 @@ urlpatterns += (
         kwargs={"model": models.DataFlow},
     ),
     path(
+        "dataflows/<int:pk>/journal/",
+        ObjectJournalView.as_view(),
+        name="dataflow_journal",
+        kwargs={"model": models.DataFlow},
+    ),
+    path(
         "dataflows/rules/",
         views.DataFlowRuleListView.as_view(),
         name="dataflow_rules",
@@ -269,6 +275,12 @@ urlpatterns += (
         "aliases/<int:pk>/changelog/",
         ObjectChangeLogView.as_view(),
         name="objectalias_changelog",
+        kwargs={"model": models.ObjectAlias},
+    ),
+    path(
+        "aliases/<int:pk>/journal/",
+        ObjectJournalView.as_view(),
+        name="objectalias_journal",
         kwargs={"model": models.ObjectAlias},
     ),
 )

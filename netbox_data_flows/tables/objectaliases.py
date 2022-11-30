@@ -30,6 +30,7 @@ class ObjectAliasTargetTable(NetBoxTable):
         fields = (
             "pk",
             "id",
+            "type",
             "name",
             "target",
             "parent",
@@ -40,8 +41,8 @@ class ObjectAliasTargetTable(NetBoxTable):
             # "actions",
         )
         default_columns = (
+            "type",
             "name",
-            "target",
             "parent",
         )
 
