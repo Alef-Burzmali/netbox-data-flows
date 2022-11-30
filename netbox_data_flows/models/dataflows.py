@@ -15,7 +15,7 @@ from netbox_data_flows.choices import (
     DataFlowStatusChoices,
     DataFlowInheritedStatusChoices,
 )
-from netbox_data_flows.utils import object_list_to_string
+from netbox_data_flows.utils.helpers import object_list_to_string
 
 from .objectaliases import ObjectAlias
 
