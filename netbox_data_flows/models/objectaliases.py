@@ -18,12 +18,17 @@ __all__ = (
 
 
 # Object types allowed in aliases
-# TODO: Add connector to ObjectAlias
-OBJECTALIAS_ASSIGNMENT_MODELS = models.Q(
-    models.Q(app_label="ipam", model="prefix")
-    | models.Q(app_label="ipam", model="iprange")
-    | models.Q(app_label="ipam", model="ipaddress")
+OBJECTALIAS_ASSIGNMENT_MODELS = (
+    ("ipam", "prefix"),
+    ("ipam", "iprange"),
+    ("ipam", "ipaddress"),
 )
+
+OBJECTALIAS_ASSIGNMENT_MODELS_Q = models.Q()
+for app_label, model in OBJECTALIAS_ASSIGNMENT_MODELS:
+    OBJECTALIAS_ASSIGNMENT_MODELS_Q |= models.Q(
+        app_label=app_label, model=model
+    )
 
 
 class ObjectAliasTarget(models.Model):
@@ -37,7 +42,7 @@ class ObjectAliasTarget(models.Model):
     """
 
     @classmethod
-    def get_target(cls, *targets):
+    def get_targets(cls, *targets):
         query = models.Q()
         for t in targets:
             ct = ContentType.objects.get_for_model(t.__class__)
@@ -48,15 +53,23 @@ class ObjectAliasTarget(models.Model):
     @classmethod
     def get_or_create(cls, target):
         """Return an existing instance for this target or create one"""
-        instance = cls.get_target(target).first()
+        instance = cls.get_targets(target).first()
         if not instance:
+            ct = ContentType.objects.get_for_model(target.__class__)
+            type = (ct.app_label, ct.model)
+
+            if not type in OBJECTALIAS_ASSIGNMENT_MODELS:
+                raise TypeError(
+                    f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
+                )
+
             instance = cls(target=target)
 
         return instance
 
     target_type = models.ForeignKey(
         to=ContentType,
-        limit_choices_to=OBJECTALIAS_ASSIGNMENT_MODELS,
+        limit_choices_to=OBJECTALIAS_ASSIGNMENT_MODELS_Q,
         on_delete=models.PROTECT,
         related_name="+",
     )
@@ -101,6 +114,11 @@ class ObjectAliasTarget(models.Model):
                 return self.target.assigned_object.parent_object
             except AttributeError:
                 return None
+        elif self._model == "prefix":
+            try:
+                return self.target.vlan
+            except AttributeError:
+                return None
         else:
             return None
 
@@ -119,16 +137,20 @@ class ObjectAliasTarget(models.Model):
 
     @property
     def family(self):
-        return self.target.family
+        try:
+            return self.target.family
+        except:
+            return None
 
     @property
     def _model(self):
         return self.target_type.model
 
     def __contains__(self, other):
-        assert isinstance(
-            other, self.__class__
-        ), f"{self.__class__} can only be compared to other {self.__class__}"
+        if not isinstance(other, self.__class__):
+            raise TypeError(
+                f"{self.__class__} can only be compared to other {self.__class__}, not {type(other)}"
+            )
 
         attr_mapping = {
             "ipaddress": "address",
@@ -156,6 +178,16 @@ class ObjectAliasTarget(models.Model):
             )
 
         return other_value in own_value
+
+    def save(self, *args, **kwargs):
+        if self.target_type:
+            type = (self.target_type.app_label, self.target_type.model)
+            if not type in OBJECTALIAS_ASSIGNMENT_MODELS:
+                raise ValidationError(
+                    f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
+                )
+
+        super().save(*args, **kwargs)
 
 
 class ObjectAlias(NetBoxModel):
@@ -185,6 +217,7 @@ class ObjectAlias(NetBoxModel):
 
     class Meta:
         ordering = ("name",)
+        verbose_name_plural = "Object Aliases"
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:objectalias", args=[self.pk])
@@ -192,11 +225,22 @@ class ObjectAlias(NetBoxModel):
     def __str__(self):
         return self.name
 
+    def __contains__(self, other):
+        if isinstance(other, self.__class__):
+            return all(t in self for t in other.targets.all())
+
+        try:
+            return any(other in t for t in self.targets.all())
+        except TypeError as e:
+            raise TypeError(
+                f"{self.__class__} cannot be compared with {type(other)}"
+            ) from e
+
     def save(self, *args, **kwargs):
         if self.pk:
             # Compute our logarithmic size
             if self.targets:
-                size = sum(t.size for t in self.targets)
+                size = sum(t.size for t in self.targets.all())
                 self.size = int(math.log2(size))
             else:
                 self.size = 0
