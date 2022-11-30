@@ -25,19 +25,21 @@
               <th scope="row">Description</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
-            <tr>
-              <th scope="row">Type</th>
-              <td>{{ object.get_type_display }}</td>
-            </tr>
           </table>
         </div>
       </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/comments.html' %}
+      <div class="card">
+        <h5 class="card-header">Member objects</h5>
+        <div class="card-body table-responsive">
+          {% render_table targets_table %}
+        </div>
+      </div>
       {% plugin_right_page object %}
     </div>
   </div>
@@ -45,9 +47,9 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Member objects</h5>
+        <h5 class="card-header">Source in Data Flows</h5>
         <div class="card-body table-responsive">
-          {% render_table targets_table %}
+          {% render_table dataflow_sources_table %}
         </div>
       </div>
     </div>
@@ -56,9 +58,9 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Data Flows</h5>
+        <h5 class="card-header">Destination in Data Flows</h5>
         <div class="card-body table-responsive">
-          {# render_table dataflows_table #}
+          {% render_table dataflow_destinations_table %}
         </div>
       </div>
     </div>

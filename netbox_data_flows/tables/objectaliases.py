@@ -18,8 +18,10 @@ class ObjectAliasTargetTable(NetBoxTable):
     name = tables.Column(
         linkify=True,
     )
+    target = tables.Column(linkify=True, verbose_name="Object")
     parent = tables.Column(
         linkify=True,
+        verbose_name="Device/VM or VLAN",
     )
     actions = None
 
@@ -29,9 +31,8 @@ class ObjectAliasTargetTable(NetBoxTable):
             "pk",
             "id",
             "name",
-            "aliased_object",
+            "target",
             "parent",
-            "type",
             "size",
             "family",
             "created",
@@ -40,7 +41,8 @@ class ObjectAliasTargetTable(NetBoxTable):
         )
         default_columns = (
             "name",
-            "type",
+            "target",
+            "parent",
         )
 
 
@@ -49,7 +51,7 @@ class ObjectAliasTable(NetBoxTable):
         linkify=True,
     )
     target_count = tables.Column(
-        verbose_name="Objects",
+        verbose_name="Aliased objects",
     )
     # dataflow_count = columns.LinkedCountColumn(
     #    viewname="plugins:netbox_data_flows:dataflow_list",
@@ -67,7 +69,6 @@ class ObjectAliasTable(NetBoxTable):
             "id",
             "name",
             "description",
-            "type",
             "size",
             "target_count",
             "tags",
@@ -76,7 +77,7 @@ class ObjectAliasTable(NetBoxTable):
             "actions",
         )
         default_columns = (
-            "type",
             "name",
+            "description",
             "target_count",
         )
