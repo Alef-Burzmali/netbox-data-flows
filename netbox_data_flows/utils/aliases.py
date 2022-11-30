@@ -4,14 +4,16 @@ from copy import deepcopy
 from django import forms
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.views.generic import View
 
 from netbox.views import generic as generic_views
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import restrict_form_fields
+from utilities.forms import restrict_form_fields, ConfirmationForm
 from utilities.permissions import get_permission_for_model
 from utilities.utils import normalize_querydict
 
@@ -19,6 +21,7 @@ from utilities.utils import normalize_querydict
 __all__ = (
     "AddAliasesForm",
     "AddAliasesView",
+    "RemoveAliasesView",
 )
 
 
@@ -83,7 +86,7 @@ class AddAliasesView(generic_views.ObjectEditView):
         Args:
             request: The current request
         """
-        logger = logging.getLogger("netbox.views.ObjectEditView")
+        logger = logging.getLogger("netbox_data_flows.views.AddAliasesView")
         obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
 
         if obj.pk and hasattr(obj, "snapshot"):
@@ -103,6 +106,7 @@ class AddAliasesView(generic_views.ObjectEditView):
                         if a.pk is None:
                             a.save()
                     getattr(obj, self.aliases_attribute).add(*aliases)
+                    obj.save()
 
                 msg = f"Added {len(aliases)} alias to"
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")
@@ -134,6 +138,108 @@ class AddAliasesView(generic_views.ObjectEditView):
             self.template_name,
             {
                 "object": obj,
+                "form": form,
+                "return_url": self.get_return_url(request, obj),
+                **self.get_extra_context(request, obj),
+            },
+        )
+
+
+class RemoveAliasView(generic_views.ObjectDeleteView):
+    """Remove aliased objects from an object"""
+
+    form = ConfirmationForm
+    aliases_attribute = None
+
+    def get_required_permission(self):
+        return get_permission_for_model(self.queryset.model, "change")
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET request handler.
+
+        Args:
+            request: The current request
+        """
+        obj = get_object_or_404(self.queryset, pk=kwargs["container_pk"])
+        alias = get_object_or_404(obj.targets, pk=kwargs["alias_pk"])
+        form = self.form(initial=request.GET)
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "object": obj,
+                "alias": alias,
+                "form": form,
+                "return_url": self.get_return_url(request, obj),
+                **self.get_extra_context(request, obj),
+            },
+        )
+
+    def post(self, request, *args, **kwargs):
+        """
+        POST request handler.
+
+        Args:
+            request: The current request
+        """
+        logger = logging.getLogger("netbox_data_flows.views.RemoveAliasView")
+        obj = get_object_or_404(self.queryset, pk=kwargs["container_pk"])
+        alias = get_object_or_404(
+            getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
+        )
+        form = self.form(data=request.POST)
+
+        if obj.pk and hasattr(obj, "snapshot"):
+            obj.snapshot()
+
+        if form.is_valid():
+            logger.debug("Form validation was successful")
+
+            try:
+                aliases = getattr(obj, self.aliases_attribute)
+                with transaction.atomic():
+                    aliases.remove(alias)
+                    obj.save()
+
+                    if not alias.aliases.exists():
+                        alias.delete()
+
+            except ProtectedError as e:
+                logger.info(
+                    "Caught ProtectedError while attempting to delete object"
+                )
+                handle_protectederror([obj], request, e)
+                return redirect(obj.get_absolute_url())
+
+            except AbortRequest as e:
+                logger.debug(e.message)
+                messages.error(request, mark_safe(e.message))
+                return redirect(obj.get_absolute_url())
+
+            msg = f"Removed alias from"
+            logger.info(f"{msg} {obj} (PK: {obj.pk})")
+            if hasattr(obj, "get_absolute_url"):
+                msg = mark_safe(
+                    f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>'
+                )
+            else:
+                msg = f"{msg} {obj}"
+            messages.success(request, msg)
+
+            return_url = self.get_return_url(request, obj)
+            return redirect(return_url)
+
+        else:
+            logger.debug("Form validation failed")
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "object": obj,
+                "alias": alias,
                 "form": form,
                 "return_url": self.get_return_url(request, obj),
                 **self.get_extra_context(request, obj),

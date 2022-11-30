@@ -257,9 +257,14 @@ urlpatterns += (
         name="objectalias",
     ),
     path(
-        "aliases/<int:pk>/add/",
+        "aliases/<int:pk>/link/",
         views.ObjectAliasAddTargetView.as_view(),
         name="objectalias_addtarget",
+    ),
+    path(
+        "aliases/<int:container_pk>/unlink/<int:alias_pk>",
+        views.ObjectAliasRemoveTargetView.as_view(),
+        name="objectalias_removetarget",
     ),
     path(
         "aliases/<int:pk>/edit/",

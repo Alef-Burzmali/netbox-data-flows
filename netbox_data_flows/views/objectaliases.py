@@ -3,7 +3,7 @@ from django.db.models import Count
 from netbox.views import generic
 
 from netbox_data_flows import filtersets, forms, models, tables
-from netbox_data_flows.utils.aliases import AddAliasesView
+from netbox_data_flows.utils.aliases import AddAliasesView, RemoveAliasView
 
 
 __all__ = (
@@ -15,6 +15,7 @@ __all__ = (
     "ObjectAliasBulkEditView",
     "ObjectAliasBulkDeleteView",
     "ObjectAliasAddTargetView",
+    "ObjectAliasRemoveTargetView",
 )
 
 
@@ -26,7 +27,9 @@ class ObjectAliasView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        targets_table = tables.ObjectAliasTargetTable(instance.targets.all())
+        targets_table = tables.ObjectAliasTargetTable(
+            instance.targets.all(), extra_context={"objectalias": instance}
+        )
         targets_table.configure(request)
 
         dataflow_sources_table = tables.DataFlowTable(
@@ -89,4 +92,11 @@ class ObjectAliasAddTargetView(AddAliasesView):
     form = forms.ObjectAliasAddTargetForm
     alias_model = models.ObjectAliasTarget
     aliases_attribute = "targets"
-    # template_name = "netbox_data_flows/objectalias_addtarget.html"
+
+
+class ObjectAliasRemoveTargetView(RemoveAliasView):
+    """Remove one ObjectAliasTarget from an ObjectAlias"""
+
+    queryset = models.ObjectAlias.objects.all()
+    aliases_attribute = "targets"
+    template_name = "netbox_data_flows/objectalias_removetarget.html"

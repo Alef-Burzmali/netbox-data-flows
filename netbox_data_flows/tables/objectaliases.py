@@ -6,6 +6,7 @@ from netbox.tables import (
 )
 
 from netbox_data_flows.models import ObjectAlias, ObjectAliasTarget
+from netbox_data_flows.utils.tables import RuntimeTemplateColumn
 
 
 __all__ = (
@@ -15,15 +16,29 @@ __all__ = (
 
 
 class ObjectAliasTargetTable(NetBoxTable):
+    extra_context = None
+
+    type = tables.Column(
+        accessor=tables.A("type_verbose_name"),
+        order_by=tables.A("target_type"),
+        verbose_name="Type",
+    )
     name = tables.Column(
         linkify=True,
+        orderable=False,
     )
     target = tables.Column(linkify=True, verbose_name="Object")
     parent = tables.Column(
         linkify=True,
         verbose_name="Device/VM or VLAN",
     )
-    actions = None
+    actions = RuntimeTemplateColumn(
+        template_name="netbox_data_flows/inc/objectaliastarget_actions.html",
+    )
+
+    def __init__(self, *args, extra_context={}, **kwargs):
+        self.extra_context = dict(extra_context)
+        super().__init__(*args, **kwargs)
 
     class Meta(NetBoxTable.Meta):
         model = ObjectAliasTarget
@@ -38,12 +53,13 @@ class ObjectAliasTargetTable(NetBoxTable):
             "family",
             "created",
             "last_updated",
-            # "actions",
+            "actions",
         )
         default_columns = (
             "type",
             "name",
             "parent",
+            "actions",
         )
 
 

@@ -1,0 +1,42 @@
+{% extends 'base/layout.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% comment %}
+Context:
+  object: Python instance of the object being deleted
+  form: The delete confirmation form
+  form_url: URL for form submission (optional; defaults to current path)
+  return_url: The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
+{% block title %}Delete {{ object|meta:"verbose_name" }}?{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+  <div class="modal" tabindex="-1" style="display: block; position: static">
+    <div class="modal-dialog">
+      <div class="modal-content" >
+        <form action="{{ form_url }}" method="post">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm unlinking</h5>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure you want to <strong class="text-warning">unlink</strong> <strong>{{ alias }}</strong> from <strong>{{ object }}</strong>?</p>
+            {% render_form form %}
+          </div>
+          <div class="modal-footer">
+            {% if return_url %}
+            <a href="{{ return_url }}" class="btn btn-outline-secondary">Cancel</a>
+            {% else %}
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            {% endif %}
+            <button type="submit" class="btn btn-warning">Unlink</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

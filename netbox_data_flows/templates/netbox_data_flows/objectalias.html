@@ -5,10 +5,13 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  {# <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:objectalias_list' %}?role_id={{ object.role.pk }}">{{ object.role }}</a></li> #}
-{% endblock %}
+{% block extra_controls %}
+  {% if perms.netbox_data_flows.change_objectalias %}
+    <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" type="button" class="btn btn-sm btn-primary">
+      <i class="mdi mdi-plus-thick"></i> Add aliased objects
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
 
 {% block content %}
   <div class="row mb-3">
@@ -39,6 +42,13 @@
         <div class="card-body table-responsive">
           {% render_table targets_table %}
         </div>
+          {% if perms.netbox_data_flows.change_objectalias %}
+            <div class="card-footer text-end noprint">
+              <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-sm btn-primary">
+                <i class="mdi mdi-plus-thick"></i> Add aliased objects
+              </a>
+            </div>
+          {% endif %}
       </div>
       {% plugin_right_page object %}
     </div>
