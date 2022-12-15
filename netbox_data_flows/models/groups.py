@@ -22,7 +22,11 @@ class DataFlowGroup(NestedGroupModel):
     # Inherited fields:
     # parent
     # name
+    # slug
     # description
+
+    # do not want a slug here
+    slug = None
 
     application = models.ForeignKey(
         to=Application,

@@ -11,7 +11,7 @@ updates.
 YOU MAY LOOSE ALL YOUR DATA IF YOU USE THIS PLUGIN IN PRODUCTION!
 
 ## Dependencies
-  - NetBox (>=3.3.0)
+  - NetBox (>=3.4.0)
 
 *Note:* the plugin uses some classes that are not explicitely exported in 
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
