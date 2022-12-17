@@ -1,4 +1,4 @@
-from extras.plugins import PluginMenuButton, PluginMenuItem
+from extras.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 from utilities.choices import ButtonColorChoices
 
 
@@ -50,10 +50,23 @@ def get_model_buttons(model_name, actions=("add", "import")):
 # Nav menus
 #
 
-menu_items = (
-    get_model_item("application", "Applications"),
-    get_model_item("applicationrole", "Application Roles"),
-    get_model_item("dataflow", "Data Flows"),
-    get_model_item("dataflowgroup", "Data Flow Groups"),
-    get_model_item("objectalias", "Object Aliases"),
+menu = PluginMenu(
+    label="Data Flows",
+    groups=(
+        (
+            "Applications",
+            (
+                get_model_item("application", "Applications"),
+                get_model_item("applicationrole", "Application Roles"),
+            ),
+        ),
+        (
+            "Data Flows",
+            (
+                get_model_item("dataflow", "Data Flows"),
+                get_model_item("dataflowgroup", "Data Flow Groups"),
+                get_model_item("objectalias", "Object Aliases"),
+            ),
+        ),
+    ),
 )
