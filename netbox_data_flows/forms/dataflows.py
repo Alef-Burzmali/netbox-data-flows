@@ -51,7 +51,7 @@ class DataFlowForm(NetBoxModelForm):
         query_params={
             "application_id": "$application",
         },
-        help_text="Direct parent of this Data Flow. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants.",
+        help_text="Parent group of this Data Flow. Disabling the group will disable this data flow.",
     )
 
     comments = CommentField()
@@ -139,6 +139,9 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
+        query_params={
+            "application_id": "$application",
+        },
     )
 
     status = forms.ChoiceField(

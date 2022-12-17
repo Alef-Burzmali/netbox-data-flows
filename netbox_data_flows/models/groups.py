@@ -109,9 +109,15 @@ class DataFlowGroup(NestedGroupModel):
         super().clean()
 
         if self.parent and self.parent.application != self.application:
-            raise ValidationError(
-                "The same application must be applied to both parent and child data flow groups."
-            )
+            if not self.application:
+                self.application = self.parent.application
+            else:
+                raise ValidationError(
+                    {
+                        "application": "The application of the data flow must match the application of its parent.",
+                        "parent": "The application of the parent must match the application of the data flow.",
+                    }
+                )
 
         # update all our descendants' application
         if self.pk:

@@ -168,3 +168,17 @@ class DataFlow(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:dataflow", args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        if self.group and self.group.application != self.application:
+            if not self.application:
+                self.application = self.group.application
+            else:
+                raise ValidationError(
+                    {
+                        "application": "The application of the data flow must match the application of its group.",
+                        "group": "The application of the group must match the application of the data flow.",
+                    }
+                )

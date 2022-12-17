@@ -34,15 +34,18 @@ __all__ = (
 
 
 class DataFlowGroupForm(NetBoxModelForm):
-    parent = DynamicModelChoiceField(
-        queryset=models.DataFlowGroup.objects.all(),
-        required=False,
-        help_text="Direct parent of this Data Flow Group. Use it to create a hierarchy of data flows. Disabling a parent disables all its descendants.",
-    )
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
         help_text="Application that this data flow group (and all of its descendants) is part of.",
+    )
+    parent = DynamicModelChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        help_text="Parent group of this Data Flow Group.",
+        query_params={
+            "application_id": "$application",
+        },
     )
     comments = CommentField()
 
@@ -71,6 +74,9 @@ class DataFlowGroupForm(NetBoxModelForm):
             "comments",
             "tags",
         )
+        help_texts = {
+            "status": "Status of the data flow group. Disabling a parent disables all its descendants and their data flows."
+        }
 
 
 #
