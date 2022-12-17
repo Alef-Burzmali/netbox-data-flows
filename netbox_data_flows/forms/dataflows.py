@@ -3,7 +3,7 @@ from django import forms
 from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelBulkEditForm,
-    NetBoxModelCSVForm,
+    NetBoxModelImportForm,
     NetBoxModelFilterSetForm,
 )
 from utilities.forms import (
@@ -30,7 +30,7 @@ from netbox_data_flows import models, choices
 __all__ = (
     "DataFlowForm",
     "DataFlowBulkEditForm",
-    "DataFlowCSVForm",
+    "DataFlowImportForm",
     "DataFlowFilterForm",
 )
 
@@ -209,7 +209,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class DataFlowCSVForm(NetBoxModelCSVForm):
+class DataFlowImportForm(NetBoxModelImportForm):
     application = CSVModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,

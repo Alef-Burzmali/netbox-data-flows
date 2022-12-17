@@ -61,7 +61,7 @@ class DataFlowGroupDeleteView(generic.ObjectDeleteView):
 
 class DataFlowGroupBulkImportView(generic.BulkImportView):
     queryset = models.DataFlowGroup.objects.all()
-    model_form = forms.DataFlowGroupCSVForm
+    model_form = forms.DataFlowGroupImportForm
     table = tables.DataFlowGroupTable
 
 

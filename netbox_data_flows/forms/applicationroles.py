@@ -3,8 +3,8 @@ from django import forms
 from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelBulkEditForm,
-    NetBoxModelCSVForm,
     NetBoxModelFilterSetForm,
+    NetBoxModelImportForm,
 )
 from utilities.forms import (
     SlugField,
@@ -18,7 +18,7 @@ from netbox_data_flows.models import (
 __all__ = (
     "ApplicationRoleForm",
     "ApplicationRoleBulkEditForm",
-    "ApplicationRoleCSVForm",
+    "ApplicationRoleImportForm",
 )
 
 #
@@ -65,7 +65,7 @@ class ApplicationRoleBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ("description",)
 
 
-class ApplicationRoleCSVForm(NetBoxModelCSVForm):
+class ApplicationRoleImportForm(NetBoxModelImportForm):
     class Meta:
         model = ApplicationRole
         fields = (

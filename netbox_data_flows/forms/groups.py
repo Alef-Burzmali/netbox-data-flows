@@ -3,8 +3,8 @@ from django import forms
 from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelBulkEditForm,
-    NetBoxModelCSVForm,
     NetBoxModelFilterSetForm,
+    NetBoxModelImportForm,
 )
 from utilities.forms import (
     add_blank_choice,
@@ -25,7 +25,7 @@ from netbox_data_flows import models, choices
 __all__ = (
     "DataFlowGroupForm",
     "DataFlowGroupBulkEditForm",
-    "DataFlowGroupCSVForm",
+    "DataFlowGroupImportForm",
 )
 
 #
@@ -115,7 +115,7 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class DataFlowGroupCSVForm(NetBoxModelCSVForm):
+class DataFlowGroupImportForm(NetBoxModelImportForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,

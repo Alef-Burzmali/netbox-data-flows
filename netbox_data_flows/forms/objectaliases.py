@@ -3,8 +3,8 @@ from django import forms
 from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelBulkEditForm,
-    NetBoxModelCSVForm,
     NetBoxModelFilterSetForm,
+    NetBoxModelImportForm,
 )
 from utilities.forms import (
     TagFilterField,
@@ -19,7 +19,7 @@ from netbox_data_flows.utils.aliases import AddAliasesForm
 __all__ = (
     "ObjectAliasForm",
     "ObjectAliasBulkEditForm",
-    "ObjectAliasCSVForm",
+    "ObjectAliasImportForm",
     "ObjectAliasAddTargetForm",
 )
 
@@ -64,7 +64,7 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = ("description",)
 
 
-class ObjectAliasCSVForm(NetBoxModelCSVForm):
+class ObjectAliasImportForm(NetBoxModelImportForm):
     class Meta:
         model = models.ObjectAlias
         fields = (

@@ -48,7 +48,7 @@ class ApplicationDeleteView(generic.ObjectDeleteView):
 
 class ApplicationBulkImportView(generic.BulkImportView):
     queryset = models.Application.objects.all()
-    model_form = forms.ApplicationCSVForm
+    model_form = forms.ApplicationImportForm
     table = tables.ApplicationTable
 
 

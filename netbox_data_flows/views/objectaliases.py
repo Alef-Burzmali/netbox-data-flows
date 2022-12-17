@@ -68,7 +68,7 @@ class ObjectAliasDeleteView(generic.ObjectDeleteView):
 
 class ObjectAliasBulkImportView(generic.BulkImportView):
     queryset = models.ObjectAlias.objects.all()
-    model_form = forms.ObjectAliasCSVForm
+    model_form = forms.ObjectAliasImportForm
     table = tables.ObjectAliasTable
 
 

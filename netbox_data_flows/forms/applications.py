@@ -3,8 +3,8 @@ from django import forms
 from netbox.forms import (
     NetBoxModelForm,
     NetBoxModelBulkEditForm,
-    NetBoxModelCSVForm,
     NetBoxModelFilterSetForm,
+    NetBoxModelImportForm,
 )
 from utilities.forms import (
     CommentField,
@@ -23,7 +23,7 @@ from netbox_data_flows.models import (
 __all__ = (
     "ApplicationForm",
     "ApplicationBulkEditForm",
-    "ApplicationCSVForm",
+    "ApplicationImportForm",
     "ApplicationFilterForm",
 )
 
@@ -89,7 +89,7 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class ApplicationCSVForm(NetBoxModelCSVForm):
+class ApplicationImportForm(NetBoxModelImportForm):
     role = CSVModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,

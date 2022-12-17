@@ -54,7 +54,7 @@ class DataFlowDeleteView(generic.ObjectDeleteView):
 
 class DataFlowBulkImportView(generic.BulkImportView):
     queryset = models.DataFlow.objects.all()
-    model_form = forms.DataFlowCSVForm
+    model_form = forms.DataFlowImportForm
     table = tables.DataFlowTable
 
 

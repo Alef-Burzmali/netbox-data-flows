@@ -49,7 +49,7 @@ class ApplicationRoleDeleteView(generic.ObjectDeleteView):
 
 class ApplicationRoleBulkImportView(generic.BulkImportView):
     queryset = models.ApplicationRole.objects.all()
-    model_form = forms.ApplicationRoleCSVForm
+    model_form = forms.ApplicationRoleImportForm
     table = tables.ApplicationRoleTable
 
 
