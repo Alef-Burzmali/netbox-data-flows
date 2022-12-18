@@ -41,17 +41,23 @@ class DataFlowGroupView(generic.ObjectView):
 
 class DataFlowGroupListView(generic.ObjectListView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application", "application__role"
+        "application",
+        "application__role",
+        "parent",
     ).annotate(
         dataflow_count=Count("dataflows"),
     )
     table = tables.DataFlowGroupTable
     filterset = filtersets.DataFlowGroupFilterSet
-    # filterset_form = forms.DataFlowGroupFilterForm
+    filterset_form = forms.DataFlowGroupFilterForm
 
 
 class DataFlowGroupEditView(generic.ObjectEditView):
-    queryset = models.DataFlowGroup.objects.all()
+    queryset = models.DataFlowGroup.objects.prefetch_related(
+        "application",
+        "application__role",
+        "parent",
+    )
     form = forms.DataFlowGroupForm
 
 
@@ -66,13 +72,25 @@ class DataFlowGroupBulkImportView(generic.BulkImportView):
 
 
 class DataFlowGroupBulkEditView(generic.BulkEditView):
-    queryset = models.DataFlowGroup.objects.all()
+    queryset = models.DataFlowGroup.objects.prefetch_related(
+        "application",
+        "application__role",
+        "parent",
+    ).annotate(
+        dataflow_count=Count("dataflows"),
+    )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
     form = forms.DataFlowGroupBulkEditForm
 
 
 class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.DataFlowGroup.objects.all()
+    queryset = models.DataFlowGroup.objects.prefetch_related(
+        "application",
+        "application__role",
+        "parent",
+    ).annotate(
+        dataflow_count=Count("dataflows"),
+    )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
