@@ -25,6 +25,7 @@ from netbox_data_flows import models, choices
 __all__ = (
     "DataFlowGroupForm",
     "DataFlowGroupBulkEditForm",
+    "DataFlowGroupFilterForm",
     "DataFlowGroupImportForm",
 )
 
@@ -166,6 +167,9 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
     ancestor = DynamicModelMultipleChoiceField(
         queryset=models.DataFlowGroup.objects.all(), required=False
     )
+    parent = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(), required=False
+    )
 
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -185,6 +189,7 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
                 "application",
                 "application_role",
                 "ancestor",
+                "parent",
                 "status",
                 "inherited_status",
                 "tag",

@@ -26,13 +26,17 @@ class DataFlowGroupFilterSet(
         to_field_name="name",
         label="Parent (name)",
     )
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-
-        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
-        return queryset.filter(qs_filter)
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        label="Ancestor (ID)",
+        method="filter_ancestors",
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        to_field_name="name",
+        label="Ancestor (name)",
+        method="filter_ancestors",
+    )
 
     class Meta:
         model = models.DataFlowGroup
@@ -41,3 +45,21 @@ class DataFlowGroupFilterSet(
             "name",
             "status",
         )
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
+
+    def filter_ancestors(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        descendants = (
+            models.DataFlowGroup.objects.filter(pk__in=value)
+            .get_descendants(include_self=True)
+            .only("pk")
+        )
+        return queryset.filter(pk__in=descendants)
