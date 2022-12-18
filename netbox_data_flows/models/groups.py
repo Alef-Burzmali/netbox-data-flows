@@ -2,8 +2,10 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.db.models import Manager
 
 from netbox.models import NestedGroupModel
+from utilities.mptt import TreeManager, TreeQuerySet
 
 from netbox_data_flows.choices import (
     DataFlowStatusChoices,
@@ -14,6 +16,22 @@ from .applications import Application
 
 
 __all__ = ("DataFlowGroup",)
+
+
+class DataFlowGroupQuerySet(TreeQuerySet):
+    def only_disabled(self):
+        return self.filter(
+            status=DataFlowStatusChoices.STATUS_DISABLED
+        ).get_descendants(include_self=True)
+
+    def only_enabled(self):
+        return self.exclude(pk__in=self.only_disabled().only("pk"))
+
+
+class DataFlowGroupManager(
+    Manager.from_queryset(DataFlowGroupQuerySet), TreeManager
+):
+    pass
 
 
 class DataFlowGroup(NestedGroupModel):
@@ -91,14 +109,7 @@ class DataFlowGroup(NestedGroupModel):
             ),
         )
 
-    @classmethod
-    def get_disabled_queryset(cls):
-        return cls.objects.filter(
-            status__in=(
-                DataFlowInheritedStatusChoices.STATUS_DISABLED,
-                DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED,
-            )
-        )
+    objects = DataFlowGroupManager()
 
     def get_absolute_url(self):
         return reverse(

@@ -122,6 +122,9 @@ class DataFlowForm(NetBoxModelForm):
         widgets = {
             "protocol": StaticSelect(),
         }
+        help_texts = {
+            "status": "Status of the data group. If its group is disabled, the data flow will also be disabled."
+        }
 
 
 #

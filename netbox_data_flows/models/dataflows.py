@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from netbox.models import NetBoxModel
+from utilities.querysets import RestrictedQuerySet
 from utilities.utils import array_to_string
 
 from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
@@ -17,10 +18,26 @@ from netbox_data_flows.choices import (
 )
 from netbox_data_flows.utils.helpers import object_list_to_string
 
+from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
 
 
 __all__ = ("DataFlow",)
+
+
+class DataFlowQuerySet(RestrictedQuerySet):
+    def only_disabled(self):
+        disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
+        return self.filter(
+            models.Q(status=DataFlowStatusChoices.STATUS_DISABLED)
+            | models.Q(group_id__in=disabled_groups)
+        )
+
+    def only_enabled(self):
+        enabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
+        return self.filter(
+            status=DataFlowStatusChoices.STATUS_ENABLED
+        ).exclude(group_id__in=enabled_groups)
 
 
 class DataFlow(NetBoxModel):
@@ -62,8 +79,12 @@ class DataFlow(NetBoxModel):
     def inherited_status(self):
         if self.status == DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
-        elif self.group:
-            return self.group.inherited_status
+        elif (
+            self.group
+            and self.group.inherited_status
+            != DataFlowInheritedStatusChoices.STATUS_ENABLED
+        ):
+            return DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
         else:
             return self.status
 
@@ -149,6 +170,8 @@ class DataFlow(NetBoxModel):
             "group",
             "name",
         )
+
+    objects = DataFlowQuerySet.as_manager()
 
     clone_fields = (
         "application",

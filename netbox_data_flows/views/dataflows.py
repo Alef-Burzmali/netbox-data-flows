@@ -17,7 +17,7 @@ __all__ = (
 
 class DataFlowView(generic.ObjectView):
     queryset = models.DataFlow.objects.prefetch_related(
-        "application", "sources", "destinations"
+        "application", "application__role", "group", "sources", "destinations"
     )
 
     def get_extra_context(self, request, instance):
@@ -29,7 +29,9 @@ class DataFlowView(generic.ObjectView):
 
 class DataFlowListView(generic.ObjectListView):
     queryset = models.DataFlow.objects.prefetch_related(
-        "application", "application__role"
+        "application",
+        "application__role",
+        "group",
     )
     table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
@@ -77,7 +79,7 @@ class DataFlowBulkDeleteView(generic.BulkDeleteView):
 
 
 class DataFlowRuleListView(generic.ObjectListView):
-    queryset = models.DataFlow.objects.exclude(protocol="")
+    queryset = models.DataFlow.objects.only_enabled()
     table = tables.DataFlowRuleTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm

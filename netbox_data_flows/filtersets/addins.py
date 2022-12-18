@@ -42,6 +42,10 @@ class InheritedStatusFilterSetAddin(FilterSet):
     class Meta:
         abstract = True
 
+    status = ChoiceFilter(
+        choices=choices.DataFlowStatusChoices,
+    )
+
     inherited_status = ChoiceFilter(
         choices=choices.DataFlowStatusChoices,
         method="filter_inherited_status",
@@ -51,11 +55,9 @@ class InheritedStatusFilterSetAddin(FilterSet):
         if not value:
             return queryset
 
-        disabled = self.Meta.model.get_disabled_queryset().only("pk")
-
         if value == choices.DataFlowStatusChoices.STATUS_DISABLED:
-            queryset = queryset.filter(pk__in=disabled)
+            queryset = queryset.only_disabled()
         else:
-            queryset = queryset.exclude(pk__in=disabled)
+            queryset = queryset.only_enabled()
 
         return queryset
