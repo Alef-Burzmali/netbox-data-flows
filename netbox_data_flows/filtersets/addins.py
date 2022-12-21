@@ -21,21 +21,23 @@ class ApplicationFilterSetAddin(FilterSet):
         label="Application (ID)",
     )
     application = ModelMultipleChoiceFilter(
+        field_name="application__name",
         queryset=models.Application.objects.all(),
         label="Application (Name)",
+        to_field_name="name",
     )
 
-    application_role = ModelMultipleChoiceFilter(
+    application_role_id = ModelMultipleChoiceFilter(
+        field_name="application__role",
         queryset=models.ApplicationRole.objects.all(),
-        label="Application Roles",
-        method="filter_application_role",
+        label="Application Roles (ID)",
     )
-
-    def filter_application_role(self, queryset, field_name, value):
-        if not value:
-            return queryset
-
-        return queryset.filter(application__role__in=[v.pk for v in value])
+    application_role = ModelMultipleChoiceFilter(
+        field_name="application__role__slug",
+        queryset=models.ApplicationRole.objects.all(),
+        label="Application Roles (slug)",
+        to_field_name="slug",
+    )
 
 
 class InheritedStatusFilterSetAddin(FilterSet):

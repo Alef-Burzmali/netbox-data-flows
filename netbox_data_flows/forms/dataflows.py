@@ -275,14 +275,29 @@ class DataFlowImportForm(NetBoxModelImportForm):
 class DataFlowFilterForm(NetBoxModelFilterSetForm):
     model = models.DataFlow
 
-    application = DynamicModelMultipleChoiceField(
-        queryset=models.Application.objects.all(), required=False
+    application_id = DynamicModelMultipleChoiceField(
+        queryset=models.Application.objects.all(),
+        required=False,
+        label="Application",
+        help_text="Application(s) that the data flows are part of",
     )
-    application_role = DynamicModelMultipleChoiceField(
-        queryset=models.ApplicationRole.objects.all(), required=False
+    application_role_id = DynamicModelMultipleChoiceField(
+        queryset=models.ApplicationRole.objects.all(),
+        required=False,
+        label="Application Role",
+        help_text="Application Role(s) that the data flows are part of",
     )
-    group = DynamicModelMultipleChoiceField(
-        queryset=models.DataFlowGroup.objects.all(), required=False
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        label="Direct group",
+        help_text="Direct group(s)",
+    )
+    recursive_group_id = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        label="Recursive group",
+        help_text="Recursive group(s)",
     )
     tag = TagFilterField(model)
 
@@ -290,17 +305,19 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
         widget=StaticSelect(),
+        help_text="Status of the data flows themselves",
     )
     inherited_status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
         widget=StaticSelect(),
-    )
-    protocol = MultipleChoiceField(
-        choices=add_blank_choice(choices.DataFlowProtocolChoices),
-        required=False,
+        help_text="Status inherited from the data flow groups",
     )
 
+    protocol = MultipleChoiceField(
+        choices=choices.DataFlowProtocolChoices,
+        required=False,
+    )
     source_ports = forms.IntegerField(
         min_value=SERVICE_PORT_MIN,
         max_value=SERVICE_PORT_MAX,
@@ -320,14 +337,20 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         (
-            None,
+            "Membership",
             (
-                "application",
-                "application_role",
-                "group",
+                "application_id",
+                "application_role_id",
+                "group_id",
+                "recursive_group_id",
+                "tag",
+            ),
+        ),
+        (
+            "Status",
+            (
                 "status",
                 "inherited_status",
-                "tag",
             ),
         ),
         (

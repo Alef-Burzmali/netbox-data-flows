@@ -18,14 +18,24 @@ class DataFlowFilterSet(
 ):
     group_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
-        lookup_expr="in",
-        label="Data Flow Group (ID)",
+        label="Group, direct membership (ID)",
     )
     group = ModelMultipleChoiceFilter(
-        queryset=models.DataFlow.objects.all(),
-        lookup_expr="in",
+        field_name="group__name",
+        queryset=models.DataFlowGroup.objects.all(),
         to_field_name="name",
-        label="Data Flow Group (name)",
+        label="Group, direct membership (name)",
+    )
+    recursive_group_id = ModelMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        label="Group, recursive membership (ID)",
+        method="filter_recursive_groups",
+    )
+    recursive_group = ModelMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        to_field_name="name",
+        label="Group, recursive membership (name)",
+        method="filter_recursive_groups",
     )
 
     protocol = MultipleChoiceFilter(
@@ -73,6 +83,12 @@ class DataFlowFilterSet(
             return queryset
 
         return queryset.filter(name__icontains=value)
+
+    def filter_recursive_groups(self, queryset, field_name, value):
+        if not value:
+            return queryset
+
+        return queryset.part_of_group_recursive(*value)
 
     # OR(source_ports) AND OR(destination_ports)
     def filter_ports(self, queryset, field_name, value):

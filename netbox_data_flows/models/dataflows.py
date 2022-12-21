@@ -39,6 +39,15 @@ class DataFlowQuerySet(RestrictedQuerySet):
             status=DataFlowStatusChoices.STATUS_ENABLED
         ).exclude(group_id__in=enabled_groups)
 
+    def part_of_group_recursive(self, *dataflowgroups):
+        group_ids = [getattr(dfg, "pk", dfg) for dfg in dataflowgroups]
+        subgroups = (
+            DataFlowGroup.objects.filter(pk__in=group_ids)
+            .get_descendants(include_self=True)
+            .only("pk")
+        )
+        return self.filter(group_id__in=subgroups)
+
 
 class DataFlow(NetBoxModel):
     """Representation of a data flow for an application"""

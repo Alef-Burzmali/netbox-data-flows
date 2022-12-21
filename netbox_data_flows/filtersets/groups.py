@@ -15,23 +15,22 @@ class DataFlowGroupFilterSet(
     InheritedStatusFilterSetAddin,
     NetBoxModelFilterSet,
 ):
-    parent_id = TreeNodeMultipleChoiceFilter(
+    parent_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
-        lookup_expr="in",
         label="Parent (ID)",
     )
-    parent = TreeNodeMultipleChoiceFilter(
+    parent = ModelMultipleChoiceFilter(
+        field_name="parent__name",
         queryset=models.DataFlowGroup.objects.all(),
-        lookup_expr="in",
         to_field_name="name",
         label="Parent (name)",
     )
-    ancestor_id = TreeNodeMultipleChoiceFilter(
+    ancestor_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
         label="Ancestor (ID)",
         method="filter_ancestors",
     )
-    ancestor = TreeNodeMultipleChoiceFilter(
+    ancestor = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
         to_field_name="name",
         label="Ancestor (name)",
@@ -57,8 +56,9 @@ class DataFlowGroupFilterSet(
         if not value:
             return queryset
 
+        ancestors = [getattr(dfg, "pk", dfg) for dfg in value]
         descendants = (
-            models.DataFlowGroup.objects.filter(pk__in=value)
+            models.DataFlowGroup.objects.filter(pk__in=ancestors)
             .get_descendants(include_self=True)
             .only("pk")
         )

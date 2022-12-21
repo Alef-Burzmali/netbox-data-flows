@@ -164,11 +164,17 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
     application_role = DynamicModelMultipleChoiceField(
         queryset=models.ApplicationRole.objects.all(), required=False
     )
-    ancestor = DynamicModelMultipleChoiceField(
-        queryset=models.DataFlowGroup.objects.all(), required=False
+    parent_id = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        label="Parent group",
+        help_text="Direct parent group(s)",
     )
-    parent = DynamicModelMultipleChoiceField(
-        queryset=models.DataFlowGroup.objects.all(), required=False
+    ancestor_id = DynamicModelMultipleChoiceField(
+        queryset=models.DataFlowGroup.objects.all(),
+        required=False,
+        label="Ancestor group",
+        help_text="Recursive parent group(s)",
     )
 
     status = forms.ChoiceField(
@@ -188,8 +194,8 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
             (
                 "application",
                 "application_role",
-                "ancestor",
-                "parent",
+                "parent_id",
+                "ancestor_id",
                 "status",
                 "inherited_status",
                 "tag",

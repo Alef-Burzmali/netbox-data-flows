@@ -16,6 +16,16 @@ class DataFlowSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:dataflow-detail"
     )
 
+    application = NestedApplicationSerializer(
+        required=False, allow_null=True, default=None
+    )
+    group = NestedDataFlowGroupSerializer(
+        required=False, allow_null=True, default=None
+    )
+    recursive_group = NestedDataFlowGroupSerializer(
+        required=False, allow_null=True, default=None
+    )
+
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     inherited_status = ChoiceField(
         choices=choices.DataFlowInheritedStatusChoices,
@@ -39,13 +49,6 @@ class DataFlowSerializer(NetBoxModelSerializer):
         many=True,
     )
 
-    application = NestedApplicationSerializer(
-        required=False, allow_null=True, default=None
-    )
-    group = NestedDataFlowGroupSerializer(
-        required=False, allow_null=True, default=None
-    )
-
     class Meta:
         model = models.DataFlow
         fields = (
@@ -54,6 +57,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "display",
             "application",
             "group",
+            "recursive_group",
             "name",
             "description",
             "status",
