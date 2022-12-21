@@ -331,9 +331,18 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
-    # TODO:
-    # sources
-    # destinations
+    sources = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        label="Sources",
+        help_text="Source object aliases",
+    )
+    destinations = DynamicModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        label="Destinations",
+        help_text="Destination object aliases",
+    )
 
     fieldsets = (
         (
@@ -359,24 +368,8 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
                 "protocol",
                 "source_ports",
                 "destination_ports",
+                "sources",
+                "destinations",
             ),
         ),
-        # (
-        #     "Source (Any matching)",
-        #     (
-        #         "source_device",
-        #         "source_virtual_machine",
-        #         "source_prefix",
-        #         "source_ipaddress",
-        #     ),
-        # ),
-        # (
-        #     "Destination (Any matching)",
-        #     (
-        #         "destination_device",
-        #         "destination_virtual_machine",
-        #         "destination_prefix",
-        #         "destination_ipaddress",
-        #     ),
-        # ),
     )

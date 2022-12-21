@@ -119,11 +119,11 @@ class DataFlow(NetBoxModel):
         choices=DataFlowProtocolChoices,
     )
     sources = models.ManyToManyField(
-        ObjectAlias,
+        to="ObjectAlias",
         related_name="dataflow_sources",
     )
     destinations = models.ManyToManyField(
-        ObjectAlias,
+        to="ObjectAlias",
         related_name="dataflow_destinations",
     )
 

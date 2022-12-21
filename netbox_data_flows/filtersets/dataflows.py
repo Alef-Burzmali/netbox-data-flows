@@ -48,26 +48,13 @@ class DataFlowFilterSet(
         method="filter_ports",
     )
 
-    sources_id = ModelMultipleChoiceFilter(
-        queryset=models.ObjectAlias.objects.all(),
-        label="Sources (ID)",
-        method="filter_sources",
-    )
     sources = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
-        label="Sources (Name)",
-        method="filter_sources",
-    )
-
-    destinations_id = ModelMultipleChoiceFilter(
-        queryset=models.ObjectAlias.objects.all(),
-        label="Destinations (ID)",
-        method="filter_destinations",
+        label="Sources (ID)",
     )
     destinations = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
-        label="Destinations (Name)",
-        method="filter_destinations",
+        label="Destinations (ID)",
     )
 
     class Meta:
