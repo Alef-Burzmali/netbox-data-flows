@@ -85,13 +85,11 @@ class DataFlowTable(NetBoxTable):
             "source_ports",
             "destinations",
             "destination_ports",
+            "description",
         )
 
 
 class DataFlowRuleTable(NetBoxTable):
-    description = tables.Column(
-        linkify=True,
-    )
     application = tables.Column(
         linkify=True,
     )
@@ -117,12 +115,10 @@ class DataFlowRuleTable(NetBoxTable):
         order_by=tables.A("destination_ports"),
     )
     sources = tables.Column(
-        linkify=True,
         accessor=tables.A("source_list"),
         orderable=False,
     )
     destinations = tables.Column(
-        linkify=True,
         accessor=tables.A("destination_list"),
         orderable=False,
     )
