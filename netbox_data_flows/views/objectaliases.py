@@ -55,6 +55,7 @@ class ObjectAliasListView(generic.ObjectListView):
     )
     table = tables.ObjectAliasTable
     filterset = filtersets.ObjectAliasFilterSet
+    filterset_form = forms.ObjectAliasFilterForm
 
 
 class ObjectAliasEditView(generic.ObjectEditView):

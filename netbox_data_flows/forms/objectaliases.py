@@ -11,7 +11,9 @@ from utilities.forms import (
     DynamicModelMultipleChoiceField,
 )
 
+from dcim.models import Device
 from ipam.models import Prefix, IPRange, IPAddress
+from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models
 from netbox_data_flows.utils.aliases import AddAliasesForm
@@ -19,6 +21,7 @@ from netbox_data_flows.utils.aliases import AddAliasesForm
 __all__ = (
     "ObjectAliasForm",
     "ObjectAliasBulkEditForm",
+    "ObjectAliasFilterForm",
     "ObjectAliasImportForm",
     "ObjectAliasAddTargetForm",
 )
@@ -81,6 +84,46 @@ class ObjectAliasImportForm(NetBoxModelImportForm):
 class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
     model = models.ObjectAlias
     tag = TagFilterField(model)
+
+    prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label="Aliased Prefixes",
+        help_text="All targets are OR'ed together - any will match",
+    )
+    ipranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        label="Aliased IP Ranges",
+        help_text="All targets are OR'ed together - any will match",
+    )
+    ipaddresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label="Aliased IP Addresses",
+        help_text="All targets are OR'ed together - any will match",
+    )
+    devices = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label="Aliased Devices",
+        help_text="IP addresses of the device - all targets are OR'ed together - any will match",
+    )
+    virtual_machines = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label="Aliased Virtual Machines",
+        help_text="IP addresses of the virtual machine - all targets are OR'ed together - any will match",
+    )
+
+    fields = (
+        "tag",
+        "prefixes",
+        "ipranges",
+        "ipaddresses",
+        "devices",
+        "virtual_machines",
+    )
 
 
 #

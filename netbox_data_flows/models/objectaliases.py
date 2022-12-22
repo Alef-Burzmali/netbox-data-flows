@@ -30,6 +30,19 @@ OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(
 )
 
 
+class ObjectAliasTargetQuerySet(RestrictedQuerySet):
+    def contains(self, *objects):
+        """
+        Return ObjectAliasTarget containing any one of the objects in parameter
+        """
+        query = models.Q()
+        for t in objects:
+            ct = ContentType.objects.get_for_model(t.__class__)
+            query |= models.Q(target_type=ct, target_id=t.pk)
+
+        return self.filter(query)
+
+
 class ObjectAliasTarget(models.Model):
     """
     A single prefix, range or IP address to be used in ObjectAlias.
@@ -41,18 +54,9 @@ class ObjectAliasTarget(models.Model):
     """
 
     @classmethod
-    def get_targets(cls, *targets):
-        query = models.Q()
-        for t in targets:
-            ct = ContentType.objects.get_for_model(t.__class__)
-            query |= models.Q(target_type=ct, target_id=t.pk)
-
-        return cls.objects.filter(query)
-
-    @classmethod
     def get_or_create(cls, target):
         """Return an existing instance for this target or create one"""
-        instance = cls.get_targets(target).first()
+        instance = cls.objects.contains(target).first()
         if not instance:
             ct = ContentType.objects.get_for_model(target.__class__)
             type = (ct.app_label, ct.model)
@@ -87,7 +91,7 @@ class ObjectAliasTarget(models.Model):
             ),
         )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = ObjectAliasTargetQuerySet.as_manager()
 
     def get_absolute_url(self):
         return self.target.get_absolute_url()
@@ -149,7 +153,9 @@ class ObjectAliasTarget(models.Model):
     def _model(self):
         return self.target_type.model
 
-    def __contains__(self, other):
+    def __contains__(self, other: "ObjectAliasTarget"):
+        """Return True if other is fully contained in this ObjectAliasTarget"""
+
         if not isinstance(other, self.__class__):
             raise TypeError(
                 f"{self.__class__} can only be compared to other {self.__class__}, not {type(other)}"
@@ -193,6 +199,15 @@ class ObjectAliasTarget(models.Model):
         super().save(*args, **kwargs)
 
 
+class ObjectAliasQuerySet(RestrictedQuerySet):
+    def contains(self, *objects):
+        """
+        Return ObjectAlias containing any one of the objects in parameter
+        """
+        targets = ObjectAliasTarget.objects.contains(*objects)
+        return self.filter(targets__in=targets).distinct()
+
+
 class ObjectAlias(NetBoxModel):
     """Source or Destination of a Data Flow"""
 
@@ -222,13 +237,17 @@ class ObjectAlias(NetBoxModel):
         ordering = ("name",)
         verbose_name_plural = "Object Aliases"
 
+    objects = ObjectAliasQuerySet.as_manager()
+
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:objectalias", args=[self.pk])
 
     def __str__(self):
         return self.name
 
-    def __contains__(self, other):
+    def __contains__(self, other: "ObjectAlias"):
+        """Return True if other is fully contained in this ObjectAlias"""
+
         if isinstance(other, self.__class__):
             return all(t in self for t in other.targets.all())
 
