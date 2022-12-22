@@ -118,3 +118,18 @@ class ApplicationFilterForm(NetBoxModelFilterSetForm):
     role = forms.ModelMultipleChoiceField(
         queryset=ApplicationRole.objects.all(), required=False
     )
+
+    fieldsets = (
+        (
+            None,
+            (
+                "filter_id",  # Saved Filter
+                "q",  # Search
+                "tag",
+            ),
+        ),
+        (
+            None,
+            ("role",),
+        ),
+    )

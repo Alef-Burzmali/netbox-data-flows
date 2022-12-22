@@ -346,13 +346,20 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         (
-            "Membership",
+            None,
+            (
+                "filter_id",  # Saved Filter
+                "q",  # Search
+                "tag",
+            ),
+        ),
+        (
+            None,
             (
                 "application_id",
                 "application_role_id",
                 "group_id",
                 "recursive_group_id",
-                "tag",
             ),
         ),
         (

@@ -192,13 +192,25 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
         (
             None,
             (
+                "filter_id",  # Saved Filter
+                "q",  # Search
+                "tag",
+            ),
+        ),
+        (
+            None,
+            (
                 "application",
                 "application_role",
                 "parent_id",
                 "ancestor_id",
+            ),
+        ),
+        (
+            "Status",
+            (
                 "status",
                 "inherited_status",
-                "tag",
             ),
         ),
     )

@@ -89,40 +89,49 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
         queryset=Prefix.objects.all(),
         required=False,
         label="Aliased Prefixes",
-        help_text="All targets are OR'ed together - any will match",
     )
     ipranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
         label="Aliased IP Ranges",
-        help_text="All targets are OR'ed together - any will match",
     )
     ipaddresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         label="Aliased IP Addresses",
-        help_text="All targets are OR'ed together - any will match",
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
         label="Aliased Devices",
-        help_text="IP addresses of the device - all targets are OR'ed together - any will match",
+        help_text="Any IP addresses of the device",
     )
     virtual_machines = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
         label="Aliased Virtual Machines",
-        help_text="IP addresses of the virtual machine - all targets are OR'ed together - any will match",
+        help_text="Any IP address of the virtual machine",
     )
 
-    fields = (
-        "tag",
-        "prefixes",
-        "ipranges",
-        "ipaddresses",
-        "devices",
-        "virtual_machines",
+    fieldsets = (
+        (
+            None,
+            (
+                "filter_id",  # Saved Filter
+                "q",  # Search
+                "tag",
+            ),
+        ),
+        (
+            "Targets - all targets are OR'ed together, any will match",
+            (
+                "prefixes",
+                "ipranges",
+                "ipaddresses",
+                "devices",
+                "virtual_machines",
+            ),
+        ),
     )
 
 
