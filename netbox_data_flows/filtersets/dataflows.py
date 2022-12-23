@@ -53,6 +53,10 @@ class DataFlowFilterSet(
         method="filter_ports",
     )
 
+    source_is_null = ChoiceFilter(
+        choices=choices.TargetIsEmptyChoice,
+        method="filter_target_is_null",
+    )
     source_aliases = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
         label="Source Object Aliases (ID)",
@@ -84,6 +88,10 @@ class DataFlowFilterSet(
         method="filter_sources",
     )
 
+    destination_is_null = ChoiceFilter(
+        choices=choices.TargetIsEmptyChoice,
+        method="filter_target_is_null",
+    )
     destination_aliases = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
         label="Destination Object Aliases (ID)",
@@ -152,6 +160,22 @@ class DataFlowFilterSet(
         return queryset.filter(query)
 
     # OR all the targets
+    def filter_target_is_null(self, queryset, field_name, value):
+        if field_name.startswith("source_"):
+            setattr(
+                self,
+                "_sources_is_null",
+                value == choices.TargetIsEmptyChoice.STATUS_NULL,
+            )
+        if field_name.startswith("destination_"):
+            setattr(
+                self,
+                "_destinations_is_null",
+                value == choices.TargetIsEmptyChoice.STATUS_NULL,
+            )
+
+        return queryset
+
     def filter_sources(self, queryset, field_name, value):
         self._filter_targets("_sources", field_name, value)
         return queryset
@@ -184,6 +208,11 @@ class DataFlowFilterSet(
         qs = super().qs
 
         sources = Q()
+        if hasattr(self, "_sources_is_null"):
+            if self._sources_is_null:
+                sources |= Q(sources__exact=None)
+            else:
+                sources |= ~Q(sources__exact=None)
         if hasattr(self, "_sources_pk"):
             sources |= Q(sources__in=self._sources_pk)
         if hasattr(self, "_sources"):
@@ -192,6 +221,11 @@ class DataFlowFilterSet(
             )
 
         destinations = Q()
+        if hasattr(self, "_destinations_is_null"):
+            if self._destinations_is_null:
+                destinations |= Q(destinations__exact=None)
+            else:
+                destinations |= ~Q(destinations__exact=None)
         if hasattr(self, "_destinations_pk"):
             destinations |= Q(destinations__in=self._destinations_pk)
         if hasattr(self, "_destinations"):
@@ -201,9 +235,4 @@ class DataFlowFilterSet(
                 )
             )
 
-        if hasattr(self, "_sources_pk") or hasattr(self, "_sources"):
-            qs = qs.filter(sources)
-        if hasattr(self, "_destinations_pk") or hasattr(self, "_destinations"):
-            qs = qs.filter(destinations)
-
-        return qs.distinct()
+        return qs.filter(sources).filter(destinations).distinct()

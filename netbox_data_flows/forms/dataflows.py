@@ -331,6 +331,12 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
+    source_is_null = forms.ChoiceField(
+        choices=add_blank_choice(choices.TargetIsEmptyChoice),
+        required=False,
+        widget=StaticSelect(),
+        help_text="No sources are defined?",
+    )
     source_aliases = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
@@ -364,6 +370,12 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         help_text="Any IP address of the virtual machine",
     )
 
+    destination_is_null = forms.ChoiceField(
+        choices=add_blank_choice(choices.TargetIsEmptyChoice),
+        required=False,
+        widget=StaticSelect(),
+        help_text="No destinations are defined?",
+    )
     destination_aliases = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
@@ -433,6 +445,7 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         (
             "Sources - all sources are OR'ed together, any will match",
             (
+                "source_is_null",
                 "source_aliases",
                 "source_prefixes",
                 "source_ipranges",
@@ -444,6 +457,7 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         (
             "Destinations - all destinations are OR'ed together, any will match",
             (
+                "destination_is_null",
                 "destination_aliases",
                 "destination_prefixes",
                 "destination_ipranges",

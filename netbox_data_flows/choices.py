@@ -4,6 +4,7 @@ __all__ = (
     "DataFlowProtocolChoices",
     "DataFlowStatusChoices",
     "DataFlowInheritedStatusChoices",
+    "TargetIsEmptyChoice",
 )
 
 
@@ -48,4 +49,14 @@ class DataFlowInheritedStatusChoices(DataFlowStatusChoices):
         (STATUS_ENABLED, "Enabled", "green"),
         (STATUS_DISABLED, "Disabled", "red"),
         (STATUS_INHERITED_DISABLED, "Disabled (Inherited)", "orange"),
+    )
+
+
+class TargetIsEmptyChoice(ChoiceSet):
+    STATUS_NULL = "true"
+    STATUS_NOT_NULL = "false"
+
+    CHOICES = (
+        (STATUS_NULL, "Null"),
+        (STATUS_NOT_NULL, "Not null"),
     )
