@@ -35,6 +35,10 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         """
         Return ObjectAliasTarget containing any one of the objects in parameter
         """
+
+        if not objects:
+            return self.none()
+
         query = models.Q()
         for t in objects:
             ct = ContentType.objects.get_for_model(t.__class__)
