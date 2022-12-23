@@ -20,8 +20,8 @@ from utilities.forms import (
 )
 
 from dcim.models import Device
+from ipam.models import Prefix, IPRange, IPAddress
 from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
-from ipam.models import Prefix, IPAddress
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, choices
@@ -331,17 +331,70 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
-    sources = DynamicModelMultipleChoiceField(
+    source_aliases = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
-        label="Sources",
-        help_text="Source object aliases",
+        label="Source Object Aliases",
     )
-    destinations = DynamicModelMultipleChoiceField(
+    source_prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label="Source Prefixes",
+    )
+    source_ipranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        label="Source IP Ranges",
+    )
+    source_ipaddresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label="Source IP Addresses",
+    )
+    source_devices = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label="Source Devices",
+        help_text="Any IP addresses of the device",
+    )
+    source_virtual_machines = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label="Source Virtual Machines",
+        help_text="Any IP address of the virtual machine",
+    )
+
+    destination_aliases = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
-        label="Destinations",
-        help_text="Destination object aliases",
+        label="Destination Object Aliases",
+    )
+    destination_prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        label="Destination Prefixes",
+    )
+    destination_ipranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        label="Destination IP Ranges",
+    )
+    destination_ipaddresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label="Destination IP Addresses",
+    )
+    destination_devices = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label="Destination Devices",
+        help_text="Any IP addresses of the device",
+    )
+    destination_virtual_machines = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label="Destination Virtual Machines",
+        help_text="Any IP address of the virtual machine",
     )
 
     fieldsets = (
@@ -375,8 +428,28 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
                 "protocol",
                 "source_ports",
                 "destination_ports",
-                "sources",
-                "destinations",
+            ),
+        ),
+        (
+            "Sources - all sources are OR'ed together, any will match",
+            (
+                "source_aliases",
+                "source_prefixes",
+                "source_ipranges",
+                "source_ipaddresses",
+                "source_devices",
+                "source_virtual_machines",
+            ),
+        ),
+        (
+            "Destinations - all destinations are OR'ed together, any will match",
+            (
+                "destination_aliases",
+                "destination_prefixes",
+                "destination_ipranges",
+                "destination_ipaddresses",
+                "destination_devices",
+                "destination_virtual_machines",
             ),
         ),
     )

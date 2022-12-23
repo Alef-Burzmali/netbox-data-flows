@@ -3,7 +3,12 @@ from django_filters import FilterSet
 
 from netbox.filtersets import NetBoxModelFilterSet
 
+from dcim.models import Device
+from ipam.models import Prefix, IPRange, IPAddress
+from virtualization.models import VirtualMachine
+
 from netbox_data_flows import models, choices
+from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 from .addins import *
 from .filters import *
@@ -48,13 +53,66 @@ class DataFlowFilterSet(
         method="filter_ports",
     )
 
-    sources = ModelMultipleChoiceFilter(
+    source_aliases = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
-        label="Sources (ID)",
+        label="Source Object Aliases (ID)",
+        method="filter_sources",
     )
-    destinations = ModelMultipleChoiceFilter(
+    source_prefixes = ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label="Source Prefix (ID)",
+        method="filter_sources",
+    )
+    source_ipranges = ModelMultipleChoiceFilter(
+        queryset=IPRange.objects.all(),
+        label="Source IP Ranges (ID)",
+        method="filter_sources",
+    )
+    source_ipaddresses = ModelMultipleChoiceFilter(
+        queryset=IPAddress.objects.all(),
+        label="Source IP Addresses (ID)",
+        method="filter_sources",
+    )
+    source_devices = ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label="Source Devices (any IP address) (ID)",
+        method="filter_sources",
+    )
+    source_virtual_machines = ModelMultipleChoiceFilter(
+        queryset=VirtualMachine.objects.all(),
+        label="Source Virtual Machine (any IP address) (ID)",
+        method="filter_sources",
+    )
+
+    destination_aliases = ModelMultipleChoiceFilter(
         queryset=models.ObjectAlias.objects.all(),
-        label="Destinations (ID)",
+        label="Destination Object Aliases (ID)",
+        method="filter_destinations",
+    )
+    destination_prefixes = ModelMultipleChoiceFilter(
+        queryset=Prefix.objects.all(),
+        label="Destination Prefix (ID)",
+        method="filter_destinations",
+    )
+    destination_ipranges = ModelMultipleChoiceFilter(
+        queryset=IPRange.objects.all(),
+        label="Destination IP Ranges (ID)",
+        method="filter_destinations",
+    )
+    destination_ipaddresses = ModelMultipleChoiceFilter(
+        queryset=IPAddress.objects.all(),
+        label="Destination IP Addresses (ID)",
+        method="filter_destinations",
+    )
+    destination_devices = ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label="Destination Devices (any IP address) (ID)",
+        method="filter_destinations",
+    )
+    destination_virtual_machines = ModelMultipleChoiceFilter(
+        queryset=VirtualMachine.objects.all(),
+        label="Destination Virtual Machine (any IP address) (ID)",
+        method="filter_destinations",
     )
 
     class Meta:
@@ -93,10 +151,59 @@ class DataFlowFilterSet(
 
         return queryset.filter(query)
 
+    # OR all the targets
     def filter_sources(self, queryset, field_name, value):
-        # TODO
+        self._filter_targets("_sources", field_name, value)
         return queryset
 
     def filter_destinations(self, queryset, field_name, value):
-        # TODO
+        self._filter_targets("_destinations", field_name, value)
         return queryset
+
+    def _filter_targets(self, set_name, field_name, value):
+        if not value:
+            return
+
+        # need to treat that one specially as we
+        # cannot OR'ed two querysets
+        if field_name.endswith("_aliases"):
+            set_name += "_pk"
+
+        if field_name.endswith("_devices") or field_name.endswith(
+            "_virtual_machines"
+        ):
+            value = get_device_ipaddresses(*value)
+
+        if not hasattr(self, set_name):
+            setattr(self, set_name, [])
+        getattr(self, set_name).extend(value)
+
+    @property
+    def qs(self):
+        # OR(sources) AND OR(destinations)
+        qs = super().qs
+
+        sources = Q()
+        if hasattr(self, "_sources_pk"):
+            sources |= Q(sources__in=self._sources_pk)
+        if hasattr(self, "_sources"):
+            sources |= Q(
+                sources__in=models.ObjectAlias.objects.contains(*self._sources)
+            )
+
+        destinations = Q()
+        if hasattr(self, "_destinations_pk"):
+            destinations |= Q(destinations__in=self._destinations_pk)
+        if hasattr(self, "_destinations"):
+            destinations |= Q(
+                destinations__in=models.ObjectAlias.objects.contains(
+                    *self._destinations
+                )
+            )
+
+        if hasattr(self, "_sources_pk") or hasattr(self, "_sources"):
+            qs = qs.filter(sources)
+        if hasattr(self, "_destinations_pk") or hasattr(self, "_destinations"):
+            qs = qs.filter(destinations)
+
+        return qs.distinct()

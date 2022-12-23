@@ -1,5 +1,3 @@
-import itertools
-
 from django.db.models import Q
 
 from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
@@ -9,6 +7,7 @@ from ipam.models import Prefix, IPRange, IPAddress
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models
+from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 from .filters import *
 
@@ -57,19 +56,8 @@ class ObjectAliasTargetFilterSet(BaseFilterSet):
         if not value:
             return queryset
 
-        interfaces = []
-        if name == "devices":
-            interfaces = (dev.vc_interfaces(if_master=False) for dev in value)
-        elif name == "virtual_machines":
-            interfaces = (vm.interfaces.all() for vm in value)
-        else:
-            raise ValidationError(f"Unknown device field: {name}")
-
-        interfaces = itertools.chain.from_iterable(interfaces)
-        ip_addresses = itertools.chain.from_iterable(
-            ifce.ip_addresses.all() for ifce in interfaces
-        )
-        return self.filter_targets(queryset, name, list(ip_addresses))
+        ip_addresses = get_device_ipaddresses(*value)
+        return self.filter_targets(queryset, name, ip_addresses)
 
     # OR all the targets
     # First, build a list

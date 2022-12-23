@@ -1,3 +1,5 @@
+import itertools
+
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 
@@ -27,3 +29,23 @@ def get_assignment_querystring(models):
         qs |= Q(app_label=app_label, model=model)
 
     return Q(qs)
+
+
+def get_device_ipaddresses(*devices):
+    """Return the list of IP addresses of a list of devices or virtual machines"""
+
+    interfaces = []
+    for dev in devices:
+        if hasattr(dev, "vc_interfaces"):
+            # Device
+            interfaces += [dev.vc_interfaces(if_master=False)]
+        else:
+            # Virtual Machine
+            interfaces += [dev.interfaces.all()]
+
+    interfaces = itertools.chain.from_iterable(interfaces)
+    ip_addresses = itertools.chain.from_iterable(
+        ifce.ip_addresses.all() for ifce in interfaces
+    )
+    ip_addresses = list(ip_addresses)
+    return ip_addresses
