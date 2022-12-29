@@ -18,7 +18,7 @@ __all__ = (
 
 class ApplicationView(generic.ObjectView):
     queryset = models.Application.objects.prefetch_related(
-        "role", "dataflows", "dataflow_groups"
+        "role", "contacts", "dataflows", "dataflow_groups"
     )
 
     def get_extra_context(self, request, instance):

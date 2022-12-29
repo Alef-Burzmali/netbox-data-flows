@@ -4,6 +4,7 @@ from netbox.filtersets import (
     NetBoxModelFilterSet,
     OrganizationalModelFilterSet,
 )
+from tenancy.filtersets import ContactModelFilterSet
 
 from netbox_data_flows import models
 
@@ -26,7 +27,7 @@ class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
         )
 
 
-class ApplicationFilterSet(NetBoxModelFilterSet):
+class ApplicationFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
     role_id = ModelMultipleChoiceFilter(
         queryset=models.ApplicationRole.objects.all(),
         label="Application Role (ID)",

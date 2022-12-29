@@ -6,6 +6,7 @@ from netbox.forms import (
     NetBoxModelFilterSetForm,
     NetBoxModelImportForm,
 )
+from tenancy.forms import ContactModelFilterForm
 from utilities.forms import (
     CommentField,
     CSVModelChoiceField,
@@ -111,7 +112,7 @@ class ApplicationImportForm(NetBoxModelImportForm):
 #
 
 
-class ApplicationFilterForm(NetBoxModelFilterSetForm):
+class ApplicationFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Application
     tag = TagFilterField(model)
 
@@ -129,7 +130,15 @@ class ApplicationFilterForm(NetBoxModelFilterSetForm):
             ),
         ),
         (
-            None,
+            "Application Role",
             ("role",),
+        ),
+        (
+            "Contacts",
+            (
+                "contact",
+                "contact_role",
+                "contact_group",
+            ),
         ),
     )

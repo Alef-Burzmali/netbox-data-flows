@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
@@ -46,6 +47,7 @@ class Application(NetBoxModel):
         null=True,
         help_text="The role of this application",
     )
+    contacts = GenericRelation(to="tenancy.ContactAssignment")
     comments = models.TextField(blank=True)
 
     class Meta:

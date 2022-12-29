@@ -5,6 +5,7 @@ from netbox.tables import (
     columns,
     NetBoxTable,
 )
+from tenancy.tables import ContactsColumnMixin
 
 from netbox_data_flows.models import Application, ApplicationRole
 
@@ -45,7 +46,7 @@ class ApplicationRoleTable(NetBoxTable):
         default_columns = ("name", "description", "application_count")
 
 
-class ApplicationTable(NetBoxTable):
+class ApplicationTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True,
     )
@@ -70,6 +71,7 @@ class ApplicationTable(NetBoxTable):
             "role",
             "comments",
             "dataflow_count",
+            "contacts",
             "tags",
             "created",
             "last_updated",
