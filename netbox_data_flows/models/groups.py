@@ -43,9 +43,6 @@ class DataFlowGroup(NestedGroupModel):
     # slug
     # description
 
-    # do not want a slug here
-    slug = None
-
     application = models.ForeignKey(
         to=Application,
         on_delete=models.CASCADE,

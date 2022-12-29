@@ -16,6 +16,7 @@ from utilities.forms import (
     MultipleChoiceField,
     NumericArrayField,
     StaticSelect,
+    SlugField,
     TagFilterField,
 )
 
@@ -35,6 +36,7 @@ __all__ = (
 
 
 class DataFlowGroupForm(NetBoxModelForm):
+    slug = SlugField()
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -57,6 +59,7 @@ class DataFlowGroupForm(NetBoxModelForm):
                 "application",
                 "parent",
                 "name",
+                "slug",
                 "description",
                 "status",
                 "tags",
@@ -109,7 +112,6 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
             (
                 "application",
                 "parent",
-                "name",
                 "description",
                 "status",
                 "tags",
@@ -130,7 +132,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
-        to_field_name="name",
+        to_field_name="slug",
     )
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -141,6 +143,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
         model = models.DataFlowGroup
         fields = (
             "name",
+            "slug",
             "description",
             "application",
             "parent",

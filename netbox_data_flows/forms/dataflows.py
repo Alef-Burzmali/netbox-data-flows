@@ -225,6 +225,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
         help_text="Data flow group",
+        to_field_name="slug",
     )
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),

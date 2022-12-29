@@ -39,6 +39,7 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
             "id",
             "url",
             "display",
+            "slug",
             "application",
             "parent",
             "ancestor",

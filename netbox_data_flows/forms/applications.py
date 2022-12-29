@@ -93,7 +93,7 @@ class ApplicationImportForm(NetBoxModelImportForm):
     role = CSVModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
-        to_field_name="name",
+        to_field_name="slug",
         help_text="Role of the application",
     )
 

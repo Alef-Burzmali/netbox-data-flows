@@ -42,6 +42,7 @@ class DataFlowGroupFilterSet(
         fields = (
             "id",
             "name",
+            "slug",
             "status",
         )
 
@@ -49,7 +50,9 @@ class DataFlowGroupFilterSet(
         if not value.strip():
             return queryset
 
-        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        qs_filter = Q(name__icontains=value) | Q(
+            description__icontains=value | Q(slug__icontains=value)
+        )
         return queryset.filter(qs_filter)
 
     def filter_ancestors(self, queryset, name, value):

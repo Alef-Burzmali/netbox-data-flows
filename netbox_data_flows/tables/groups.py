@@ -48,6 +48,7 @@ class DataFlowGroupTable(NetBoxTable):
             "pk",
             "id",
             "name",
+            "slug",
             "description",
             "status",
             "application",
