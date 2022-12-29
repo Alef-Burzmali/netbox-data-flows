@@ -52,6 +52,7 @@ def get_model_buttons(model_name, actions=("add", "import")):
 
 menu = PluginMenu(
     label="Data Flows",
+    icon_class="mdi mdi-vector-polyline",
     groups=(
         (
             "Applications",
