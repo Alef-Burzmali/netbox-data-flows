@@ -8,7 +8,6 @@ from ipam.models import Prefix, IPRange, IPAddress
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, choices
-from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 from .addins import *
 from .filters import *
@@ -192,11 +191,6 @@ class DataFlowFilterSet(
         # cannot OR'ed two querysets
         if field_name.endswith("_aliases"):
             set_name += "_pk"
-
-        if field_name.endswith("_devices") or field_name.endswith(
-            "_virtual_machines"
-        ):
-            value = get_device_ipaddresses(*value)
 
         if not hasattr(self, set_name):
             setattr(self, set_name, [])

@@ -48,6 +48,12 @@ class DataFlowQuerySet(RestrictedQuerySet):
         )
         return self.filter(group_id__in=subgroups)
 
+    def source_or_destination(self, *targets):
+        return self.filter(
+            models.Q(sources__in=ObjectAlias.objects.contains(*targets))
+            | models.Q(destinations__in=ObjectAlias.objects.contains(*targets))
+        ).distinct()
+
 
 class DataFlow(NetBoxModel):
     """Representation of a data flow for an application"""

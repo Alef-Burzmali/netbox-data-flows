@@ -11,6 +11,7 @@ from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
 from netbox_data_flows.utils.helpers import get_assignment_querystring
+from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 
 __all__ = (
@@ -42,7 +43,24 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         query = models.Q()
         for t in objects:
             ct = ContentType.objects.get_for_model(t.__class__)
-            query |= models.Q(target_type=ct, target_id=t.pk)
+
+            if (ct.app_label, ct.model) in OBJECTALIAS_ASSIGNMENT_MODELS:
+                query |= models.Q(target_type=ct, target_id=t.pk)
+            else:
+                try:
+                    ip_addresses = get_device_ipaddresses(t)
+                except Exception as e:
+                    raise Exception(
+                        f"Cannot test if {self.__class__} contains {t}"
+                    )
+
+                if ip_addresses:
+                    ip_ct = ContentType.objects.get_for_model(
+                        ip_addresses[0].__class__
+                    )
+
+                    for ip in ip_addresses:
+                        query |= models.Q(target_type=ip_ct, target_id=ip.pk)
 
         return self.filter(query)
 
