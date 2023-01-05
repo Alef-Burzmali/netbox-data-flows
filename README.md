@@ -5,10 +5,8 @@ systems and applications.
 
 ## WARNING
 
-This plugin is considered Work in Progress (Alpha 2). There are no guarantee
-on the stability of the models and the availability of migrations for each
-updates.
-YOU MAY LOOSE ALL YOUR DATA IF YOU USE THIS PLUGIN IN PRODUCTION!
+This plugin is considered Work in Progress (Beta 1).
+Please use caution if using this plugin for production!
 
 ## Dependencies
   - NetBox (>=3.4.0)
@@ -21,7 +19,7 @@ not guaranteed.
 
 Add this line in your local_requirements.txt and run upgrade.sh:
 ```
-netbox_data_flows @ https://github.com/Alef-Burzmali/netbox-data-flows/archive/refs/tags/vX.Y.Z.zip
+netbox_data_flows @ https://github.com/Alef-Burzmali/netbox-data-flows/releases/download/v0.4.0/netbox-data-flows-0.4.0.tar.gz
 ```
 
 ## Data model
@@ -94,8 +92,6 @@ CUSTOM_VALIDATORS = {
 ```
 
 ## Conversion to rules
-
-*Not implemented yet in v0.2.0*
 
 Once your Data Flows are documented, use the "Data Flow Rules" view to see
 all the enabled Data Flows with a specification in a flat view. This can be
