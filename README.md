@@ -5,11 +5,11 @@ systems and applications.
 
 ## WARNING
 
-This plugin is considered Work in Progress (Beta 1).
+This plugin is considered Work in Progress (Beta).
 Please use caution if using this plugin for production!
 
 ## Dependencies
-  - NetBox (>=3.4.0)
+  - NetBox (>=3.4.2)
 
 *Note:* the plugin uses some classes that are not explicitely exported in 
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
@@ -64,11 +64,7 @@ If an IP Address is assigned to a device or virtual machine, that device is
 also displayed.
 
 ## Know bugs and limitations
-  - Filters are not tested
   - REST API and GraphQL API are not tested
-  - Data Flow statuses have no effect
-  - Data Flow as Rules is bugged
-  - There is no backlink from a device to its Data Flows
 
 ## Planned Evolution
   - Include data's type/nature and link to data flows or at rest on devices
@@ -94,7 +90,7 @@ CUSTOM_VALIDATORS = {
 ## Conversion to rules
 
 Once your Data Flows are documented, use the "Data Flow Rules" view to see
-all the enabled Data Flows with a specification in a flat view. This can be
+all the enabled Data Flows in a flat view. This can be
 used to create your firewall rules, for example.
 *WIP:* regroup as much as possible similar rules.
 

@@ -1,6 +1,6 @@
 from extras.plugins import PluginConfig
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 
 class DataFlowsConfig(PluginConfig):
@@ -12,7 +12,7 @@ class DataFlowsConfig(PluginConfig):
     author = "Thomas Fargeix"
     required_settings = []
     default_settings = {}
-    min_version = "3.4.0"
+    min_version = "3.4.2"
 
 
 config = DataFlowsConfig
