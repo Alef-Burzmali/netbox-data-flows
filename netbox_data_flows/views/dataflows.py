@@ -135,15 +135,15 @@ class VirtualMachineDataFlowListTabView(DataFlowListTabViewBase):
 
 
 @register_model_view(IPAddress, name="dataflows-tab", path="dataflows")
-class VirtualMachineDataFlowListTabView(DataFlowListTabViewBase):
+class IPAddressDataFlowListTabView(DataFlowListTabViewBase):
     queryset = IPAddress.objects.all()
 
 
 @register_model_view(IPRange, name="dataflows-tab", path="dataflows")
-class VirtualMachineDataFlowListTabView(DataFlowListTabViewBase):
+class IPRangeDataFlowListTabView(DataFlowListTabViewBase):
     queryset = IPRange.objects.all()
 
 
 @register_model_view(Prefix, name="dataflows-tab", path="dataflows")
-class VirtualMachineDataFlowListTabView(DataFlowListTabViewBase):
+class PrefixDataFlowListTabView(DataFlowListTabViewBase):
     queryset = Prefix.objects.all()
