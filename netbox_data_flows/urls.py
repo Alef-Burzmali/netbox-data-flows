@@ -1,6 +1,7 @@
-from django.urls import path
+from django.urls import include, path
 
 from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
+from utilities.urls import get_model_urls
 
 from . import models, views
 
@@ -36,24 +37,7 @@ urlpatterns += (
     ),
     path(
         "application-roles/<int:pk>/",
-        views.ApplicationRoleView.as_view(),
-        name="applicationrole",
-    ),
-    path(
-        "application-roles/<int:pk>/edit/",
-        views.ApplicationRoleEditView.as_view(),
-        name="applicationrole_edit",
-    ),
-    path(
-        "application-roles/<int:pk>/delete/",
-        views.ApplicationRoleDeleteView.as_view(),
-        name="applicationrole_delete",
-    ),
-    path(
-        "application-roles/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="applicationrole_changelog",
-        kwargs={"model": models.ApplicationRole},
+        include(get_model_urls("netbox_data_flows", "applicationrole")),
     ),
 )
 
@@ -86,30 +70,7 @@ urlpatterns += (
     ),
     path(
         "applications/<int:pk>/",
-        views.ApplicationView.as_view(),
-        name="application",
-    ),
-    path(
-        "applications/<int:pk>/edit/",
-        views.ApplicationEditView.as_view(),
-        name="application_edit",
-    ),
-    path(
-        "applications/<int:pk>/delete/",
-        views.ApplicationDeleteView.as_view(),
-        name="application_delete",
-    ),
-    path(
-        "applications/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="application_changelog",
-        kwargs={"model": models.Application},
-    ),
-    path(
-        "applications/<int:pk>/journal/",
-        ObjectJournalView.as_view(),
-        name="application_journal",
-        kwargs={"model": models.Application},
+        include(get_model_urls("netbox_data_flows", "application")),
     ),
 )
 
@@ -142,24 +103,7 @@ urlpatterns += (
     ),
     path(
         "dataflow-groups/<int:pk>/",
-        views.DataFlowGroupView.as_view(),
-        name="dataflowgroup",
-    ),
-    path(
-        "dataflow-groups/<int:pk>/edit/",
-        views.DataFlowGroupEditView.as_view(),
-        name="dataflowgroup_edit",
-    ),
-    path(
-        "dataflow-groups/<int:pk>/delete/",
-        views.DataFlowGroupDeleteView.as_view(),
-        name="dataflowgroup_delete",
-    ),
-    path(
-        "dataflow-groups/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="dataflowgroup_changelog",
-        kwargs={"model": models.DataFlowGroup},
+        include(get_model_urls("netbox_data_flows", "dataflowgroup")),
     ),
 )
 
@@ -192,30 +136,7 @@ urlpatterns += (
     ),
     path(
         "dataflows/<int:pk>/",
-        views.DataFlowView.as_view(),
-        name="dataflow",
-    ),
-    path(
-        "dataflows/<int:pk>/edit/",
-        views.DataFlowEditView.as_view(),
-        name="dataflow_edit",
-    ),
-    path(
-        "dataflows/<int:pk>/delete/",
-        views.DataFlowDeleteView.as_view(),
-        name="dataflow_delete",
-    ),
-    path(
-        "dataflows/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="dataflow_changelog",
-        kwargs={"model": models.DataFlow},
-    ),
-    path(
-        "dataflows/<int:pk>/journal/",
-        ObjectJournalView.as_view(),
-        name="dataflow_journal",
-        kwargs={"model": models.DataFlow},
+        include(get_model_urls("netbox_data_flows", "dataflow")),
     ),
     path(
         "dataflows/rules/",
@@ -253,39 +174,6 @@ urlpatterns += (
     ),
     path(
         "aliases/<int:pk>/",
-        views.ObjectAliasView.as_view(),
-        name="objectalias",
-    ),
-    path(
-        "aliases/<int:pk>/link/",
-        views.ObjectAliasAddTargetView.as_view(),
-        name="objectalias_addtarget",
-    ),
-    path(
-        "aliases/<int:container_pk>/unlink/<int:alias_pk>",
-        views.ObjectAliasRemoveTargetView.as_view(),
-        name="objectalias_removetarget",
-    ),
-    path(
-        "aliases/<int:pk>/edit/",
-        views.ObjectAliasEditView.as_view(),
-        name="objectalias_edit",
-    ),
-    path(
-        "aliases/<int:pk>/delete/",
-        views.ObjectAliasDeleteView.as_view(),
-        name="objectalias_delete",
-    ),
-    path(
-        "aliases/<int:pk>/changelog/",
-        ObjectChangeLogView.as_view(),
-        name="objectalias_changelog",
-        kwargs={"model": models.ObjectAlias},
-    ),
-    path(
-        "aliases/<int:pk>/journal/",
-        ObjectJournalView.as_view(),
-        name="objectalias_journal",
-        kwargs={"model": models.ObjectAlias},
+        include(get_model_urls("netbox_data_flows", "objectalias")),
     ),
 )

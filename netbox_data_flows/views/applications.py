@@ -1,6 +1,7 @@
 from django.db.models import Count
 
 from netbox.views import generic
+from utilities.views import register_model_view
 
 from netbox_data_flows import filtersets, forms, models, tables
 
@@ -16,6 +17,16 @@ __all__ = (
 )
 
 
+class ApplicationListView(generic.ObjectListView):
+    queryset = models.Application.objects.prefetch_related("role").annotate(
+        dataflow_count=Count("dataflows"),
+    )
+    table = tables.ApplicationTable
+    filterset = filtersets.ApplicationFilterSet
+    filterset_form = forms.ApplicationFilterForm
+
+
+@register_model_view(models.Application)
 class ApplicationView(generic.ObjectView):
     queryset = models.Application.objects.prefetch_related(
         "role", "contacts", "dataflows", "dataflow_groups"
@@ -38,20 +49,13 @@ class ApplicationView(generic.ObjectView):
         }
 
 
-class ApplicationListView(generic.ObjectListView):
-    queryset = models.Application.objects.prefetch_related("role").annotate(
-        dataflow_count=Count("dataflows"),
-    )
-    table = tables.ApplicationTable
-    filterset = filtersets.ApplicationFilterSet
-    filterset_form = forms.ApplicationFilterForm
-
-
+@register_model_view(models.Application, "edit")
 class ApplicationEditView(generic.ObjectEditView):
     queryset = models.Application.objects.prefetch_related("role")
     form = forms.ApplicationForm
 
 
+@register_model_view(models.Application, "delete")
 class ApplicationDeleteView(generic.ObjectDeleteView):
     queryset = models.Application.objects.all()
 

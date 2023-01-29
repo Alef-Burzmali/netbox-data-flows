@@ -1,6 +1,7 @@
 from django.db.models import Count
 
 from netbox.views import generic
+from utilities.views import register_model_view
 
 from netbox_data_flows import filtersets, forms, models, tables
 
@@ -16,6 +17,15 @@ __all__ = (
 )
 
 
+class ApplicationRoleListView(generic.ObjectListView):
+    queryset = models.ApplicationRole.objects.annotate(
+        application_count=Count("applications"),
+    )
+    table = tables.ApplicationRoleTable
+    filterset = filtersets.ApplicationRoleFilterSet
+
+
+@register_model_view(models.ApplicationRole)
 class ApplicationRoleView(generic.ObjectView):
     queryset = models.ApplicationRole.objects.all()
 
@@ -30,19 +40,13 @@ class ApplicationRoleView(generic.ObjectView):
         }
 
 
-class ApplicationRoleListView(generic.ObjectListView):
-    queryset = models.ApplicationRole.objects.annotate(
-        application_count=Count("applications"),
-    )
-    table = tables.ApplicationRoleTable
-    filterset = filtersets.ApplicationRoleFilterSet
-
-
+@register_model_view(models.ApplicationRole, "edit")
 class ApplicationRoleEditView(generic.ObjectEditView):
     queryset = models.ApplicationRole.objects.all()
     form = forms.ApplicationRoleForm
 
 
+@register_model_view(models.ApplicationRole, "delete")
 class ApplicationRoleDeleteView(generic.ObjectDeleteView):
     queryset = models.ApplicationRole.objects.all()
 

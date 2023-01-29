@@ -20,18 +20,6 @@ __all__ = (
 )
 
 
-class DataFlowView(generic.ObjectView):
-    queryset = models.DataFlow.objects.prefetch_related(
-        "application", "application__role", "group", "sources", "destinations"
-    )
-
-    def get_extra_context(self, request, instance):
-        return {
-            "sources": instance.sources.all(),
-            "destinations": instance.destinations.all(),
-        }
-
-
 class DataFlowListView(generic.ObjectListView):
     queryset = models.DataFlow.objects.prefetch_related(
         "application",
@@ -63,12 +51,26 @@ class DataFlowRuleListView(DataFlowListView):
         }
 
 
+@register_model_view(models.DataFlow)
+class DataFlowView(generic.ObjectView):
+    queryset = models.DataFlow.objects.prefetch_related(
+        "application", "application__role", "group", "sources", "destinations"
+    )
+
+    def get_extra_context(self, request, instance):
+        return {
+            "sources": instance.sources.all(),
+            "destinations": instance.destinations.all(),
+        }
+
+
+@register_model_view(models.DataFlow, "edit")
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
     form = forms.DataFlowForm
-    # template_name = "netbox_data_flows/dataflow_edit.html"
 
 
+@register_model_view(models.DataFlow, "delete")
 class DataFlowDeleteView(generic.ObjectDeleteView):
     queryset = models.DataFlow.objects.all()
 

@@ -24,6 +24,16 @@ __all__ = (
 )
 
 
+class ObjectAliasListView(generic.ObjectListView):
+    queryset = models.ObjectAlias.objects.annotate(
+        target_count=Count("targets"),
+    )
+    table = tables.ObjectAliasTable
+    filterset = filtersets.ObjectAliasFilterSet
+    filterset_form = forms.ObjectAliasFilterForm
+
+
+@register_model_view(models.ObjectAlias)
 class ObjectAliasView(generic.ObjectView):
     queryset = models.ObjectAlias.objects.prefetch_related(
         "targets",
@@ -54,20 +64,13 @@ class ObjectAliasView(generic.ObjectView):
         }
 
 
-class ObjectAliasListView(generic.ObjectListView):
-    queryset = models.ObjectAlias.objects.annotate(
-        target_count=Count("targets"),
-    )
-    table = tables.ObjectAliasTable
-    filterset = filtersets.ObjectAliasFilterSet
-    filterset_form = forms.ObjectAliasFilterForm
-
-
+@register_model_view(models.ObjectAlias, "edit")
 class ObjectAliasEditView(generic.ObjectEditView):
     queryset = models.ObjectAlias.objects.all()
     form = forms.ObjectAliasForm
 
 
+@register_model_view(models.ObjectAlias, "delete")
 class ObjectAliasDeleteView(generic.ObjectDeleteView):
     queryset = models.ObjectAlias.objects.all()
 
@@ -91,6 +94,7 @@ class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
     table = tables.ObjectAliasTable
 
 
+@register_model_view(models.ObjectAlias, name="addtarget", path="link")
 class ObjectAliasAddTargetView(AddAliasesView):
     """Add ObjectAliasTarget(s) to an ObjectAlias"""
 
@@ -100,6 +104,9 @@ class ObjectAliasAddTargetView(AddAliasesView):
     aliases_attribute = "targets"
 
 
+@register_model_view(
+    models.ObjectAlias, name="removetarget", path="unlink/<int:alias_pk>"
+)
 class ObjectAliasRemoveTargetView(RemoveAliasView):
     """Remove one ObjectAliasTarget from an ObjectAlias"""
 

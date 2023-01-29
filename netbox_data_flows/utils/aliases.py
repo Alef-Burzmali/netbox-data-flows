@@ -161,7 +161,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
         Args:
             request: The current request
         """
-        obj = get_object_or_404(self.queryset, pk=kwargs["container_pk"])
+        obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
         alias = get_object_or_404(
             getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
         )
@@ -187,7 +187,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
             request: The current request
         """
         logger = logging.getLogger("netbox_data_flows.views.RemoveAliasView")
-        obj = get_object_or_404(self.queryset, pk=kwargs["container_pk"])
+        obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
         alias = get_object_or_404(
             getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
         )
