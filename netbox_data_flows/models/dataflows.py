@@ -34,10 +34,10 @@ class DataFlowQuerySet(RestrictedQuerySet):
         )
 
     def only_enabled(self):
-        enabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
+        disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
         return self.filter(
             status=DataFlowStatusChoices.STATUS_ENABLED
-        ).exclude(group_id__in=enabled_groups)
+        ).exclude(group_id__in=disabled_groups)
 
     def part_of_group_recursive(self, *dataflowgroups):
         group_ids = [getattr(dfg, "pk", dfg) for dfg in dataflowgroups]

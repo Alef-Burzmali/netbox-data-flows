@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.db.models import Manager
 
 from netbox.models import NestedGroupModel
 from utilities.mptt import TreeManager, TreeQuerySet
@@ -29,7 +28,7 @@ class DataFlowGroupQuerySet(TreeQuerySet):
 
 
 class DataFlowGroupManager(
-    Manager.from_queryset(DataFlowGroupQuerySet), TreeManager
+    models.Manager.from_queryset(DataFlowGroupQuerySet), TreeManager
 ):
     pass
 

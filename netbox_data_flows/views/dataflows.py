@@ -37,6 +37,8 @@ class DataFlowListView(generic.ObjectListView):
         "application",
         "application__role",
         "group",
+        "sources",
+        "destinations",
     )
     table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
@@ -84,11 +86,14 @@ class DataFlowBulkDeleteView(generic.BulkDeleteView):
 
 
 class DataFlowRuleListView(generic.ObjectListView):
-    queryset = models.DataFlow.objects.only_enabled()
-    table = tables.DataFlowRuleTable
+    table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm
     template_name = "netbox_data_flows/dataflow_list.html"
+
+    def get_queryset(self, request):
+        # only_enabled() breaks lazy queryset
+        return self.queryset.only_enabled()
 
     def get_extra_context(self, request):
         return {
