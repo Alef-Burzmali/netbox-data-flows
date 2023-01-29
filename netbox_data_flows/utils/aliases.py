@@ -162,7 +162,9 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
             request: The current request
         """
         obj = get_object_or_404(self.queryset, pk=kwargs["container_pk"])
-        alias = get_object_or_404(obj.targets, pk=kwargs["alias_pk"])
+        alias = get_object_or_404(
+            getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
+        )
         form = self.form(initial=request.GET)
 
         return render(
