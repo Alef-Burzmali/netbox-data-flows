@@ -11,12 +11,12 @@ from netbox_data_flows import filtersets, forms, models, tables
 __all__ = (
     "DataFlowView",
     "DataFlowListView",
+    "DataFlowRuleListView",
     "DataFlowEditView",
     "DataFlowDeleteView",
     "DataFlowBulkImportView",
     "DataFlowBulkEditView",
     "DataFlowBulkDeleteView",
-    "DataFlowRuleListView",
 )
 
 
@@ -51,6 +51,18 @@ class DataFlowListView(generic.ObjectListView):
         }
 
 
+class DataFlowRuleListView(DataFlowListView):
+    def get_queryset(self, request):
+        # only_enabled() breaks lazy queryset
+        return self.queryset.only_enabled()
+
+    def get_extra_context(self, request):
+        return {
+            "as_rules": True,
+            "actions": ("export",),
+        }
+
+
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
     form = forms.DataFlowForm
@@ -78,28 +90,6 @@ class DataFlowBulkDeleteView(generic.BulkDeleteView):
     queryset = models.DataFlow.objects.all()
     filterset = filtersets.DataFlowFilterSet
     table = tables.DataFlowTable
-
-
-#
-# As rule
-#
-
-
-class DataFlowRuleListView(generic.ObjectListView):
-    table = tables.DataFlowTable
-    filterset = filtersets.DataFlowFilterSet
-    filterset_form = forms.DataFlowFilterForm
-    template_name = "netbox_data_flows/dataflow_list.html"
-
-    def get_queryset(self, request):
-        # only_enabled() breaks lazy queryset
-        return self.queryset.only_enabled()
-
-    def get_extra_context(self, request):
-        return {
-            "as_rules": True,
-            "actions": ("export",),
-        }
 
 
 #
