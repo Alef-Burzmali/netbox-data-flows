@@ -13,7 +13,11 @@ from django.views.generic import View
 from netbox.views import generic as generic_views
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import restrict_form_fields, ConfirmationForm
+from utilities.forms import (
+    restrict_form_fields,
+    ConfirmationForm,
+    BootstrapMixin,
+)
 from utilities.permissions import get_permission_for_model
 from utilities.utils import normalize_querydict
 
@@ -25,7 +29,7 @@ __all__ = (
 )
 
 
-class AddAliasesForm(forms.Form):
+class AddAliasesForm(BootstrapMixin, forms.Form):
     """Link aliased objects to an object"""
 
     aliased_fields = tuple()
@@ -35,6 +39,17 @@ class AddAliasesForm(forms.Form):
             if self.cleaned_data[field_name]:
                 for obj in self.cleaned_data[field_name]:
                     yield obj
+
+    def pre_save_object(self, bound, obj, aliases):
+        """
+        Hook to further modify the object once the aliases have been
+        added and before closing the transaction
+
+        bound: bound form instance
+        obj: edited object
+        aliases: aliases that have been linked
+        """
+        pass
 
 
 class AddAliasesView(generic_views.ObjectEditView):
@@ -106,6 +121,7 @@ class AddAliasesView(generic_views.ObjectEditView):
                         if a.pk is None:
                             a.save()
                     getattr(obj, self.aliases_attribute).add(*aliases)
+                    form.pre_save_object(form, obj, aliases)
                     obj.save()
 
                 msg = f"Added {len(aliases)} alias to"

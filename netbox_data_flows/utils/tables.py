@@ -7,5 +7,6 @@ class RuntimeTemplateColumn(columns.TemplateColumn):
     attrs = {"td": {"class": "text-end text-nowrap noprint"}}
 
     def render(self, record, table, *args, **kwargs):
-        self.extra_context.update(table.extra_context)
+        if table.extra_context:
+            self.extra_context.update(table.extra_context)
         return super().render(record, table, *args, **kwargs)
