@@ -19,8 +19,11 @@ not guaranteed.
 
 Add this line in your local_requirements.txt and run upgrade.sh:
 ```
-netbox_data_flows @ https://github.com/Alef-Burzmali/netbox-data-flows/releases/download/v0.4.0/netbox-data-flows-0.4.0.tar.gz
+netbox_data_flows @ https://github.com/Alef-Burzmali/netbox-data-flows/releases/download/v0.X.X/netbox-data-flows-0.X.X.tar.gz
 ```
+Note: please use the latest version number.
+
+Pypi installation will be supported once the plugin is considered stable enough to leave beta.
 
 ## Data model
 
