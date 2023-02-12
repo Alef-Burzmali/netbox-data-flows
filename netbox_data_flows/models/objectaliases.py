@@ -152,19 +152,6 @@ class ObjectAliasTarget(models.Model):
             return None
 
     @property
-    def size(self):
-        if self._model == "ipaddress":
-            return 1
-        elif self._model == "iprange":
-            return self.target.size
-        elif self._model == "prefix":
-            return 2**self.target.mask_length
-        else:
-            raise RuntimeError(
-                f"ObjectAliasTarget has a unsupported model: {self._model}"
-            )
-
-    @property
     def family(self):
         try:
             return self.target.family
@@ -242,11 +229,6 @@ class ObjectAlias(NetBoxModel):
         max_length=200,
         blank=True,
     )
-    size = models.PositiveSmallIntegerField(
-        editable=False,
-        default=0,
-        help_text="The size of the ObjectAlias's networks or hosts, for sorting",
-    )
 
     # We cannot have ManyToMany relations to GenericForeignKeys, hence the
     # intermediary Target type
@@ -279,14 +261,3 @@ class ObjectAlias(NetBoxModel):
             raise TypeError(
                 f"{self.__class__} cannot be compared with {type(other)}"
             ) from e
-
-    def save(self, *args, **kwargs):
-        if self.pk:
-            # Compute our logarithmic size
-            if self.targets:
-                size = sum(t.size for t in self.targets.all())
-                self.size = int(math.log2(size))
-            else:
-                self.size = 0
-
-        super().save(*args, **kwargs)

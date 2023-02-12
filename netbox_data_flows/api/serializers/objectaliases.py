@@ -55,6 +55,5 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
             "display",
             "name",
             "description",
-            "size",
             "targets",
         )
