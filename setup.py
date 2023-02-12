@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name="netbox-data-flows",
-    version="0.4.2",
+    version="0.4.3",
     description="NetBox plugin to document applications and data flows",
     author="Thomas Fargeix",
     license="Apache 2.0",
