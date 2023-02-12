@@ -221,9 +221,6 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                     aliases.remove(alias)
                     obj.save()
 
-                    if not alias.aliases.exists():
-                        alias.delete()
-
             except ProtectedError as e:
                 logger.info(
                     "Caught ProtectedError while attempting to delete object"
