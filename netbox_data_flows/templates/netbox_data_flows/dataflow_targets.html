@@ -1,0 +1,62 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.application %}
+  <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:dataflow_list' %}?application_id={{ object.application.pk }}">{{ object.application }}</a></li>
+  {% endif %}
+  <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:dataflow' object.pk %}">{{ object }}</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Specifications</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Protocol</th>
+              <td>{{ object.get_protocol_display|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Source ports</th>
+              <td>{{ object.source_port_list|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Destination ports</th>
+              <td>{{ object.destination_port_list|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Sources</h5>
+        <div class="card-body table-responsive">
+          {% render_table sources_table %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Destinations</h5>
+        <div class="card-body table-responsive">
+          {% render_table destinations_table %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
