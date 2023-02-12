@@ -25,7 +25,7 @@ from utilities.utils import normalize_querydict
 __all__ = (
     "AddAliasesForm",
     "AddAliasesView",
-    "RemoveAliasesView",
+    "RemoveAliasView",
 )
 
 
