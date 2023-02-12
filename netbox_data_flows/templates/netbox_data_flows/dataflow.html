@@ -7,7 +7,9 @@
 
 {% block breadcrumbs %}
   {{ block.super }}
+  {% if object.application %}
   <li class="breadcrumb-item"><a href="{% url 'plugins:netbox_data_flows:dataflow_list' %}?application_id={{ object.application.pk }}">{{ object.application }}</a></li>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
