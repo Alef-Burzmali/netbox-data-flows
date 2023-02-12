@@ -15,6 +15,7 @@ class DataFlowProtocolChoices(ChoiceSet):
     PROTOCOL_ICMP = "icmp"
     PROTOCOL_TCP = "tcp"
     PROTOCOL_UDP = "udp"
+    PROTOCOL_TCP_UDP = "tcp+udp"
     PROTOCOL_SCTP = "sctp"
 
     CHOICES = (
@@ -22,6 +23,7 @@ class DataFlowProtocolChoices(ChoiceSet):
         (PROTOCOL_ICMP, "ICMP"),
         (PROTOCOL_TCP, "TCP"),
         (PROTOCOL_UDP, "UDP"),
+        (PROTOCOL_TCP_UDP, "TCP+UDP"),
         (PROTOCOL_SCTP, "SCTP"),
     )
 
