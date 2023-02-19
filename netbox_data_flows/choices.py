@@ -11,6 +11,9 @@ __all__ = (
 class DataFlowProtocolChoices(ChoiceSet):
     """List of protocols allowed for data flows"""
 
+    # Enable dynamic configuration
+    key = "DataFlow.protocol"
+
     PROTOCOL_ANY = "any"
     PROTOCOL_ICMP = "icmp"
     PROTOCOL_TCP = "tcp"
@@ -18,14 +21,14 @@ class DataFlowProtocolChoices(ChoiceSet):
     PROTOCOL_TCP_UDP = "tcp+udp"
     PROTOCOL_SCTP = "sctp"
 
-    CHOICES = (
+    CHOICES = [
         (PROTOCOL_ANY, "Any"),
         (PROTOCOL_ICMP, "ICMP"),
         (PROTOCOL_TCP, "TCP"),
         (PROTOCOL_UDP, "UDP"),
         (PROTOCOL_TCP_UDP, "TCP+UDP"),
         (PROTOCOL_SCTP, "SCTP"),
-    )
+    ]
 
 
 class DataFlowStatusChoices(ChoiceSet):
