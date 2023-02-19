@@ -10,6 +10,8 @@ from django.urls import reverse
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
+from ipam.models import Prefix, IPRange, IPAddress
+
 from netbox_data_flows.utils.helpers import get_assignment_querystring
 from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
@@ -21,6 +23,11 @@ __all__ = (
 
 
 # Object types allowed in aliases
+OBJECTALIAS_ASSIGNMENT_OBJECTS = (
+    Prefix,
+    IPRange,
+    IPAddress,
+)
 OBJECTALIAS_ASSIGNMENT_MODELS = (
     ("ipam", "prefix"),
     ("ipam", "iprange"),
