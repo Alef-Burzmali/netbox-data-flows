@@ -5,7 +5,6 @@ import utilities.json
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("netbox_data_flows", "0002_alter_objectalias_options"),
     ]

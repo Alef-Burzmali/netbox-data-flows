@@ -12,7 +12,6 @@ def set_slug_defaults(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("netbox_data_flows", "0004_reindex_netbox_data_flows"),
     ]

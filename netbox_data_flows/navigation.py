@@ -8,6 +8,7 @@ from utilities.choices import ButtonColorChoices
 
 APP_LABEL = "plugins:netbox_data_flows"
 
+
 # clone of netbox.navigation_menu.get_model_item, but for plugin
 def get_model_item(model_name, label, actions=("add", "import")):
     return PluginMenuItem(

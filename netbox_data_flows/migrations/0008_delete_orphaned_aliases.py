@@ -11,7 +11,6 @@ def delete_orphaned_aliases(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("netbox_data_flows", "0007_remove_objectalias_size"),
     ]
