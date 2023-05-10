@@ -11,6 +11,7 @@ from utilities.forms.fields import (
     CommentField,
     CSVChoiceField,
     CSVModelChoiceField,
+    CSVModelMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
@@ -241,8 +242,8 @@ class DataFlowImportForm(NetBoxModelImportForm):
         required=True,
     )
     protocol = CSVChoiceField(
-        choices=add_blank_choice(choices.DataFlowStatusChoices),
-        required=False,
+        choices=add_blank_choice(choices.DataFlowProtocolChoices),
+        required=True,
     )
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(
@@ -259,9 +260,18 @@ class DataFlowImportForm(NetBoxModelImportForm):
         required=False,
     )
 
-    # TODO:
-    # sources
-    # destinations
+    sources = CSVModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        to_field_name="name",
+        help_text="Comma-separated list of one or more name of ObjectAlias.",
+    )
+    destinations = CSVModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        to_field_name="name",
+        help_text="Comma-separated list of one or more name of ObjectAlias.",
+    )
 
     class Meta:
         model = models.DataFlow
@@ -274,6 +284,8 @@ class DataFlowImportForm(NetBoxModelImportForm):
             "protocol",
             "source_ports",
             "destination_ports",
+            "sources",
+            "destinations",
         )
 
 
