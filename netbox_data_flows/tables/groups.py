@@ -55,6 +55,7 @@ class DataFlowGroupTable(NetBoxTable):
             "application_role",
             "parent",
             "dataflow_count",
+            "comments",
             "tags",
             "created",
             "last_updated",
