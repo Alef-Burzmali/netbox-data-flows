@@ -6,18 +6,27 @@ from netbox.forms import (
     NetBoxModelImportForm,
     NetBoxModelFilterSetForm,
 )
-from utilities.forms import (
-    add_blank_choice,
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import (
     CommentField,
     CSVChoiceField,
     CSVModelChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    MultipleChoiceField,
-    NumericArrayField,
-    StaticSelect,
+    MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
     TagFilterField,
 )
+
+try:  # >=3.5.0
+    from utilities.forms.fields import NumericArrayField
+except ImportError:  # <3.5.0
+    from utilities.forms import NumericArrayField
+
+# TODO: Cleanup of StaticSelect
+try:  # <3.5.0
+    from utilities.forms import StaticSelect
+except ImportError:  # >=3.5.0
+    StaticSelect = forms.Select
 
 from dcim.models import Device
 from ipam.models import Prefix, IPRange, IPAddress

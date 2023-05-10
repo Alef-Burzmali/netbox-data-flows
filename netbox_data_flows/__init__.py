@@ -13,6 +13,7 @@ class DataFlowsConfig(PluginConfig):
     required_settings = []
     default_settings = {}
     min_version = "3.4.2"
+    max_version = "3.5.99"
 
     def ready(self):
         from . import signals

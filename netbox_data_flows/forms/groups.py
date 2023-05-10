@@ -6,19 +6,27 @@ from netbox.forms import (
     NetBoxModelFilterSetForm,
     NetBoxModelImportForm,
 )
-from utilities.forms import (
-    add_blank_choice,
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import (
     CommentField,
     CSVChoiceField,
     CSVModelChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    MultipleChoiceField,
-    NumericArrayField,
-    StaticSelect,
+    MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
     SlugField,
     TagFilterField,
 )
+
+try:  # >=3.5.0
+    from utilities.forms.fields import NumericArrayField
+except ImportError:  # <3.5.0
+    from utilities.forms import NumericArrayField
+
+try:  # <3.5.0
+    from utilities.forms import StaticSelect
+except ImportError:  # >=3.5.0
+    StaticSelect = forms.Select
 
 from netbox_data_flows import models, choices
 

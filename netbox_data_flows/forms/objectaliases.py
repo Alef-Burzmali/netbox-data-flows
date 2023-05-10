@@ -6,7 +6,7 @@ from netbox.forms import (
     NetBoxModelFilterSetForm,
     NetBoxModelImportForm,
 )
-from utilities.forms import (
+from utilities.forms.fields import (
     TagFilterField,
     DynamicModelMultipleChoiceField,
 )

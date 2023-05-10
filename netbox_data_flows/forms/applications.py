@@ -7,7 +7,7 @@ from netbox.forms import (
     NetBoxModelImportForm,
 )
 from tenancy.forms import ContactModelFilterForm
-from utilities.forms import (
+from utilities.forms.fields import (
     CommentField,
     CSVModelChoiceField,
     DynamicModelChoiceField,
