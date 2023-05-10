@@ -9,7 +9,7 @@ This plugin is considered Work in Progress (Beta).
 Please use caution if using this plugin for production!
 
 ## Dependencies
-  - NetBox (>=3.4.2)
+  - NetBox (>=3.4.2, <3.6.0)
 
 *Note:* the plugin uses some classes that are not explicitely exported in 
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
@@ -19,7 +19,7 @@ not guaranteed.
 
 Add this line in your local_requirements.txt and run upgrade.sh:
 ```
-netbox_data_flows @ https://github.com/Alef-Burzmali/netbox-data-flows/releases/download/v0.X.X/netbox-data-flows-0.X.X.tar.gz
+netbox-data-flows @ https://github.com/Alef-Burzmali/netbox-data-flows/releases/download/v0.X.X/netbox-data-flows-0.X.X.tar.gz
 ```
 Note: please use the latest version number.
 
