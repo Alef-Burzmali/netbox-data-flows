@@ -28,7 +28,7 @@ jobs:
         run: |
           TAG=$(git describe HEAD --tags --abbrev=0)
           echo "Version from tag: ${TAG}"
-          if [[ "$TAG" != "$PROJECT_VERSION" ]]; then exit 1; fi
+          if [[ "$TAG" != "v$PROJECT_VERSION" ]]; then exit 1; fi
       - name: Build project
         run: python -m build .
       - name: Verify build
