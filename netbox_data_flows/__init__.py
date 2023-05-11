@@ -1,6 +1,6 @@
 from extras.plugins import PluginConfig
 
-__version__ = "0.5.1.post3"
+__version__ = "0.5.1.post4"
 
 
 class DataFlowsConfig(PluginConfig):
