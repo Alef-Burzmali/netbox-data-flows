@@ -23,8 +23,8 @@ jobs:
       - name: Get version of project
         run: |
           PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
-          echo "Version from __init__.py: $(VERSION)"
-          echo "PROJECT_VERSION=$(PROJECT_VERSION)" >> $GITHUB_ENV
+          echo "Version from __init__.py: ${PROJECT_VERSION}"
+          echo "PROJECT_VERSION=${PROJECT_VERSION}" >> $GITHUB_ENV
       - run: mkdir dist
       - uses: actions/download-artifact@v3
         with:
