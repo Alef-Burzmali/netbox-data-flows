@@ -6,13 +6,13 @@ from utilities.choices import ButtonColorChoices
 # Utility functions
 #
 
-APP_LABEL = "plugins:netbox_data_flows"
+APP_LABEL = "netbox_data_flows"
 
 
 # clone of netbox.navigation_menu.get_model_item, but for plugin
 def get_model_item(model_name, label, actions=("add", "import")):
     return PluginMenuItem(
-        link=f"{APP_LABEL}:{model_name}_list",
+        link=f"plugins:{APP_LABEL}:{model_name}_list",
         link_text=label,
         permissions=[f"{APP_LABEL}.view_{model_name}"],
         buttons=get_model_buttons(model_name, actions),
@@ -26,7 +26,7 @@ def get_model_buttons(model_name, actions=("add", "import")):
     if "add" in actions:
         buttons.append(
             PluginMenuButton(
-                link=f"{APP_LABEL}:{model_name}_add",
+                link=f"plugins:{APP_LABEL}:{model_name}_add",
                 title="Add",
                 icon_class="mdi mdi-plus-thick",
                 permissions=[f"{APP_LABEL}.add_{model_name}"],
@@ -36,7 +36,7 @@ def get_model_buttons(model_name, actions=("add", "import")):
     if "import" in actions:
         buttons.append(
             PluginMenuButton(
-                link=f"{APP_LABEL}:{model_name}_import",
+                link=f"plugins:{APP_LABEL}:{model_name}_import",
                 title="Import",
                 icon_class="mdi mdi-upload",
                 permissions=[f"{APP_LABEL}.add_{model_name}"],
