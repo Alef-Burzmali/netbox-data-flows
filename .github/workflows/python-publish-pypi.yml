@@ -15,7 +15,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment:
-      name: testpypi
+      name: pypi
       url: https://pypi.org/p/netbox-data-flows
     permissions:
       id-token: write
@@ -25,5 +25,5 @@ jobs:
         with:
           name: distributions
           path: dist/
-      - name: Publish package distributions to TestPyPI
+      - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
