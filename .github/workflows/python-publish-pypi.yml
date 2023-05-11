@@ -1,5 +1,9 @@
 name: Upload Python Package to PyPI
 
+on:
+  release:
+    types: [published]
+
 permissions:
   contents: read
 
@@ -7,12 +11,12 @@ jobs:
   build:
     uses: ./.github/workflows/python-build.yml
   testpypi-publish:
-    name: Upload release to TestPyPI
+    name: Upload release to PyPI
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/netbox-data-flows
+      url: https://pypi.org/p/netbox-data-flows
     permissions:
       id-token: write
     steps:
@@ -23,5 +27,3 @@ jobs:
           path: dist/
       - name: Publish package distributions to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/

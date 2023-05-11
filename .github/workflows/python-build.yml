@@ -1,5 +1,8 @@
 name: Build the project
 
+on:
+  workflow_call:
+
 permissions:
   contents: read
 
