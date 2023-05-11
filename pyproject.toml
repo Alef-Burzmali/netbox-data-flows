@@ -1,2 +1,35 @@
+[project]
+name = "netbox-data-flows"
+description = "NetBox plugin to document data flows between systems and applications."
+authors = [
+  { name="Thomas Fargeix" },
+]
+license = {text = "Apache 2.0"}
+readme = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.8"
+keywords = ["netbox", "netbox-plugins"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Plugins",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: System :: Networking",
+]
+dynamic = ["version"]
+
+[project.urls]
+"Homepage" = "https://github.com/Alef-Burzmali/netbox-data-flows"
+"Bug Tracker" = "https://github.com/Alef-Burzmali/netbox-data-flows/issues"
+
+[build-system]
+requires = ["setuptools>=61.0","black"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+version = {attr = "netbox_data_flows.__version__"}
+
 [tool.black]
 line-length = 79
