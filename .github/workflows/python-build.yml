@@ -23,11 +23,11 @@ jobs:
       - name: Get version of project
         run: |
           PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
-          echo "Version from __init__.py: $(VERSION)"
+          echo "Version from __init__.py: ${PROJECT_VERSION}"
       - name: Verify version from tag
         run: |
           TAG=$(git describe HEAD --tags --abbrev=0)
-          echo "Version from tag: $(TAG)"
+          echo "Version from tag: ${TAG}"
           if [[ "$TAG" != "$PROJECT_VERSION" ]]; then exit 1; fi
       - name: Build project
         run: python -m build .
