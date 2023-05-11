@@ -1,8 +1,4 @@
-name: Upload Python Package to TestPyPI
-
-on:
-  release:
-    types: [published]
+name: Upload Python Package to PyPI
 
 permissions:
   contents: read

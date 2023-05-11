@@ -76,7 +76,7 @@ Run the `upgrade.sh` script:
 ## Configuration
 
 There is no `PLUGIN_CONFIG` configuration for this plugin. However, several
-other aspects can be confugured.
+other aspects can be configured.
 
 ### Nomenclature
 

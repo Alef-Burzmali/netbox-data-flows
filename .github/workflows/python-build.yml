@@ -1,0 +1,37 @@
+name: Build the project
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Check and build project
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.8"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+      - name: Get version of project
+        run: |
+          PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
+          echo "Version from __init__.py: $(VERSION)"
+      - name: Verify version from tag
+        run: |
+          TAG=$(git describe HEAD --tags --abbrev=0)
+          echo "Version from tag: $(TAG)"
+          if [[ "$TAG" != "$PROJECT_VERSION" ]]; then exit 1; fi
+      - name: Build project
+        run: python -m build .
+      - name: Verify build
+        run: python -m twine check --strict dist/*
+      - name: Save build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: distributions
+          path: dist/*

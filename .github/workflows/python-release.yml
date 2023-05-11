@@ -1,0 +1,44 @@
+name: Create Draft Release on new tag
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  black:
+    uses: ./.github/workflows/python-black.yml
+  build:
+    needs: black
+    uses: ./.github/workflows/python-build.yml
+  autorelease:
+    name: Create Draft Release
+    needs: [black, build]
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Get version of project
+        run: |
+          PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
+          echo "Version from __init__.py: $(VERSION)"
+          echo "PROJECT_VERSION=$(PROJECT_VERSION)" >> $GITHUB_ENV
+      - run: mkdir dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: distributions
+          path: dist/
+      - name: Prepare release Notes
+        run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Create Release Draft
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ".github/RELEASE-TEMPLATE.md"
+          draft: true
+          files: |
+            dist/netbox_data_flows-${{env.PROJECT_VERSION}}.tar.gz
+            dist/netbox_data_flows-${{env.PROJECT_VERSION}}-py3-none-any.whl
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
