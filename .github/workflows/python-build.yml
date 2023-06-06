@@ -42,3 +42,4 @@ jobs:
         with:
           name: distributions
           path: dist/*
+          retention-days: 2

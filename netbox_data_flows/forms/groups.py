@@ -14,19 +14,10 @@ from utilities.forms.fields import (
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
     MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
+    NumericArrayField,
     SlugField,
     TagFilterField,
 )
-
-try:  # >=3.5.0
-    from utilities.forms.fields import NumericArrayField
-except ImportError:  # <3.5.0
-    from utilities.forms import NumericArrayField
-
-try:  # <3.5.0
-    from utilities.forms import StaticSelect
-except ImportError:  # >=3.5.0
-    StaticSelect = forms.Select
 
 from netbox_data_flows import models, choices
 
@@ -111,7 +102,7 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=StaticSelect(),
+        widget=forms.Select(),
     )
 
     fieldsets = (
@@ -191,12 +182,12 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=StaticSelect(),
+        widget=forms.Select(),
     )
     inherited_status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=StaticSelect(),
+        widget=forms.Select(),
     )
 
     fieldsets = (
