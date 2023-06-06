@@ -11,7 +11,6 @@ from utilities.forms.fields import (
     CommentField,
     CSVModelChoiceField,
     DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField,
     TagFilterField,
 )
 

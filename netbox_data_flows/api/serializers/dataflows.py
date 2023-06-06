@@ -5,7 +5,7 @@ from netbox.api.serializers import NetBoxModelSerializer
 
 from netbox_data_flows import models, choices
 
-from .nested import *
+from . import nested
 
 
 __all__ = ("DataFlowSerializer",)
@@ -16,13 +16,13 @@ class DataFlowSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:dataflow-detail"
     )
 
-    application = NestedApplicationSerializer(
+    application = nested.NestedApplicationSerializer(
         required=False, allow_null=True, default=None
     )
-    group = NestedDataFlowGroupSerializer(
+    group = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
-    recursive_group = NestedDataFlowGroupSerializer(
+    recursive_group = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
 
@@ -38,13 +38,13 @@ class DataFlowSerializer(NetBoxModelSerializer):
 
     sources = SerializedPKRelatedField(
         queryset=models.ObjectAlias.objects.all(),
-        serializer=NestedObjectAliasSerializer,
+        serializer=nested.NestedObjectAliasSerializer,
         required=False,
         many=True,
     )
     destinations = SerializedPKRelatedField(
         queryset=models.ObjectAlias.objects.all(),
-        serializer=NestedObjectAliasSerializer,
+        serializer=nested.NestedObjectAliasSerializer,
         required=False,
         many=True,
     )

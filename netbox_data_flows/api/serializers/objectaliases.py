@@ -1,14 +1,12 @@
 from rest_framework import serializers
 
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import (
     NetBoxModelSerializer,
     GenericObjectSerializer,
 )
 
-from netbox_data_flows import models, choices
-
-from .nested import *
+from netbox_data_flows import models
 
 
 __all__ = (

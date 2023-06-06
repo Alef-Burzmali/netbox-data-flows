@@ -1,4 +1,3 @@
-from django.db.models import Q
 from django_filters import FilterSet
 
 from netbox_data_flows import models, choices

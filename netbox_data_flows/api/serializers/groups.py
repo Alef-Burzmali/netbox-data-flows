@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NetBoxModelSerializer
 
 from netbox_data_flows import models, choices
 
-from .nested import *
+from . import nested
 
 
 __all__ = ("DataFlowGroupSerializer",)
@@ -23,13 +23,13 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
         read_only=True,
     )
 
-    application = NestedApplicationSerializer(
+    application = nested.NestedApplicationSerializer(
         required=False, allow_null=True, default=None
     )
-    parent = NestedDataFlowGroupSerializer(
+    parent = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
-    ancestor = NestedDataFlowGroupSerializer(
+    ancestor = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
 

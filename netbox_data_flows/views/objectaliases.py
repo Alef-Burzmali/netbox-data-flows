@@ -152,15 +152,15 @@ class VirtualMachineObjectAliasListTabView(ObjectAliasListTabViewBase):
 
 
 @register_model_view(IPAddress, name="objectalias-tab", path="aliases")
-class VirtualMachineObjectAliasListTabView(ObjectAliasListTabViewBase):
+class IPAddressObjectAliasListTabView(ObjectAliasListTabViewBase):
     queryset = IPAddress.objects.all()
 
 
 @register_model_view(IPRange, name="objectalias-tab", path="aliases")
-class VirtualMachineObjectAliasListTabView(ObjectAliasListTabViewBase):
+class IPRangeObjectAliasListTabView(ObjectAliasListTabViewBase):
     queryset = IPRange.objects.all()
 
 
 @register_model_view(Prefix, name="objectalias-tab", path="aliases")
-class VirtualMachineObjectAliasListTabView(ObjectAliasListTabViewBase):
+class PrefixObjectAliasListTabView(ObjectAliasListTabViewBase):
     queryset = Prefix.objects.all()

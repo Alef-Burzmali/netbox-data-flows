@@ -2,9 +2,9 @@ from rest_framework import serializers
 
 from netbox.api.serializers import NetBoxModelSerializer
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import models
 
-from .nested import *
+from . import nested
 
 
 __all__ = (
@@ -41,7 +41,7 @@ class ApplicationSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:application-detail"
     )
     dataflow_count = serializers.IntegerField(read_only=True)
-    role = NestedApplicationRoleSerializer()
+    role = nested.NestedApplicationRoleSerializer()
 
     class Meta:
         model = models.Application

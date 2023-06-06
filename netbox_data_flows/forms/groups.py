@@ -13,8 +13,6 @@ from utilities.forms.fields import (
     CSVModelChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
-    NumericArrayField,
     SlugField,
     TagFilterField,
 )
@@ -39,7 +37,10 @@ class DataFlowGroupForm(NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
-        help_text="Application that this data flow group (and all of its descendants) is part of.",
+        help_text=(
+            "Application that this data flow group (and all of its "
+            "descendants) is part of."
+        ),
     )
     parent = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
@@ -78,7 +79,10 @@ class DataFlowGroupForm(NetBoxModelForm):
             "tags",
         )
         help_texts = {
-            "status": "Status of the data flow group. Disabling a parent disables all its descendants and their data flows."
+            "status": (
+                "Status of the data flow group. Disabling a parent disables "
+                "all its descendants and their data flows."
+            )
         }
 
 

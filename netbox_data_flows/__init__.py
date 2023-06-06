@@ -6,7 +6,10 @@ __version__ = "0.6.0"
 class DataFlowsConfig(PluginConfig):
     name = "netbox_data_flows"
     verbose_name = "Data Flows"
-    description = "NetBox plugin to document data flows between systems and applications."
+    description = (
+        "NetBox plugin to document data flows between "
+        "systems and applications."
+    )
     version = __version__
     base_url = "data-flows"
     author = "Thomas Fargeix"
@@ -16,7 +19,7 @@ class DataFlowsConfig(PluginConfig):
     max_version = "3.5.99"
 
     def ready(self):
-        from . import signals
+        from . import signals  # noqa: F401
 
         super().ready()
 

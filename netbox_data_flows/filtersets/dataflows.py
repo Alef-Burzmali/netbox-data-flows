@@ -1,5 +1,4 @@
 from django.db.models import Q
-from django_filters import FilterSet
 
 from netbox.filtersets import NetBoxModelFilterSet
 
@@ -9,8 +8,14 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, choices
 
-from .addins import *
-from .filters import *
+from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
+from .filters import (
+    ChoiceFilter,
+    ModelMultipleChoiceFilter,
+    MultipleChoiceFilter,
+    MultiValueNumberFilter,
+    MultiValueNumericArrayFilter,
+)
 
 __all__ = ("DataFlowFilterSet",)
 

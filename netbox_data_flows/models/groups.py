@@ -121,8 +121,14 @@ class DataFlowGroup(NestedGroupModel):
             else:
                 raise ValidationError(
                     {
-                        "application": "The application of the data flow must match the application of its parent.",
-                        "parent": "The application of the parent must match the application of the data flow.",
+                        "application": (
+                            "The application of the data flow must match "
+                            "the application of its parent."
+                        ),
+                        "parent": (
+                            "The application of the parent must match the "
+                            "application of the data flow."
+                        ),
                     }
                 )
 
@@ -140,7 +146,10 @@ class DataFlowGroup(NestedGroupModel):
             ).exists():
                 raise ValidationError(
                     {
-                        "name": "A data flow with this name already exists for this application."
+                        "name": (
+                            "A data flow with this name already exists for "
+                            "this application."
+                        )
                     }
                 )
 

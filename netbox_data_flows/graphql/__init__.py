@@ -2,10 +2,10 @@ from graphene import ObjectType
 
 from netbox.graphql.fields import ObjectField, ObjectListField
 
-from .applications import *
-from .dataflows import *
-from .groups import *
-from .objectaliases import *
+from .applications import ApplicationRoleType, ApplicationType
+from .dataflows import DataFlowType
+from .groups import DataFlowGroupType
+from .objectaliases import ObjectAliasType, ObjectAliasTargetType
 
 
 class Query(ObjectType):

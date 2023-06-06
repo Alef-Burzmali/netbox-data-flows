@@ -1,5 +1,4 @@
 import logging
-from copy import deepcopy
 
 from django import forms
 from django.contrib import messages
@@ -8,10 +7,10 @@ from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.views.generic import View
 
 from netbox.views import generic as generic_views
 from extras.signals import clear_webhooks
+from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import (
     restrict_form_fields,
@@ -128,7 +127,8 @@ class AddAliasesView(generic_views.ObjectEditView):
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")
                 if hasattr(obj, "get_absolute_url"):
                     msg = mark_safe(
-                        f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>'
+                        f'{msg} <a href="{obj.get_absolute_url()}">'
+                        f"{escape(obj)}</a>"
                     )
                 else:
                     msg = f"{msg} {obj}"
@@ -233,11 +233,12 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                 messages.error(request, mark_safe(e.message))
                 return redirect(obj.get_absolute_url())
 
-            msg = f"Removed alias from"
+            msg = "Removed alias from"
             logger.info(f"{msg} {obj} (PK: {obj.pk})")
             if hasattr(obj, "get_absolute_url"):
                 msg = mark_safe(
-                    f'{msg} <a href="{obj.get_absolute_url()}">{escape(obj)}</a>'
+                    f'{msg} <a href="{obj.get_absolute_url()}">'
+                    f"{escape(obj)}</a>"
                 )
             else:
                 msg = f"{msg} {obj}"

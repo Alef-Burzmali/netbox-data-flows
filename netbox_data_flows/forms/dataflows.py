@@ -51,7 +51,10 @@ class DataFlowForm(NetBoxModelForm):
         query_params={
             "application_id": "$application",
         },
-        help_text="Parent group of this Data Flow. Disabling the group will disable this data flow.",
+        help_text=(
+            "Parent group of this Data Flow. "
+            "Disabling the group will disable this data flow."
+        ),
     )
 
     comments = CommentField()
@@ -59,14 +62,20 @@ class DataFlowForm(NetBoxModelForm):
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
 
@@ -123,7 +132,10 @@ class DataFlowForm(NetBoxModelForm):
             "protocol": forms.Select(),
         }
         help_texts = {
-            "status": "Status of the data group. If its group is disabled, the data flow will also be disabled."
+            "status": (
+                "Status of the data group. If its group is disabled, "
+                "the data flow will also be disabled."
+            )
         }
 
 
@@ -161,14 +173,20 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
 
@@ -239,14 +257,20 @@ class DataFlowImportForm(NetBoxModelImportForm):
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(
             min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX
         ),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        help_text=(
+            "Comma-separated list of one or more port numbers. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
 
@@ -467,7 +491,10 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             ),
         ),
         (
-            "Destinations - all destinations are OR'ed together, any will match",
+            (
+                "Destinations - all destinations are OR'ed together, "
+                "any will match"
+            ),
             (
                 "destination_is_null",
                 "destination_aliases",

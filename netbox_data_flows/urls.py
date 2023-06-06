@@ -1,9 +1,8 @@
 from django.urls import include, path
 
-from netbox.views.generic import ObjectChangeLogView, ObjectJournalView
 from utilities.urls import get_model_urls
 
-from . import models, views
+from . import views
 
 
 urlpatterns = tuple()

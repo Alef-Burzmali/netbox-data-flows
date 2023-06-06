@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 
@@ -13,7 +12,10 @@ __all__ = (
 
 
 class ApplicationRole(OrganizationalModel):
-    """Functional role of an application, e.g.: "Infrastructure", "Management", "Business" """
+    """
+    Functional role of an application,
+    e.g.: "Infrastructure", "Management", "Business"
+    """
 
     # Inherited fields:
     # name - unique

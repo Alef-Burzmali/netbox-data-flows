@@ -30,4 +30,4 @@ class Command(BaseCommand):
                 ObjectAliasTarget.objects.filter(pk__in=orphaned).delete()
                 self.stdout.write(f"Deleted {len(orphaned)} orphaned aliases.")
         else:
-            self.stdout.write(f"No orphaned aliases to delete.")
+            self.stdout.write("No orphaned aliases to delete.")

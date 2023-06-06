@@ -9,7 +9,7 @@ from virtualization.models import VirtualMachine
 from netbox_data_flows import models
 from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
-from .filters import *
+from .filters import ModelMultipleChoiceFilter
 
 
 __all__ = (

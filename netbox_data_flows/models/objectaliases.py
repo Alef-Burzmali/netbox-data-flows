@@ -1,8 +1,5 @@
-import math
-
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -59,7 +56,7 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
                 except Exception as e:
                     raise Exception(
                         f"Cannot test if {self.__class__} contains {t}"
-                    )
+                    ) from e
 
                 if ip_addresses:
                     ip_ct = ContentType.objects.get_for_model(
@@ -90,7 +87,7 @@ class ObjectAliasTarget(models.Model):
             ct = ContentType.objects.get_for_model(target.__class__)
             type = (ct.app_label, ct.model)
 
-            if not type in OBJECTALIAS_ASSIGNMENT_MODELS:
+            if type not in OBJECTALIAS_ASSIGNMENT_MODELS:
                 raise TypeError(
                     f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
                 )
@@ -135,7 +132,6 @@ class ObjectAliasTarget(models.Model):
     @property
     def name(self):
         if self._model == "ipaddress":
-            address = str(self.target).split("/")[0]
             if self.parent:
                 return f"{self.target} ({self.parent})"
             else:
@@ -162,7 +158,7 @@ class ObjectAliasTarget(models.Model):
     def family(self):
         try:
             return self.target.family
-        except:
+        except AttributeError:
             return None
 
     @property
@@ -174,7 +170,8 @@ class ObjectAliasTarget(models.Model):
 
         if not isinstance(other, self.__class__):
             raise TypeError(
-                f"{self.__class__} can only be compared to other {self.__class__}, not {type(other)}"
+                f"{self.__class__} can only be compared to other "
+                f"{self.__class__}, not {type(other)}"
             )
 
         attr_mapping = {
@@ -207,7 +204,7 @@ class ObjectAliasTarget(models.Model):
     def save(self, *args, **kwargs):
         if self.target_type:
             type = (self.target_type.app_label, self.target_type.model)
-            if not type in OBJECTALIAS_ASSIGNMENT_MODELS:
+            if type not in OBJECTALIAS_ASSIGNMENT_MODELS:
                 raise ValidationError(
                     f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
                 )

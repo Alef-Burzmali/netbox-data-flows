@@ -8,7 +8,7 @@ from tenancy.filtersets import ContactModelFilterSet
 
 from netbox_data_flows import models
 
-from .filters import *
+from .filters import ModelMultipleChoiceFilter
 
 
 __all__ = (

@@ -32,7 +32,9 @@ def get_assignment_querystring(models):
 
 
 def get_device_ipaddresses(*devices):
-    """Return the list of IP addresses of a list of devices or virtual machines"""
+    """
+    Return the list of IP addresses of a list of devices or virtual machines
+    """
 
     interfaces = []
     for dev in devices:

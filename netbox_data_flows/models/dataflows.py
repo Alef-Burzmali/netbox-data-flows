@@ -216,7 +216,13 @@ class DataFlow(NetBoxModel):
             else:
                 raise ValidationError(
                     {
-                        "application": "The application of the data flow must match the application of its group.",
-                        "group": "The application of the group must match the application of the data flow.",
+                        "application": (
+                            "The application of the data flow must match "
+                            "the application of its group."
+                        ),
+                        "group": (
+                            "The application of the group must match the "
+                            "application of the data flow."
+                        ),
                     }
                 )
