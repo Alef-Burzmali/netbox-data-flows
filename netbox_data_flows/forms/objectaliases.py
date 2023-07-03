@@ -153,15 +153,20 @@ class ObjectAliasAddTargetForm(AddAliasesForm):
     )
 
     aliased_prefixes = DynamicModelMultipleChoiceField(
-        queryset=Prefix.objects.all(), required=False, label="Aliased Prefixes"
+        queryset=Prefix.objects.all(),
+        required=False,
+        selector=True,
+        label="Aliased Prefixes",
     )
     aliased_ipranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
+        selector=True,
         label="Aliased IP Ranges",
     )
     aliased_ipaddresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
+        selector=True,
         label="Aliased IP Addresses",
     )
