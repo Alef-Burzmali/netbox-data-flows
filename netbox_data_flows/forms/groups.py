@@ -37,6 +37,7 @@ class DataFlowGroupForm(NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
+        selector=True,
         help_text=(
             "Application that this data flow group (and all of its "
             "descendants) is part of."
@@ -45,6 +46,7 @@ class DataFlowGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
+        selector=True,
         help_text="Parent group of this Data Flow Group.",
         query_params={
             "application_id": "$application",
@@ -98,10 +100,12 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
+        selector=True,
     )
     parent = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
+        selector=True,
     )
     comments = CommentField()
 

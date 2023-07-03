@@ -34,7 +34,9 @@ __all__ = (
 
 class ApplicationForm(NetBoxModelForm):
     role = DynamicModelChoiceField(
-        queryset=ApplicationRole.objects.all(), required=False
+        queryset=ApplicationRole.objects.all(),
+        required=False,
+        selector=True,
     )
     comments = CommentField()
 
@@ -71,7 +73,9 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
 
     description = forms.CharField(max_length=200, required=False)
     role = DynamicModelChoiceField(
-        queryset=ApplicationRole.objects.all(), required=False
+        queryset=ApplicationRole.objects.all(),
+        required=False,
+        selector=True,
     )
     comments = CommentField()
 

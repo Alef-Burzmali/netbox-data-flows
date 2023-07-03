@@ -43,11 +43,13 @@ class DataFlowForm(NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
+        selector=True,
         help_text="Application that this data flow is part of.",
     )
     group = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
+        selector=True,
         query_params={
             "application_id": "$application",
         },

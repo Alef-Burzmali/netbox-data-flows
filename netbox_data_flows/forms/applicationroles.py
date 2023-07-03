@@ -19,6 +19,7 @@ __all__ = (
     "ApplicationRoleForm",
     "ApplicationRoleBulkEditForm",
     "ApplicationRoleImportForm",
+    "ApplicationRoleFilterForm",
 )
 
 #
