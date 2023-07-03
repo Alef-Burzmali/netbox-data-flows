@@ -45,7 +45,11 @@ class ObjectAliasForm(NetBoxModelForm):
 
     class Meta:
         model = models.ObjectAlias
-        fields = ("name", "description", "tags")
+        fields = (
+            "name",
+            "description",
+            "tags",
+        )
 
 
 #

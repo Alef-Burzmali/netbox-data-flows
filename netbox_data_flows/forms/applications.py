@@ -73,6 +73,7 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(), required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         (
@@ -86,6 +87,7 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         "role",
         "description",
+        "comments",
     )
 
 

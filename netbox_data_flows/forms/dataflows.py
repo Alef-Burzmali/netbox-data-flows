@@ -147,6 +147,7 @@ class DataFlowForm(NetBoxModelForm):
 class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     model = models.DataFlow
 
+    description = forms.CharField(max_length=200, required=False)
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -158,6 +159,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             "application_id": "$application",
         },
     )
+    comments = CommentField()
 
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -205,7 +207,6 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             (
                 "application",
                 "group",
-                "name",
                 "description",
                 "status",
             ),
@@ -225,6 +226,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         "application",
         "group",
         "description",
+        "comments",
         "protocol",
         "source_ports",
         "destination_ports",

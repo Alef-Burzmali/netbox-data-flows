@@ -94,6 +94,7 @@ class DataFlowGroupForm(NetBoxModelForm):
 class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     model = models.DataFlowGroup
 
+    description = forms.CharField(max_length=200, required=False)
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -102,6 +103,7 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
     )
+    comments = CommentField()
 
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -117,13 +119,13 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
                 "parent",
                 "description",
                 "status",
-                "tags",
             ),
         ),
     )
     nullable_fields = (
         "parent",
         "application",
+        "comments",
     )
 
 
