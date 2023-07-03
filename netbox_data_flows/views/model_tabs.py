@@ -99,8 +99,8 @@ class DataFlowListTabViewBase(generic.ObjectView):
 for model in MODELS:
     # create a subclass of DataFlowListTabViewBase per model
     type(
-        f"{model}DataFlowTabView",
+        f"{model.__name__}DataFlowTabView",
         (DataFlowListTabViewBase,),
         {},
-        model=Device,
+        model=model,
     )
