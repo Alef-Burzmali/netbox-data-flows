@@ -4,15 +4,40 @@
 {% load perms %}
 
 {% block content %}
-    {% include 'inc/table_controls_htmx.html' with table_modal="DataFlowTable_config" %}
-    <div class="card">
-        <div class="card-body" id="object_list">
-            {% include 'htmx/table.html' %}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Object Aliases</h5>
+        <div class="card-body table-responsive">
+          {% render_table aliases_table %}
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Source in Data Flows</h5>
+        <div class="card-body table-responsive">
+          {% render_table dataflow_sources_table %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">Destination in Data Flows</h5>
+        <div class="card-body table-responsive">
+          {% render_table dataflow_destinations_table %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block modals %}
     {{ block.super }}
-    {% table_config_form table %}
 {% endblock modals %}
