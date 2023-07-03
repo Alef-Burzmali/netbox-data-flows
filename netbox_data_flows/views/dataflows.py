@@ -56,7 +56,11 @@ class DataFlowRuleListView(DataFlowListView):
 @register_model_view(models.DataFlow)
 class DataFlowView(generic.ObjectView):
     queryset = models.DataFlow.objects.prefetch_related(
-        "application", "application__role", "group", "sources", "destinations"
+        "application",
+        "application__role",
+        "group",
+        "sources",
+        "destinations",
     )
 
     def get_extra_context(self, request, instance):

@@ -25,8 +25,8 @@ __all__ = (
 
 
 class ObjectAliasListView(generic.ObjectListView):
-    queryset = models.ObjectAlias.objects.annotate(
-        target_count=Count("targets"),
+    queryset = models.ObjectAlias.objects.all().annotate(
+        target_count=Count("targets", distinct=True),
     )
     table = tables.ObjectAliasTable
     filterset = filtersets.ObjectAliasFilterSet
@@ -35,15 +35,12 @@ class ObjectAliasListView(generic.ObjectListView):
 
 @register_model_view(models.ObjectAlias)
 class ObjectAliasView(generic.ObjectView):
-    queryset = models.ObjectAlias.objects.prefetch_related(
-        "targets",
-        "dataflow_sources",
-        "dataflow_destinations",
-    )
+    queryset = models.ObjectAlias.objects.all()
 
     def get_extra_context(self, request, instance):
         targets_table = tables.ObjectAliasTargetTable(
-            instance.targets.all(), extra_context={"objectalias": instance}
+            instance.targets.prefetch_related("target_type", "target"),
+            extra_context={"objectalias": instance},
         )
         targets_table.configure(request)
 
@@ -82,14 +79,18 @@ class ObjectAliasBulkImportView(generic.BulkImportView):
 
 
 class ObjectAliasBulkEditView(generic.BulkEditView):
-    queryset = models.ObjectAlias.objects.all()
+    queryset = models.ObjectAlias.objects.annotate(
+        target_count=Count("targets", distinct=True),
+    )
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
     form = forms.ObjectAliasBulkEditForm
 
 
 class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.ObjectAlias.objects.all()
+    queryset = models.ObjectAlias.objects.annotate(
+        target_count=Count("targets", distinct=True),
+    )
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
 

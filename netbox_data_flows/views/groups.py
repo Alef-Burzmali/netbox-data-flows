@@ -21,9 +21,8 @@ class DataFlowGroupListView(generic.ObjectListView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
         "application",
         "application__role",
-        "parent",
     ).annotate(
-        dataflow_count=Count("dataflows"),
+        dataflow_count=Count("dataflows", distinct=True),
     )
     table = tables.DataFlowGroupTable
     filterset = filtersets.DataFlowGroupFilterSet
@@ -34,25 +33,39 @@ class DataFlowGroupListView(generic.ObjectListView):
 class DataFlowGroupView(generic.ObjectView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
         "application",
-        "application__role",
         "parent",
-        "dataflows",
     )
 
     def get_extra_context(self, request, instance):
         children_table = tables.DataFlowGroupTable(
-            instance.get_descendants(include_self=False)
+            instance.get_descendants(include_self=False).annotate(
+                dataflow_count=Count("dataflows", distinct=True),
+            )
         )
         children_table.configure(request)
 
         # our direct dataflows
-        dataflows_table = tables.DataFlowTable(instance.dataflows.all())
+        dataflows_table = tables.DataFlowTable(
+            instance.dataflows.prefetch_related(
+                "application",
+                "application__role",
+                "group",
+                "sources",
+                "destinations",
+            )
+        )
         dataflows_table.configure(request)
 
         # dataflows of our descendants
         dataflows_recursive_table = tables.DataFlowTable(
             models.DataFlow.objects.part_of_group_recursive(
                 instance, include_direct_children=False
+            ).prefetch_related(
+                "application",
+                "application__role",
+                "group",
+                "sources",
+                "destinations",
             )
         )
         dataflows_recursive_table.configure(request)
@@ -91,7 +104,7 @@ class DataFlowGroupBulkEditView(generic.BulkEditView):
         "application__role",
         "parent",
     ).annotate(
-        dataflow_count=Count("dataflows"),
+        dataflow_count=Count("dataflows", distinct=True),
     )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
@@ -104,7 +117,7 @@ class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
         "application__role",
         "parent",
     ).annotate(
-        dataflow_count=Count("dataflows"),
+        dataflow_count=Count("dataflows", distinct=True),
     )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable

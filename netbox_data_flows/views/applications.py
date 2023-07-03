@@ -21,7 +21,7 @@ __all__ = (
 
 class ApplicationListView(generic.ObjectListView):
     queryset = models.Application.objects.prefetch_related("role").annotate(
-        dataflow_count=Count("dataflows"),
+        dataflow_count=Count("dataflows", distinct=True),
     )
     table = tables.ApplicationTable
     filterset = filtersets.ApplicationFilterSet
@@ -36,13 +36,25 @@ class ApplicationView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         dataflowgroups_table = tables.DataFlowGroupTable(
-            instance.dataflow_groups.all().annotate(
+            instance.dataflow_groups.prefetch_related(
+                "application",
+                "application__role",
+                "parent",
+            ).annotate(
                 dataflow_count=Count("dataflows", distinct=True),
             )
         )
         dataflowgroups_table.configure(request)
 
-        dataflows_table = tables.DataFlowTable(instance.dataflows.all())
+        dataflows_table = tables.DataFlowTable(
+            instance.dataflows.prefetch_related(
+                "application",
+                "application__role",
+                "group",
+                "sources",
+                "destinations",
+            )
+        )
         dataflows_table.configure(request)
 
         return {
@@ -78,7 +90,7 @@ class ApplicationBulkEditView(generic.BulkEditView):
 
 
 class ApplicationBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.Application.objects.annotate(
+    queryset = models.Application.objects.prefetch_related("role").annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
     filterset = filtersets.ApplicationFilterSet

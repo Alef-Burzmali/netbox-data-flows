@@ -19,7 +19,7 @@ __all__ = (
 
 class ApplicationRoleListView(generic.ObjectListView):
     queryset = models.ApplicationRole.objects.annotate(
-        application_count=Count("applications"),
+        application_count=Count("applications", distinct=True),
     )
     table = tables.ApplicationRoleTable
     filterset = filtersets.ApplicationRoleFilterSet
@@ -31,7 +31,9 @@ class ApplicationRoleView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         applications_table = tables.ApplicationTable(
-            instance.applications.all()
+            instance.applications.prefetch_related("role").annotate(
+                dataflow_count=Count("dataflows", distinct=True),
+            )
         )
         applications_table.configure(request)
 
@@ -58,13 +60,17 @@ class ApplicationRoleBulkImportView(generic.BulkImportView):
 
 
 class ApplicationRoleBulkEditView(generic.BulkEditView):
-    queryset = models.ApplicationRole.objects.all()
+    queryset = models.ApplicationRole.objects.annotate(
+        application_count=Count("applications", distinct=True),
+    )
     filterset = filtersets.ApplicationRoleFilterSet
     table = tables.ApplicationRoleTable
     form = forms.ApplicationRoleBulkEditForm
 
 
 class ApplicationRoleBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.ApplicationRole.objects.all()
+    queryset = models.ApplicationRole.objects.annotate(
+        application_count=Count("applications", distinct=True),
+    )
     filterset = filtersets.ApplicationRoleFilterSet
     table = tables.ApplicationRoleTable
