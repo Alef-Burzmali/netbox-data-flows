@@ -39,11 +39,13 @@ class DataFlowQuerySet(RestrictedQuerySet):
             status=DataFlowStatusChoices.STATUS_ENABLED
         ).exclude(group_id__in=disabled_groups)
 
-    def part_of_group_recursive(self, *dataflowgroups):
+    def part_of_group_recursive(
+        self, *dataflowgroups, include_direct_children=True
+    ):
         group_ids = [getattr(dfg, "pk", dfg) for dfg in dataflowgroups]
         subgroups = (
             DataFlowGroup.objects.filter(pk__in=group_ids)
-            .get_descendants(include_self=True)
+            .get_descendants(include_self=include_direct_children)
             .only("pk")
         )
         return self.filter(group_id__in=subgroups)

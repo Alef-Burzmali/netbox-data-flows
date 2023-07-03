@@ -45,11 +45,15 @@ class DataFlowGroupView(generic.ObjectView):
         )
         children_table.configure(request)
 
+        # our direct dataflows
         dataflows_table = tables.DataFlowTable(instance.dataflows.all())
         dataflows_table.configure(request)
 
+        # dataflows of our descendants
         dataflows_recursive_table = tables.DataFlowTable(
-            models.DataFlow.objects.part_of_group_recursive(instance)
+            models.DataFlow.objects.part_of_group_recursive(
+                instance, include_direct_children=False
+            )
         )
         dataflows_recursive_table.configure(request)
 
