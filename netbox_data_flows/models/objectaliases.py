@@ -40,6 +40,7 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         """
         Return ObjectAliasTarget containing any one of the objects in parameter
         """
+        ip_ct = ContentType.objects.get_for_model(IPAddress)
 
         if not objects:
             return self.none()
@@ -58,13 +59,9 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
                         f"Cannot test if {self.__class__} contains {t}"
                     ) from e
 
-                if ip_addresses:
-                    ip_ct = ContentType.objects.get_for_model(
-                        ip_addresses[0].__class__
-                    )
-
-                    for ip in ip_addresses:
-                        query |= models.Q(target_type=ip_ct, target_id=ip.pk)
+                query |= models.Q(
+                    target_type=ip_ct, target_id__in=ip_addresses
+                )
 
         return self.filter(query)
 

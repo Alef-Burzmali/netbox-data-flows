@@ -1,4 +1,6 @@
-import itertools
+from django.contrib.contenttypes.models import ContentType
+
+from ipam.models import IPAddress
 
 from django.db.models import Q
 from django.utils.safestring import mark_safe
@@ -31,23 +33,36 @@ def get_assignment_querystring(models):
     return Q(qs)
 
 
+def _get_ip_qs(device):
+    """
+    Return a querystring matching any IP assigned to the device
+    """
+
+    interfaces = device.interfaces.all()
+    ct = ContentType.objects.get_for_model(interfaces.model)
+
+    return Q(
+        assigned_object_type=ct.pk,
+        assigned_object_id__in=interfaces,
+    )
+
+
+def get_one_device_ipaddresses(device):
+    """
+    Return the list of IP addresses of a device or virtual machine
+    """
+
+    ip_qs = _get_ip_qs(device)
+    return IPAddress.objects.filter(ip_qs)
+
+
 def get_device_ipaddresses(*devices):
     """
     Return the list of IP addresses of a list of devices or virtual machines
     """
 
-    interfaces = []
+    qs = Q()
     for dev in devices:
-        if hasattr(dev, "vc_interfaces"):
-            # Device
-            interfaces += [dev.vc_interfaces(if_master=False)]
-        else:
-            # Virtual Machine
-            interfaces += [dev.interfaces.all()]
+        qs |= _get_ip_qs(dev)
 
-    interfaces = itertools.chain.from_iterable(interfaces)
-    ip_addresses = itertools.chain.from_iterable(
-        ifce.ip_addresses.all() for ifce in interfaces
-    )
-    ip_addresses = list(ip_addresses)
-    return ip_addresses
+    return IPAddress.objects.filter(qs)

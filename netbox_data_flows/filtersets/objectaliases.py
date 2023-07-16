@@ -57,6 +57,9 @@ class ObjectAliasTargetFilterSet(BaseFilterSet):
             return queryset
 
         ip_addresses = get_device_ipaddresses(*value)
+        if not ip_addresses.exists():
+            return queryset.none()
+
         return self.filter_targets(queryset, name, ip_addresses)
 
     # OR all the targets
