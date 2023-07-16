@@ -112,30 +112,6 @@ class DataFlowGroup(NestedGroupModel):
             "plugins:netbox_data_flows:dataflowgroup", args=[self.pk]
         )
 
-    def clean(self):
-        super().clean()
-
-        if self.parent and self.parent.application != self.application:
-            if not self.application:
-                self.application = self.parent.application
-            else:
-                raise ValidationError(
-                    {
-                        "application": (
-                            "The application of the data flow must match "
-                            "the application of its parent."
-                        ),
-                        "parent": (
-                            "The application of the parent must match the "
-                            "application of the data flow."
-                        ),
-                    }
-                )
-
-        # update all our descendants' application
-        if self.pk:
-            self.get_descendants().update(application_id=self.application)
-
     def validate_unique(self, exclude=None):
         if self.parent is None:
             groups = self.__class__.objects.exclude(pk=self.pk)
