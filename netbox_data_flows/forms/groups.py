@@ -75,6 +75,7 @@ class DataFlowGroupForm(NetBoxModelForm):
             "application",
             "parent",
             "name",
+            "slug",
             "description",
             "status",
             "comments",
