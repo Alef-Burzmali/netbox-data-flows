@@ -107,6 +107,14 @@ class DataFlowGroup(NestedGroupModel):
 
     objects = DataFlowGroupManager()
 
+    clone_fields = (
+        "application",
+        "parent",
+        "description",
+        "status",
+        "comments",
+    )
+
     def get_absolute_url(self):
         return reverse(
             "plugins:netbox_data_flows:dataflowgroup", args=[self.pk]
