@@ -55,6 +55,12 @@ class Application(NetBoxModel):
     class Meta:
         ordering = ("name",)
 
+    clone_fields = (
+        "description",
+        "role",
+        "comments",
+    )
+
     def __str__(self):
         return self.name
 
