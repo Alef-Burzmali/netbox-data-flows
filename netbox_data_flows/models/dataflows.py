@@ -202,8 +202,8 @@ class DataFlow(NetBoxModel):
     clone_fields = (
         "application",
         "group",
+        "description",
         "status",
-        "name",
         "comments",
         "protocol",
         "source_ports",
