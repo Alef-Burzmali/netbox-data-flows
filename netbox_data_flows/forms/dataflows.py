@@ -50,9 +50,6 @@ class DataFlowForm(NetBoxModelForm):
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
         selector=True,
-        query_params={
-            "application_id": "$application",
-        },
         help_text=(
             "Parent group of this Data Flow. "
             "Disabling the group will disable this data flow."

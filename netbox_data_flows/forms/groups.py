@@ -38,19 +38,13 @@ class DataFlowGroupForm(NetBoxModelForm):
         queryset=models.Application.objects.all(),
         required=False,
         selector=True,
-        help_text=(
-            "Application that this data flow group (and all of its "
-            "descendants) is part of."
-        ),
+        help_text="Application that this data flow group is related to.",
     )
     parent = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
         selector=True,
         help_text="Parent group of this Data Flow Group.",
-        query_params={
-            "application_id": "$application",
-        },
     )
     comments = CommentField()
 
