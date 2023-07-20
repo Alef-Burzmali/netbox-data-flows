@@ -24,18 +24,18 @@
               <td>{{ object.application|linkify }}</td>
             </tr>
             <tr>
+              <th scope="row">Group</th>
+              <td>
+                {{ object.group|placeholder|linkify }}
+              </td>
+            </tr>
+            <tr>
               <th scope="row">Description</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">Status</th>
               <td>{% badge object.inherited_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">Parent</th>
-              <td>
-                {{ object.parent|placeholder|linkify }}
-              </td>
             </tr>
           </table>
         </div>
