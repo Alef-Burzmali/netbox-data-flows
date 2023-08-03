@@ -107,7 +107,6 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
     )
 
     fieldsets = (
@@ -187,12 +186,10 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
     )
     inherited_status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
     )
 
     fieldsets = (

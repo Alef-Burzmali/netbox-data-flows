@@ -127,9 +127,6 @@ class DataFlowForm(NetBoxModelForm):
             "sources",
             "destinations",
         )
-        widgets = {
-            "protocol": forms.Select(),
-        }
         help_texts = {
             "status": (
                 "Status of the data group. If its group is disabled, "
@@ -163,12 +160,10 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
     )
     protocol = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowProtocolChoices),
         required=False,
-        widget=forms.Select(),
     )
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(
@@ -341,13 +336,11 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
         help_text="Status of the data flows themselves",
     )
     inherited_status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        widget=forms.Select(),
         help_text="Status inherited from the data flow groups",
     )
 
@@ -371,7 +364,6 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     source_is_null = forms.ChoiceField(
         choices=add_blank_choice(choices.TargetIsEmptyChoice),
         required=False,
-        widget=forms.Select(),
         help_text="No sources are defined?",
     )
     source_aliases = DynamicModelMultipleChoiceField(
@@ -410,7 +402,6 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     destination_is_null = forms.ChoiceField(
         choices=add_blank_choice(choices.TargetIsEmptyChoice),
         required=False,
-        widget=forms.Select(),
         help_text="No destinations are defined?",
     )
     destination_aliases = DynamicModelMultipleChoiceField(
