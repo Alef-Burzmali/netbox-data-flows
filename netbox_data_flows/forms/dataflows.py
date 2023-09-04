@@ -14,7 +14,6 @@ from utilities.forms.fields import (
     CSVModelMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    MultipleChoiceField,  # TODO: deprecated, remove for 3.6.0
     NumericArrayField,
     TagFilterField,
 )
@@ -344,7 +343,7 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         help_text="Status inherited from the data flow groups",
     )
 
-    protocol = MultipleChoiceField(
+    protocol = forms.MultipleChoiceField(
         choices=choices.DataFlowProtocolChoices,
         required=False,
     )
