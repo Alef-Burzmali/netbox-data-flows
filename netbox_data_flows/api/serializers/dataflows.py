@@ -22,9 +22,6 @@ class DataFlowSerializer(NetBoxModelSerializer):
     group = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
-    recursive_group = nested.NestedDataFlowGroupSerializer(
-        required=False, allow_null=True, default=None
-    )
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     inherited_status = ChoiceField(
@@ -57,7 +54,6 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "display",
             "application",
             "group",
-            "recursive_group",
             "name",
             "description",
             "status",

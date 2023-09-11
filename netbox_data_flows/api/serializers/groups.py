@@ -29,9 +29,6 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
     parent = nested.NestedDataFlowGroupSerializer(
         required=False, allow_null=True, default=None
     )
-    ancestor = nested.NestedDataFlowGroupSerializer(
-        required=False, allow_null=True, default=None
-    )
 
     class Meta:
         model = models.DataFlowGroup
@@ -42,7 +39,6 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
             "slug",
             "application",
             "parent",
-            "ancestor",
             "name",
             "description",
             "status",
