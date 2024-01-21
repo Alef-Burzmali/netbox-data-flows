@@ -9,7 +9,12 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from netbox.views import generic as generic_views
-from extras.signals import clear_webhooks
+
+try:
+    from extras.signals import clear_events
+except ImportError:
+    # COMPAT: NetBox 3.6.x
+    from extras.signals import clear_webhooks as clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import (
@@ -144,7 +149,7 @@ class AddAliasesView(generic_views.ObjectEditView):
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
