@@ -19,6 +19,7 @@ class ApplicationIndex(SearchIndex):
         ("description", 500),
         ("comments", 5000),
     )
+    display_attrs = ("role",)
 
 
 class DataFlowIndex(SearchIndex):
@@ -27,6 +28,12 @@ class DataFlowIndex(SearchIndex):
         ("name", 100),
         ("description", 500),
         ("comments", 5000),
+    )
+    display_attrs = (
+        "application",
+        "group",
+        "protocol",
+        "status",
     )
 
 
@@ -38,6 +45,10 @@ class DataFlowGroupIndex(SearchIndex):
         ("description", 500),
         ("comments", 5000),
     )
+    display_attrs = (
+        "application",
+        "status",
+    )
 
 
 class ObjectAliasIndex(SearchIndex):
@@ -45,6 +56,10 @@ class ObjectAliasIndex(SearchIndex):
     fields = (
         ("name", 100),
         ("description", 500),
+    )
+    display_attrs = (
+        "application",
+        "status",
     )
 
 
