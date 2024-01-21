@@ -2,7 +2,7 @@
 Description
 
 ## Compatibility
-NetBox: >=3.5.0
+NetBox: >=3.6.0
 Python: 3.8
 
 ## Update procedure

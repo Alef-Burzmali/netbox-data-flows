@@ -20,7 +20,7 @@ Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/e
 
 ### Requirements
 
-* NetBox (>=3.5.0)
+* NetBox (>=3.6.0)
 * Python 3.8 or higher
 
 *Note:* the plugin uses some classes that are not explicitely exported in 
