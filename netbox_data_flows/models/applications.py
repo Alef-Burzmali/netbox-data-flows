@@ -22,6 +22,9 @@ class ApplicationRole(OrganizationalModel):
     # slug - unique
     # description
 
+    class Meta:
+        ordering = ("name",)
+
     def __str__(self):
         return self.name
 

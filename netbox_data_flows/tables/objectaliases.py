@@ -27,13 +27,19 @@ class ObjectAliasTargetTable(NetBoxTable):
         linkify=True,
         orderable=False,
     )
-    target = tables.Column(linkify=True, verbose_name="Object")
+    target = tables.Column(
+        linkify=True,
+        verbose_name="Object",
+        orderable=False,
+    )
     parent = tables.Column(
         linkify=True,
         verbose_name="Device/VM or VLAN",
+        orderable=False,
     )
     actions = RuntimeTemplateColumn(
         template_name="netbox_data_flows/inc/objectaliastarget_actions.html",
+        orderable=False,
     )
 
     def __init__(self, *args, extra_context={}, **kwargs):

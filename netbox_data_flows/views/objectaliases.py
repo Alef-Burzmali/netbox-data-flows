@@ -21,9 +21,9 @@ __all__ = (
 
 
 class ObjectAliasListView(generic.ObjectListView):
-    queryset = models.ObjectAlias.objects.all().annotate(
+    queryset = models.ObjectAlias.objects.annotate(
         target_count=Count("targets", distinct=True),
-    )
+    ).order_by(*models.ObjectAlias._meta.ordering)
     table = tables.ObjectAliasTable
     filterset = filtersets.ObjectAliasFilterSet
     filterset_form = forms.ObjectAliasFilterForm
@@ -77,7 +77,7 @@ class ObjectAliasBulkImportView(generic.BulkImportView):
 class ObjectAliasBulkEditView(generic.BulkEditView):
     queryset = models.ObjectAlias.objects.annotate(
         target_count=Count("targets", distinct=True),
-    )
+    ).order_by(*models.ObjectAlias._meta.ordering)
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
     form = forms.ObjectAliasBulkEditForm
@@ -86,7 +86,7 @@ class ObjectAliasBulkEditView(generic.BulkEditView):
 class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
     queryset = models.ObjectAlias.objects.annotate(
         target_count=Count("targets", distinct=True),
-    )
+    ).order_by(*models.ObjectAlias._meta.ordering)
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
 

@@ -106,7 +106,10 @@ class ObjectAliasTarget(models.Model):
     )
 
     class Meta:
-        ordering = ("target_id",)
+        ordering = (
+            "target_type",
+            "target_id",
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=("target_type", "target_id"),

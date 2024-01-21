@@ -63,7 +63,9 @@ class DataFlowListTabViewBase(generic.ObjectView):
         aliases_table = tables.ObjectAliasTable(
             models.ObjectAlias.objects.annotate(
                 target_count=Count("targets", distinct=True),
-            ).contains(parent)
+            )
+            .order_by(*models.ObjectAlias._meta.ordering)
+            .contains(parent)
         )
         aliases_table.configure(request)
 
