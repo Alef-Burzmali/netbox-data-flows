@@ -50,7 +50,7 @@ class DataFlowForm(NetBoxModelForm):
         required=False,
         selector=True,
         help_text=(
-            "Parent group of this Data Flow. "
+            "Group of this Data Flow. "
             "Disabling the group will disable this data flow."
         ),
     )
