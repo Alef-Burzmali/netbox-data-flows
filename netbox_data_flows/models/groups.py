@@ -110,9 +110,7 @@ class DataFlowGroup(NestedGroupModel):
     clone_fields = (
         "application",
         "parent",
-        "description",
         "status",
-        "comments",
     )
 
     def get_absolute_url(self):

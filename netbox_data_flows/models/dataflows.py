@@ -204,7 +204,6 @@ class DataFlow(NetBoxModel):
         "group",
         "description",
         "status",
-        "comments",
         "protocol",
         "source_ports",
         "destination_ports",
