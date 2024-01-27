@@ -20,8 +20,12 @@ __all__ = (
 
 
 class ApplicationListView(generic.ObjectListView):
-    queryset = models.Application.objects.prefetch_related("role").annotate(
-        dataflow_count=Count("dataflows", distinct=True),
+    queryset = (
+        models.Application.objects.prefetch_related("role")
+        .annotate(
+            dataflow_count=Count("dataflows", distinct=True),
+        )
+        .order_by(*models.Application._meta.ordering)
     )
     table = tables.ApplicationTable
     filterset = filtersets.ApplicationFilterSet
@@ -40,9 +44,11 @@ class ApplicationView(generic.ObjectView):
                 "application",
                 "application__role",
                 "parent",
-            ).annotate(
+            )
+            .annotate(
                 dataflow_count=Count("dataflows", distinct=True),
             )
+            .order_by(*models.DataFlowGroup._meta.ordering)
         )
         dataflowgroups_table.configure(request)
 

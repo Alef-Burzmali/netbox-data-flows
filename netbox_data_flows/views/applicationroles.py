@@ -20,7 +20,7 @@ __all__ = (
 class ApplicationRoleListView(generic.ObjectListView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),
-    )
+    ).order_by(*models.ApplicationRole._meta.ordering)
     table = tables.ApplicationRoleTable
     filterset = filtersets.ApplicationRoleFilterSet
 
@@ -62,7 +62,7 @@ class ApplicationRoleBulkImportView(generic.BulkImportView):
 class ApplicationRoleBulkEditView(generic.BulkEditView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),
-    )
+    ).order_by(*models.ApplicationRole._meta.ordering)
     filterset = filtersets.ApplicationRoleFilterSet
     table = tables.ApplicationRoleTable
     form = forms.ApplicationRoleBulkEditForm
@@ -71,6 +71,6 @@ class ApplicationRoleBulkEditView(generic.BulkEditView):
 class ApplicationRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),
-    )
+    ).order_by(*models.ApplicationRole._meta.ordering)
     filterset = filtersets.ApplicationRoleFilterSet
     table = tables.ApplicationRoleTable
