@@ -57,10 +57,6 @@ class ObjectAliasIndex(SearchIndex):
         ("name", 100),
         ("description", 500),
     )
-    display_attrs = (
-        "application",
-        "status",
-    )
 
 
 indexes = (
