@@ -1,9 +1,9 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 
+from core.models import ObjectType
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
@@ -40,14 +40,14 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         """
         Return ObjectAliasTarget containing any one of the objects in parameter
         """
-        ip_ct = ContentType.objects.get_for_model(IPAddress)
+        ip_ct = ObjectType.objects.get_for_model(IPAddress)
 
         if not objects:
             return self.none()
 
         query = models.Q()
         for t in objects:
-            ct = ContentType.objects.get_for_model(t.__class__)
+            ct = ObjectType.objects.get_for_model(t.__class__)
 
             if (ct.app_label, ct.model) in OBJECTALIAS_ASSIGNMENT_MODELS:
                 query |= models.Q(target_type=ct, target_id=t.pk)
@@ -81,7 +81,7 @@ class ObjectAliasTarget(models.Model):
         """Return an existing instance for this target or create one"""
         instance = cls.objects.contains(target).first()
         if not instance:
-            ct = ContentType.objects.get_for_model(target.__class__)
+            ct = ObjectType.objects.get_for_model(target.__class__)
             type = (ct.app_label, ct.model)
 
             if type not in OBJECTALIAS_ASSIGNMENT_MODELS:
@@ -94,7 +94,7 @@ class ObjectAliasTarget(models.Model):
         return instance
 
     target_type = models.ForeignKey(
-        to=ContentType,
+        to="contenttypes.ContentType",
         limit_choices_to=OBJECTALIAS_ASSIGNMENT_QS,
         on_delete=models.PROTECT,
         related_name="+",

@@ -1,5 +1,4 @@
-from django.contrib.contenttypes.models import ContentType
-
+from core.models import ObjectType
 from ipam.models import IPAddress
 
 from django.db.models import Q
@@ -39,7 +38,7 @@ def _get_ip_qs(device):
     """
 
     interfaces = device.interfaces.all()
-    ct = ContentType.objects.get_for_model(interfaces.model)
+    ct = ObjectType.objects.get_for_model(interfaces.model)
 
     return Q(
         assigned_object_type=ct.pk,
