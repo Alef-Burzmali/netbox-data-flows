@@ -8,7 +8,7 @@ from netbox.api.serializers import (
 
 from netbox_data_flows import models, choices
 
-from applications import ApplicationSerializer
+from .applications import ApplicationSerializer
 
 
 __all__ = (

@@ -5,9 +5,9 @@ from netbox.api.serializers import NetBoxModelSerializer
 
 from netbox_data_flows import models, choices
 
-from applications import ApplicationSerializer
-from groups import DataFlowGroupSerializer
-from objectalias import ObjectAliasSerializer
+from .applications import ApplicationSerializer
+from .groups import DataFlowGroupSerializer
+from .objectaliases import ObjectAliasSerializer
 
 
 __all__ = ("DataFlowSerializer",)
