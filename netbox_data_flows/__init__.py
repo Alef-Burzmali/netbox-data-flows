@@ -1,6 +1,6 @@
-from extras.plugins import PluginConfig
+from netbox.plugins import PluginConfig
 
-__version__ = "0.8.3-dev"
+__version__ = "0.8.3"
 
 
 class DataFlowsConfig(PluginConfig):
@@ -15,7 +15,8 @@ class DataFlowsConfig(PluginConfig):
     author = "Thomas Fargeix"
     required_settings = []
     default_settings = {}
-    min_version = "3.6.0"
+    min_version = "3.7.0"
+    max_version = "3.7.9"
 
     def ready(self):
         from . import signals  # noqa: F401
