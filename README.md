@@ -25,6 +25,8 @@ Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/e
 
 Use version 0.8.x if you need compatibility with NetBox 3.7.x
 
+This is the last version compatible with NetBox 3. Future releases will support 4.0 only.
+
 *Note:* the plugin uses some classes that are not explicitely exported in 
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
 not guaranteed.
