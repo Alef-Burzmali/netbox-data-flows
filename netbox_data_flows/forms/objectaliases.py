@@ -10,6 +10,7 @@ from utilities.forms.fields import (
     TagFilterField,
     DynamicModelMultipleChoiceField,
 )
+from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
 from ipam.models import Prefix, IPRange, IPAddress
@@ -33,13 +34,10 @@ __all__ = (
 
 class ObjectAliasForm(NetBoxModelForm):
     fieldsets = (
-        (
-            None,
-            (
-                "name",
-                "description",
-                "tags",
-            ),
+        FieldSet(
+            "name",
+            "description",
+            "tags",
         ),
     )
 
@@ -63,9 +61,8 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(max_length=200, required=False)
 
     fieldsets = (
-        (
-            None,
-            ("description",),
+        FieldSet(
+            "description",
         ),
     )
     nullable_fields = ("description",)
@@ -118,23 +115,18 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
     )
 
     fieldsets = (
-        (
-            None,
-            (
-                "filter_id",  # Saved Filter
-                "q",  # Search
-                "tag",
-            ),
+        FieldSet(
+            "filter_id",  # Saved Filter
+            "q",  # Search
+            "tag",
         ),
-        (
-            "Targets - all targets are OR'ed together, any will match",
-            (
-                "prefixes",
-                "ipranges",
-                "ipaddresses",
-                "devices",
-                "virtual_machines",
-            ),
+        FieldSet(
+            "prefixes",
+            "ipranges",
+            "ipaddresses",
+            "devices",
+            "virtual_machines",
+            name="Targets - all targets are OR'ed together, any will match",
         ),
     )
 

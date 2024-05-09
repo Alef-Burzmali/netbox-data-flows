@@ -17,6 +17,7 @@ from utilities.forms.fields import (
     NumericArrayField,
     TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
 from ipam.models import Prefix, IPRange, IPAddress
@@ -87,26 +88,21 @@ class DataFlowForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (
-            "Data Flow",
-            (
-                "application",
-                "group",
-                "name",
-                "description",
-                "status",
-                "tags",
-            ),
+        FieldSet(
+            "application",
+            "group",
+            "name",
+            "description",
+            "status",
+            "tags",
         ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "destination_ports",
-                "sources",
-                "destinations",
-            ),
+        FieldSet(
+            "protocol",
+            "source_ports",
+            "destination_ports",
+            "sources",
+            "destinations",
+            name="Specifications",
         ),
     )
 
@@ -195,24 +191,19 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     fieldsets = (
-        (
-            "Data Flow",
-            (
-                "application",
-                "group",
-                "description",
-                "status",
-            ),
+        FieldSet(
+            "application",
+            "group",
+            "description",
+            "status",
         ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "destination_ports",
-                "sources",
-                "destinations",
-            ),
+        FieldSet(
+            "protocol",
+            "source_ports",
+            "destination_ports",
+            "sources",
+            "destinations",
+            name="Specifications",
         ),
     )
     nullable_fields = (
@@ -437,63 +428,49 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     )
 
     fieldsets = (
-        (
-            None,
-            (
-                "filter_id",  # Saved Filter
-                "q",  # Search
-                "tag",
-            ),
+        FieldSet(
+            "filter_id",  # Saved Filter
+            "q",  # Search
+            "tag",
         ),
-        (
-            None,
-            (
-                "application_id",
-                "application_role_id",
-                "group_id",
-                "recursive_group_id",
-            ),
+        FieldSet(
+            "application_id",
+            "application_role_id",
+            "group_id",
+            "recursive_group_id",
         ),
-        (
-            "Status",
-            (
-                "status",
-                "inherited_status",
-            ),
+        FieldSet(
+            "status",
+            "inherited_status",
+            name="Status",
         ),
-        (
-            "Specifications",
-            (
-                "protocol",
-                "source_ports",
-                "destination_ports",
-            ),
+        FieldSet(
+            "protocol",
+            "source_ports",
+            "destination_ports",
+            name="Specifications",
         ),
-        (
-            "Sources - all sources are OR'ed together, any will match",
-            (
-                "source_is_null",
-                "source_aliases",
-                "source_prefixes",
-                "source_ipranges",
-                "source_ipaddresses",
-                "source_devices",
-                "source_virtual_machines",
-            ),
+        FieldSet(
+            "source_is_null",
+            "source_aliases",
+            "source_prefixes",
+            "source_ipranges",
+            "source_ipaddresses",
+            "source_devices",
+            "source_virtual_machines",
+            name="Sources - all sources are OR'ed together, any will match",
         ),
-        (
-            (
+        FieldSet(
+            "destination_is_null",
+            "destination_aliases",
+            "destination_prefixes",
+            "destination_ipranges",
+            "destination_ipaddresses",
+            "destination_devices",
+            "destination_virtual_machines",
+            name=(
                 "Destinations - all destinations are OR'ed together, "
                 "any will match"
-            ),
-            (
-                "destination_is_null",
-                "destination_aliases",
-                "destination_prefixes",
-                "destination_ipranges",
-                "destination_ipaddresses",
-                "destination_devices",
-                "destination_virtual_machines",
             ),
         ),
     )

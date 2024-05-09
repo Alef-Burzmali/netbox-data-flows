@@ -10,6 +10,7 @@ from utilities.forms.fields import (
     SlugField,
     TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows.models import (
     ApplicationRole,
@@ -31,14 +32,11 @@ class ApplicationRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (
-            "Application Role",
-            (
-                "name",
-                "slug",
-                "description",
-                "tags",
-            ),
+        FieldSet(
+            "name",
+            "slug",
+            "description",
+            "tags",
         ),
     )
 
@@ -58,9 +56,8 @@ class ApplicationRoleBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(max_length=200, required=False)
 
     fieldsets = (
-        (
-            "Application Role",
-            ("description",),
+        FieldSet(
+            "description",
         ),
     )
     nullable_fields = ("description",)

@@ -13,6 +13,7 @@ from utilities.forms.fields import (
     DynamicModelChoiceField,
     TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows.models import (
     Application,
@@ -41,14 +42,11 @@ class ApplicationForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (
-            "Application",
-            (
-                "name",
-                "role",
-                "description",
-                "tags",
-            ),
+        FieldSet(
+            "name",
+            "role",
+            "description",
+            "tags",
         ),
     )
 
@@ -80,12 +78,9 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
     comments = CommentField()
 
     fieldsets = (
-        (
-            "Application",
-            (
-                "role",
-                "description",
-            ),
+        FieldSet(
+            "role",
+            "description",
         ),
     )
     nullable_fields = (
@@ -126,24 +121,19 @@ class ApplicationFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     )
 
     fieldsets = (
-        (
-            None,
-            (
-                "filter_id",  # Saved Filter
-                "q",  # Search
-                "tag",
-            ),
+        FieldSet(
+            "filter_id",  # Saved Filter
+            "q",  # Search
+            "tag",
         ),
-        (
-            "Application Role",
-            ("role",),
+        FieldSet(
+            "role",
+            name="Application Role",
         ),
-        (
-            "Contacts",
-            (
-                "contact",
-                "contact_role",
-                "contact_group",
-            ),
+        FieldSet(
+            "contact",
+            "contact_role",
+            "contact_group",
+            name="Contacts",
         ),
     )

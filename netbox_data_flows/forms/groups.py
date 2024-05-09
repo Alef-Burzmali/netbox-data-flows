@@ -16,6 +16,7 @@ from utilities.forms.fields import (
     SlugField,
     TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows import models, choices
 
@@ -49,17 +50,14 @@ class DataFlowGroupForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (
-            "Data Flow Group",
-            (
-                "application",
-                "parent",
-                "name",
-                "slug",
-                "description",
-                "status",
-                "tags",
-            ),
+        FieldSet(
+            "application",
+            "parent",
+            "name",
+            "slug",
+            "description",
+            "status",
+            "tags",
         ),
     )
 
@@ -110,14 +108,11 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     fieldsets = (
-        (
-            "Data Flow Groups",
-            (
-                "application",
-                "parent",
-                "description",
-                "status",
-            ),
+        FieldSet(
+            "application",
+            "parent",
+            "description",
+            "status",
         ),
     )
     nullable_fields = (
@@ -193,28 +188,20 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
     )
 
     fieldsets = (
-        (
-            None,
-            (
-                "filter_id",  # Saved Filter
-                "q",  # Search
-                "tag",
-            ),
+        FieldSet(
+            "filter_id",  # Saved Filter
+            "q",  # Search
+            "tag",
         ),
-        (
-            None,
-            (
-                "application",
-                "application_role",
-                "parent_id",
-                "ancestor_id",
-            ),
+        FieldSet(
+            "application",
+            "application_role",
+            "parent_id",
+            "ancestor_id",
         ),
-        (
-            "Status",
-            (
-                "status",
-                "inherited_status",
-            ),
+        FieldSet(
+            "status",
+            "inherited_status",
+            name="Status",
         ),
     )
