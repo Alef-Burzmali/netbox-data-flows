@@ -32,6 +32,11 @@ class ObjectAliasTargetSerializer(NetBoxModelSerializer):
             "display",
             "target",
         )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+        )
 
 
 class ObjectAliasSerializer(NetBoxModelSerializer):
@@ -41,6 +46,7 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
     targets = SerializedPKRelatedField(
         queryset=models.ObjectAliasTarget.objects.all(),
         serializer=ObjectAliasTargetSerializer,
+        nested=True,
         required=True,
         many=True,
     )
@@ -54,4 +60,11 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
             "name",
             "description",
             "targets",
+        )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "name",
+            "description",
         )

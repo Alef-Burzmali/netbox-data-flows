@@ -4,8 +4,6 @@ from netbox.api.serializers import NetBoxModelSerializer
 
 from netbox_data_flows import models
 
-from . import nested
-
 
 __all__ = (
     "ApplicationSerializer",
@@ -34,6 +32,14 @@ class ApplicationRoleSerializer(NetBoxModelSerializer):
             "last_updated",
             "application_count",
         )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "name",
+            "description",
+            "slug",
+        )
 
 
 class ApplicationSerializer(NetBoxModelSerializer):
@@ -41,7 +47,7 @@ class ApplicationSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:application-detail"
     )
     dataflow_count = serializers.IntegerField(read_only=True)
-    role = nested.NestedApplicationRoleSerializer()
+    role = ApplicationRoleSerializer(nested=True)
 
     class Meta:
         model = models.Application
@@ -58,4 +64,12 @@ class ApplicationSerializer(NetBoxModelSerializer):
             "created",
             "last_updated",
             "dataflow_count",
+        )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "name",
+            "description",
+            "slug",
         )

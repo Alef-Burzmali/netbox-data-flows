@@ -5,7 +5,9 @@ from netbox.api.serializers import NetBoxModelSerializer
 
 from netbox_data_flows import models, choices
 
-from . import nested
+from applications import ApplicationSerializer
+from groups import DataFlowGroupSerializer
+from objectalias import ObjectAliasSerializer
 
 
 __all__ = ("DataFlowSerializer",)
@@ -16,11 +18,11 @@ class DataFlowSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:dataflow-detail"
     )
 
-    application = nested.NestedApplicationSerializer(
-        required=False, allow_null=True, default=None
+    application = ApplicationSerializer(
+        nested=True, required=False, allow_null=True, default=None
     )
-    group = nested.NestedDataFlowGroupSerializer(
-        required=False, allow_null=True, default=None
+    group = DataFlowGroupSerializer(
+        nested=True, required=False, allow_null=True, default=None
     )
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
@@ -35,13 +37,15 @@ class DataFlowSerializer(NetBoxModelSerializer):
 
     sources = SerializedPKRelatedField(
         queryset=models.ObjectAlias.objects.all(),
-        serializer=nested.NestedObjectAliasSerializer,
+        serializer=ObjectAliasSerializer,
+        nested=True,
         required=False,
         many=True,
     )
     destinations = SerializedPKRelatedField(
         queryset=models.ObjectAlias.objects.all(),
-        serializer=nested.NestedObjectAliasSerializer,
+        serializer=ObjectAliasSerializer,
+        nested=True,
         required=False,
         many=True,
     )
@@ -68,4 +72,11 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "destination_ports",
             "sources",
             "destinations",
+        )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "name",
+            "description",
         )
