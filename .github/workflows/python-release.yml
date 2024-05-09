@@ -19,21 +19,21 @@ jobs:
     needs: [black, build]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get version of project
         run: |
           PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
           echo "Version from __init__.py: ${PROJECT_VERSION}"
           echo "PROJECT_VERSION=${PROJECT_VERSION}" >> $GITHUB_ENV
       - run: mkdir dist
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: distributions
           path: dist/
       - name: Prepare release Notes
         run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
       - name: Create Release Draft
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: ".github/RELEASE-TEMPLATE.md"
           draft: true
