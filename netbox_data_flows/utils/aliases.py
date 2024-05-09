@@ -17,11 +17,7 @@ except ImportError:
     from extras.signals import clear_webhooks as clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import (
-    restrict_form_fields,
-    ConfirmationForm,
-    BootstrapMixin,
-)
+from utilities.forms import restrict_form_fields, ConfirmationForm
 from utilities.permissions import get_permission_for_model
 from utilities.utils import normalize_querydict
 
@@ -33,7 +29,7 @@ __all__ = (
 )
 
 
-class AddAliasesForm(BootstrapMixin, forms.Form):
+class AddAliasesForm(forms.Form):
     """Link aliased objects to an object"""
 
     aliased_fields = tuple()
