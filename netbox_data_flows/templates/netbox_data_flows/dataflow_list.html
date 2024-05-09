@@ -4,7 +4,8 @@
   {{ model|meta:"verbose_name_plural"|bettertitle }}{% if as_rules %} as Rules{% endif %}
 {% endblock %}
 
-{% block extra_controls %}
+{# Hidden as currently not used #}
+{# block extra_controls % }
   {% if as_rules %}
     <a href="{% url 'plugins:netbox_data_flows:dataflow_list' %}" type="button" class="btn btn-sm btn-outline-secondary">
       <i class="mdi mdi-file-tree-outline"></i> As Data Flows
@@ -14,4 +15,4 @@
       <i class="mdi mdi-playlist-check"></i> As rules
     </a>
   {% endif %}
-{% endblock extra_controls %}
+{ % endblock extra_controls #}
