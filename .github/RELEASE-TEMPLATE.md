@@ -1,9 +1,10 @@
-## Beta XXXX
 Description
 
 ## Compatibility
-NetBox: >=3.6.0
-Python: 3.8
+NetBox: >=4.0.0
+Python: 3.10
+
+Use version 0.8 if you need compatibility with NetBox 3.7
 
 ## Update procedure
 * Run NetBox's `upgrade.sh`, and restart NetBox

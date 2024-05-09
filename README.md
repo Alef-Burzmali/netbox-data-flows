@@ -20,8 +20,10 @@ Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/e
 
 ### Requirements
 
-* NetBox (>=3.6.0)
-* Python 3.8 or higher
+* NetBox (>=4.0.0)
+* Python 3.10 or higher
+
+Use version 0.8.x if you need compatibility with NetBox 3.7.x
 
 *Note:* the plugin uses some classes that are not explicitely exported in 
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
