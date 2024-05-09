@@ -1,5 +1,4 @@
 from netbox.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
-from utilities.choices import ButtonColorChoices
 
 
 #
@@ -30,7 +29,6 @@ def get_model_buttons(model_name, actions=("add", "import")):
                 title="Add",
                 icon_class="mdi mdi-plus-thick",
                 permissions=[f"{APP_LABEL}.add_{model_name}"],
-                color=ButtonColorChoices.GREEN,
             )
         )
     if "import" in actions:
@@ -40,7 +38,6 @@ def get_model_buttons(model_name, actions=("add", "import")):
                 title="Import",
                 icon_class="mdi mdi-upload",
                 permissions=[f"{APP_LABEL}.add_{model_name}"],
-                color=ButtonColorChoices.CYAN,
             )
         )
 
