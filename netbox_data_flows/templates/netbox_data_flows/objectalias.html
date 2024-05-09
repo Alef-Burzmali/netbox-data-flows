@@ -18,18 +18,16 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">Object Alias</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">Name</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Description</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}
@@ -42,13 +40,13 @@
         <div class="card-body table-responsive">
           {% render_table targets_table %}
         </div>
-          {% if perms.netbox_data_flows.change_objectalias %}
-            <div class="card-footer text-end noprint">
-              <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-sm btn-primary">
-                <i class="mdi mdi-plus-thick"></i> Add aliased objects
-              </a>
-            </div>
-          {% endif %}
+      {% if perms.netbox_data_flows.change_objectalias %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-sm btn-primary">
+            <i class="mdi mdi-plus-thick"></i> Add aliased objects
+          </a>
+        </div>
+      {% endif %}
       </div>
       {% plugin_right_page object %}
     </div>
@@ -78,7 +76,7 @@
 
   <div class="row mb-3">
     <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+      {% plugin_full_width_page object %}
     </div>
   </div>
 {% endblock content %}

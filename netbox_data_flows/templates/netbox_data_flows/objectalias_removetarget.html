@@ -28,11 +28,11 @@ Context:
             {% render_form form %}
           </div>
           <div class="modal-footer">
-            {% if return_url %}
+          {% if return_url %}
             <a href="{{ return_url }}" class="btn btn-outline-secondary">Cancel</a>
-            {% else %}
+          {% else %}
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-            {% endif %}
+          {% endif %}
             <button type="submit" class="btn btn-warning">Unlink</button>
           </div>
         </form>
