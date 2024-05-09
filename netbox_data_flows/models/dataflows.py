@@ -6,7 +6,7 @@ from django.utils.functional import cached_property
 
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import array_to_string
+from utilities.data import array_to_string
 
 from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
 

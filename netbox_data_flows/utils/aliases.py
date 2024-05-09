@@ -10,16 +10,12 @@ from django.utils.safestring import mark_safe
 
 from netbox.views import generic as generic_views
 
-try:
-    from extras.signals import clear_events
-except ImportError:
-    # COMPAT: NetBox 3.6.x
-    from extras.signals import clear_webhooks as clear_events
+from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import restrict_form_fields, ConfirmationForm
 from utilities.permissions import get_permission_for_model
-from utilities.utils import normalize_querydict
+from utilities.querydict import normalize_querydict
 
 
 __all__ = (
