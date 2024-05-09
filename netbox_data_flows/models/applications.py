@@ -1,8 +1,8 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
 from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models.features import ContactsMixin
 
 
 __all__ = (
@@ -34,7 +34,7 @@ class ApplicationRole(OrganizationalModel):
         )
 
 
-class Application(NetBoxModel):
+class Application(ContactsMixin, NetBoxModel):
     """Representation of an application hosted on devices or VM"""
 
     name = models.CharField(
@@ -52,7 +52,6 @@ class Application(NetBoxModel):
         null=True,
         help_text="The role of this application",
     )
-    contacts = GenericRelation(to="tenancy.ContactAssignment")
     comments = models.TextField(blank=True)
 
     class Meta:
