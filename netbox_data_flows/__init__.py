@@ -1,6 +1,6 @@
 from netbox.plugins import PluginConfig
 
-__version__ = "0.9.0-dev"
+__version__ = "0.9.0"
 
 
 class DataFlowsConfig(PluginConfig):
