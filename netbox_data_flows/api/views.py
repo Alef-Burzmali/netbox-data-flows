@@ -14,9 +14,7 @@ class DataFlowsRootView(APIRootView):
 
 
 class ApplicationRoleViewSet(NetBoxModelViewSet):
-    queryset = models.ApplicationRole.objects.prefetch_related(
-        "tags"
-    ).annotate(
+    queryset = models.ApplicationRole.objects.all().annotate(
         application_count=Count("applications"),
     )
     serializer_class = serializers.ApplicationRoleSerializer
@@ -24,10 +22,7 @@ class ApplicationRoleViewSet(NetBoxModelViewSet):
 
 
 class ApplicationViewSet(NetBoxModelViewSet):
-    queryset = models.Application.objects.prefetch_related(
-        "role",
-        "tags",
-    ).annotate(
+    queryset = models.Application.objects.all().annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
     serializer_class = serializers.ApplicationSerializer
@@ -35,43 +30,28 @@ class ApplicationViewSet(NetBoxModelViewSet):
 
 
 class DataFlowViewSet(NetBoxModelViewSet):
-    queryset = models.DataFlow.objects.prefetch_related(
-        "application",
-        "group",
-        "sources",
-        "destinations",
-        "tags",
-    )
+    queryset = models.DataFlow.objects.all()
 
     serializer_class = serializers.DataFlowSerializer
     filterset_class = filtersets.DataFlowFilterSet
 
 
 class DataFlowGroupViewSet(NetBoxModelViewSet):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "parent",
-        "tags",
-    )
+    queryset = models.DataFlowGroup.objects.all()
 
     serializer_class = serializers.DataFlowGroupSerializer
     filterset_class = filtersets.DataFlowGroupFilterSet
 
 
 class ObjectAliasTargetViewSet(NetBoxModelViewSet):
-    queryset = models.ObjectAliasTarget.objects.prefetch_related(
-        "target",
-    )
+    queryset = models.ObjectAliasTarget.objects.all()
 
     serializer_class = serializers.ObjectAliasTargetSerializer
     filterset_class = filtersets.ObjectAliasTargetFilterSet
 
 
 class ObjectAliasViewSet(NetBoxModelViewSet):
-    queryset = models.ObjectAlias.objects.prefetch_related(
-        "targets",
-        "tags",
-    )
+    queryset = models.ObjectAlias.objects.all()
 
     serializer_class = serializers.ObjectAliasSerializer
     filterset_class = filtersets.ObjectAliasFilterSet
