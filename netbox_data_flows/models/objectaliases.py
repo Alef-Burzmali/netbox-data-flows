@@ -76,6 +76,8 @@ class ObjectAliasTarget(models.Model):
     This object is intended to be transparent to the user.
     """
 
+    _netbox_private = True
+
     @classmethod
     def get_or_create(cls, target):
         """Return an existing instance for this target or create one"""
