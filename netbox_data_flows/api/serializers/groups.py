@@ -37,6 +37,16 @@ class NestedDataFlowGroupSerializer(WritableNestedSerializer):
             "status",
             "_depth",
         )
+        brief_fields = (
+            "id",
+            "url",
+            "display",
+            "name",
+            "description",
+            "slug",
+            "status",
+            "_depth",
+        )
 
 
 class DataFlowGroupSerializer(NetBoxModelSerializer):
