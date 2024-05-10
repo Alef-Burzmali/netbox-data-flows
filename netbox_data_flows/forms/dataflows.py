@@ -312,14 +312,14 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     group_id = DynamicModelMultipleChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
-        label="Direct group",
-        help_text="Direct group(s)",
+        label="Direct parent group",
+        help_text="Direct group(s) of the data flows",
     )
     recursive_group_id = DynamicModelMultipleChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
-        label="Recursive group",
-        help_text="Recursive group(s)",
+        label="Ancestor group",
+        help_text="Parent or ancestor group(s) of the data flows",
     )
     tag = TagFilterField(model)
 
@@ -331,7 +331,7 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
     inherited_status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
-        help_text="Status inherited from the data flow groups",
+        help_text="Status inherited from the ancestor groups",
     )
 
     protocol = forms.MultipleChoiceField(
