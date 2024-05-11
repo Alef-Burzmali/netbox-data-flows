@@ -235,6 +235,7 @@ class ObjectAlias(NetBoxModel):
         max_length=200,
         blank=True,
     )
+    comments = models.TextField(blank=True)
 
     # We cannot have ManyToMany relations to GenericForeignKeys, hence the
     # intermediary Target type

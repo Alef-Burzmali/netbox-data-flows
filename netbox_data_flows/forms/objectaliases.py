@@ -7,6 +7,7 @@ from netbox.forms import (
     NetBoxModelImportForm,
 )
 from utilities.forms.fields import (
+    CommentField,
     TagFilterField,
     DynamicModelMultipleChoiceField,
 )
@@ -33,6 +34,8 @@ __all__ = (
 
 
 class ObjectAliasForm(NetBoxModelForm):
+    comments = CommentField()
+
     fieldsets = (
         FieldSet(
             "name",
@@ -47,6 +50,7 @@ class ObjectAliasForm(NetBoxModelForm):
             "name",
             "description",
             "tags",
+            "comments",
         )
 
 
@@ -57,15 +61,20 @@ class ObjectAliasForm(NetBoxModelForm):
 
 class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
     model = models.ObjectAlias
+    comments = CommentField()
 
     description = forms.CharField(max_length=200, required=False)
 
     fieldsets = (
         FieldSet(
             "description",
+            "comments",
         ),
     )
-    nullable_fields = ("description",)
+    nullable_fields = (
+        "description",
+        "comments",
+    )
 
 
 class ObjectAliasImportForm(NetBoxModelImportForm):
@@ -74,6 +83,7 @@ class ObjectAliasImportForm(NetBoxModelImportForm):
         fields = (
             "name",
             "description",
+            "comments",
         )
 
 

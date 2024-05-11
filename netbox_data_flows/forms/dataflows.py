@@ -286,6 +286,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
             "destination_ports",
             "sources",
             "destinations",
+            "comments",
         )
 
 

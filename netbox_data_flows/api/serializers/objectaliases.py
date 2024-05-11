@@ -59,6 +59,7 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
             "display",
             "name",
             "description",
+            "comments",
             "targets",
         )
         brief_fields = (
