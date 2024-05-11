@@ -7,7 +7,7 @@
 
 {% block extra_controls %}
   {% if perms.netbox_data_flows.change_objectalias %}
-    <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" type="button" class="btn btn-sm btn-primary">
+    <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" type="button" class="btn btn-primary">
       <i class="mdi mdi-plus-thick"></i> Add aliased objects
     </a>
   {% endif %}
@@ -15,7 +15,7 @@
 
 {% block content %}
   <div class="row mb-3">
-    <div class="col col-md-6">
+    <div class="col col-md-5">
       <div class="card">
         <h5 class="card-header">Object Alias</h5>
         <table class="table table-hover attr-table">
@@ -34,7 +34,7 @@
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
-    <div class="col col-md-6">
+    <div class="col col-md-7">
       <div class="card">
         <h5 class="card-header">Member objects</h5>
         <div class="card-body table-responsive">
