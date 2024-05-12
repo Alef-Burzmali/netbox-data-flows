@@ -92,6 +92,7 @@ class ObjectAliasTable(NetBoxTable):
             "name",
             "description",
             "target_count",
+            "comments",
             "tags",
             "created",
             "last_updated",

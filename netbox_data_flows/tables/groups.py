@@ -63,6 +63,7 @@ class DataFlowGroupTable(NetBoxTable):
         )
         default_columns = (
             "name",
+            "status",
             "application",
             "application_role",
             "dataflow_count",

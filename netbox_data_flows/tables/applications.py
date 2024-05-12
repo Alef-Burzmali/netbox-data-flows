@@ -42,7 +42,11 @@ class ApplicationRoleTable(NetBoxTable):
             "last_updated",
             "actions",
         )
-        default_columns = ("name", "description", "application_count")
+        default_columns = (
+            "name",
+            "description",
+            "application_count",
+        )
 
 
 class ApplicationTable(ContactsColumnMixin, NetBoxTable):
@@ -78,4 +82,8 @@ class ApplicationTable(ContactsColumnMixin, NetBoxTable):
             "last_updated",
             "actions",
         )
-        default_columns = ("name", "role", "dataflow_count")
+        default_columns = (
+            "name",
+            "role",
+            "dataflow_count",
+        )
