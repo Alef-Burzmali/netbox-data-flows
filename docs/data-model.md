@@ -82,8 +82,8 @@ Data Flows should have a source, a destination, a protocol, source ports and des
 Internally, Object Aliases contain **Object Alias Targets**, because Django cannot create ManyToMany relationships to generic objects. Object Alias Targets are not exposed in the interface and should be transparent for the user.
 
 Object Aliases can contain:
-* IP Addresses (ipam.ipaddress)
-* IP Ranges (ipam.iprange)
-* Prefixes (ipam.prefix)
+* IP Addresses (`ipam.ipaddress`)
+* IP Ranges (`ipam.iprange`)
+* Prefixes (`ipam.prefix`)
 If an IP Address is assigned to a device or virtual machine, that device is
 also displayed.

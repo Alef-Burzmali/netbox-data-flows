@@ -31,11 +31,11 @@ The plugin adds Tab views to Device, Virtual Machines, IP addresses, IP ranges a
 
 ## Getting started
 
-Read the [How to](docs/quick-start.md) to discover how to use the plugin.
+Read the [Quick Start tutorial](docs/quick-start.md) to discover how to use the plugin.
 
 ## Data model
 
-The data model and design's decitions can be found in the [documentation](docs/data-model.md).
+The data model and design's decisions can be found in the [documentation](docs/data-model.md).
 
 ## Installation and configuration
 
@@ -60,14 +60,14 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 
 Contributions are welcomed. This plugin is developped on the free time of its author, so do not expect regular releases.
 
-Please report security vulnerabilities via [Github security advisory](https://github.com/Alef-Burzmali/netbox-data-flows/security). Do not create a public bug.
+Please report security vulnerabilities via [GitHub security advisory](https://github.com/Alef-Burzmali/netbox-data-flows/security). Do not create a public issue. See also the [Security Policy](SECURITY.md).
 
 Please report bugs and feature requests in GitHub.
 
 [GitHub Discussions](https://github.com/Alef-Burzmali/netbox-data-flows/discussions) are opened for general help requests and any other topics you may want to discuss.
 
-### Know bugs and limitations
+### Known bugs and limitations
 * REST API is not tested in depth
 * GraphQL API is not implemented
 
-See also the [list of issues](https://github.com/Alef-Burzmali/netbox-data-flows/issues)
+See also the [list of issues](https://github.com/Alef-Burzmali/netbox-data-flows/issues).

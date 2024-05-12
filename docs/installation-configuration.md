@@ -4,26 +4,23 @@
 
 NetBox Data Flows is a [NetBox](https://github.com/netbox-community/netbox) plugin.
 
-Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/en/stable/plugins/).
-
 Once installed, go to the [quick start guide](quick-start.md) to discover how to use the plugin.
 
 ### Supported Versions
 
-| netbox version | netbox-data-flows version     |
+| NetBox version | NetBox Data Flows version     |
 | -------------- | ----------------------------- |
-| >= 4.0.0       | >= v0.9.0                     |
+| >= 4.0.0       | >= v1.0.0                     |
 | >= 3.7.0       | >= v0.8.0                     |
 | >= 3.6.0       | >= v0.7.3                     |
 |  < 3.6.0       | Not supported                 |
 
 > [!CAUTION]
-> Plugin versions before v0.7.3 can support earlier versions of NetBox. However, they are buggy and not recommended for production use.
+> Plugin versions before v1.0.0 can support earlier versions of NetBox. However, they are not supported and not recommended for production use.
 
 > [!WARNING]
 > The plugin uses some classes that are not explicitely exported in 
-NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is 
-not fully guaranteed.
+NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is therefore not fully guaranteed.
 
 ### Dependencies
 
@@ -31,6 +28,10 @@ not fully guaranteed.
 * Python 3.10 or higher
 
 ### Installation
+
+> [!NOTE]
+> For adding to a NetBox Docker setup see
+[the general instructions for using netbox-docker with plugins](https://github.com/netbox-community/netbox-docker/wiki/Using-Netbox-Plugins).
 
 The plugin is available at [PyPi](https://pypi.org/project/netbox-data-flows/).
 
@@ -52,6 +53,8 @@ Run NetBox's `upgrade.sh` script to download the plugin and run the migrations:
 ```bash
 /opt/netbox/upgrade.sh
 ```
+
+Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/en/stable/plugins/).
 
 ### Upgrade
 
@@ -113,11 +116,11 @@ CUSTOM_VALIDATORS = {
 ```
 
 Similar settings can be applied to:
-* Applications: netbox_data_flows.application
-* Application Roles: netbox_data_flows.applicationrole
-* Data Flows: netbox_data_flows.dataflow
-* Data Flow Groups: netbox_data_flows.dataflowgroup
-* Object Aliases: netbox_data_flows.objectalias
+* Applications: `netbox_data_flows.application`
+* Application Roles: `netbox_data_flows.applicationrole`
+* Data Flows: `netbox_data_flows.dataflow`
+* Data Flow Groups: `netbox_data_flows.dataflowgroup`
+* Object Aliases: `netbox_data_flows.objectalias`
 
 Full reference: [CUSTOM_VALIDATORS - NetBox Documentation](https://docs.netbox.dev/en/stable/configuration/data-validation/#custom_validators)
 
@@ -134,5 +137,7 @@ FIELD_CHOICES = {
     )
 }
 ```
+
+This syntax will add IGMP as a possible protocol in the drop list.
 
 Full reference: [FIELD_CHOICES - NetBox Documentation](https://docs.netbox.dev/en/stable/configuration/data-validation/#field_choices)

@@ -49,12 +49,14 @@ The creation is a two-step process: first, you create the alias, and then you ca
 
 ![A newly created alias](media/tuto-objectalias-new.png)
 
-Create 'acme_frontend' and open it, then click on "+ Add aliased objects" in the top right. There, you can select any IP Address, IP Range or Prefix to add, and you can use the filter functions to search which addresses need to be added.
+Create `acme_frontend` and open it, then click on "+ Add aliased objects" in the top right. There, you can select any IP Address, IP Range or Prefix to add, and you can use the filter functions to search which addresses need to be added.
 
 In you case, let's add the IP address of our three servers to the alias.
+
 ![Adding three IP addresses in an alias](media/tuto-objectalias-addip.png)
 
 The objects contained in the alias are listed on its detail page.
+
 ![Detail page of the object alias](media/tuto-objectalias-after.png)
 
 Let's repeat the same process for 'acme_backend' and 'acme_database'.
@@ -66,7 +68,7 @@ Let's repeat the same process for 'acme_backend' and 'acme_database'.
 
 ### Data Flows
 
-Now that we have object aliases, we can create data flows. In NetBox navigation menu, select *Data Flows* under the *Data Flows* section, and click on "Add" to create a new data flow.
+Now that we have object aliases, we can create data flows. In the NetBox navigation menu, select *Data Flows* under the *Data Flows* section, and click on "Add" to create a new data flow.
 
 For the plugin, a data flow is a network connection between some sources and some destinations (another set of object aliases), using a specific protocol:
 * The sources are zero, one or more object aliases
@@ -82,12 +84,14 @@ For the plugin, a data flow is a network connection between some sources and som
 > By convention, if zero object aliases are specified as source (or as destination), this is interpreted (and displayed) as "Any".
 
 > [!TIP]
-> You can change the list of available protocols in the configuration. Check [the installation and configuration](installation-configuration.md) page for details
+> You can change the list of available protocols in the configuration. Check [the Protocol Choices section](installation-configuration.md#protocol-choices) in the configuration documenation for details.
 
-In our example, the frontend servers communicates with the API exposed on port TCP 8443 of the backend servers. We don't need to specify a source port.
+In our example, the frontend servers communicates with the API exposed on port TCP 8443 of the backend servers. We don't need to specify a source port (interpreted as Any port).
+
 ![Creation of a data flow between frontend and backend](media/tuto-dataflow-new.png)
 
 Similarly, for the communications with the database servers, but here we have two sources.
+
 ![Creation of a data flow for the database](media/tuto-dataflow-db-new.png)
 
 ## Complete example
@@ -130,11 +134,11 @@ Applications can have:
 | Acme Inc. website     | Business applications |
 | Zabbix                | Support applications  |
 
-![Two applications have been created](media/tuto-applications.png).
+![Two applications have been created](media/tuto-applications.png)
 
 Once created, you will be able to see all the data flows related to an application in its detail page.
 
-![The data flow related to Acme Inc. are listed in the Application detail page](media/tuto-application-details.png).
+![The data flow related to Acme Inc. are listed in the Application detail page](media/tuto-application-details.png)
 
 ### Data Flow Groups
 
@@ -167,9 +171,10 @@ Data Flow Groups can have:
 * An optional parent group (to form the hierarchy)
 * Optional description and comments
 
-If a data flow group is disabled, all its child groups and all the data flows they contain are also considered disabled. This allow to quickly switch on or off data flows based on the groups.
+> [!TIP]
+> If a data flow group is disabled, all its child groups and all the data flows they contain are also considered disabled. This allow to quickly switch on or off data flows based on the groups.
 
-![The list of groups, once created](media/tuto-dataflowgroups.png).
+![The list of groups, once created](media/tuto-dataflowgroups.png)
 
 > [!NOTE]
 > In this example, we have disabled the group "Acme Inc. external access".
@@ -179,7 +184,7 @@ The detail page of a group will list:
 * The data flows it directly contains 
 * The data flows all its children contain
 
-![The detail page of a group](media/tuto-dfg-details.png).
+![The detail page of a group](media/tuto-dfg-details.png)
 
 ### Object Aliases
 
@@ -188,16 +193,17 @@ Now, we can create the other Object Aliases that we need, such as the network ra
 ![The object aliases for Acme and Zabbix have been created](media/tuto-objectalias-list.png)
 
 > [!TIP]
-> Do you need to force a naming convention for your object aliases, data flows or groups? Check [the configuration section in this page](installation-configuration.md) for details
+> Do you need to enforce a naming convention for your object aliases, data flows or groups? Check [the Nomenclature section in this page](installation-configuration.md#nomenclature) for details.
 
 ### Data flows
 
 Let's create the remaining data flows.
+
 ![The object aliases for Acme and Zabbix have been created](media/tuto-dataflow-list.png)
 
 > [!NOTE]
-> Because we have disabled the group "Acme Inc. external access", the data flow it contains is marked as "Disabled (Inherited)".
-> The data flow "Internal access to Acme backend API" also appears disabled: its groups are all enabled, but the data flow was disabled directy.
+> Because we have disabled the group "Acme Inc. external access", the data flow it contains is marked as *Disabled (Inherited)*.
+> The data flow "Internal access to Acme backend API" also appears *Disabled*: its groups are all enabled, but the data flow was disabled directy.
 
 The "Targets" tab in the data flow's detailed view can be used to resolve the object aliases and display the list of all IP address, ranges and prefixes in this data flow. The list displays when possible some context, e.g.: the device to which the IP is assigned or the VLAN a prefix is part of.
 
@@ -212,6 +218,7 @@ In the example below, the device is part of one object alias and in the destinat
 ![Tab view in a device](media/tuto-device-tab.png)
 
 And this VM is one of the frontend servers:
+
 ![Tab view in a virtual machine](media/tuto-vm-tab.png)
 
 This tab is automatically displayed when an object is member of at least one object alias. It is displayed for:
