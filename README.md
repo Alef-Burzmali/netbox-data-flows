@@ -1,189 +1,73 @@
-# netbox-data-flows
+# NetBox Data Flows Plugin
 
-Plugin for [NetBox](https://github.com/netbox-community/netbox) to document
-Data Flows between systems and applications.
-
-## WARNING
-
-This plugin is considered Work in Progress (Beta).
-Please use caution if using this plugin for production!
+NetBox plugin to document Data Flows between devices and applications.
 
 ## Features
 
-* Document data flows between IP addresses, IP ranges and prefixes
-* Document the application that requires these data flows
-* WIP: Prepare the list of data flows to be injested as firewall rules
+* Document data flows between IP addresses, IP ranges and Prefixes documented in NetBox.
+* Regroup the data flows into applications and hierarchical groups.
 
-## Installation and Configuration
+Documenting your data flows can help you design the network architecture, automate your firewall rule definition or reviews, implement security contracts in a software-defined network, or respond to compliance requirements.
 
-Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/en/stable/plugins/)
+## Screenshots
 
-### Requirements
+### Data Flow
+
+![Representation of a data flow](docs/media/readme-dataflow-details.png)
+A data flow for an application, here representing the user access to frontend servers and backend servers over TCP/443.
+
+![Targets of a data flow](docs/media/tuto-dataflow-targets.png)
+Details of the data flow specifications, displaying all the IP addresses, IP ranges and Prefixes that are involved in that data flow.
+
+### Application
+
+![All the data flows mapped to one application](docs/media/readme-dataflow-details.png)
+The application allows you to group all the related data flows.
+
+### Device tab views
+
+![List of data flows involving a VM](docs/media/tuto-vm-tab.png)
+The plugin adds Tab views to Device, Virtual Machines, IP addresses, IP ranges and Prefixes to list all the data flows that involve them as a source or destination.
+
+## Getting started
+
+Read the [How to](docs/quick-start.md) to discover how to use the plugin.
+
+## Data model
+
+The data model and design's decitions can be found in the [documentation](docs/data-model.md).
+
+## Installation and configuration
+
+Instructions to install, configure, update or uninstall the plugin can be found in the [plugins's documentation](docs/installation-configuration.md).
+
+### Supported Versions
+
+| netbox version | netbox-data-flows version |
+| -------------- | ----------------------------- |
+| >= 4.0.0       | >= v0.9.0                     |
+| >= 3.7.0       | >= v0.8.0                     |
+| >= 3.6.0       | >= v0.7.3                     |
+|  < 3.6.0       | Not supported                 |
+
+### Dependencies
 
 * NetBox (>=4.0.0)
 * Python 3.10 or higher
 
-Use version 0.8.x if you need compatibility with NetBox 3.7.x
 
-This is the last version compatible with NetBox 3. Future releases will support 4.0 only.
+## Contributions
 
-*Note:* the plugin uses some classes that are not explicitely exported in 
-NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is
-not guaranteed.
+Contributions are welcomed. This plugin is developped on the free time of its author, so do not expect regular releases.
 
-### Temporary installation
+Please report security vulnerabilities via [Github security advisory](https://github.com/Alef-Burzmali/netbox-data-flows/security). Do not create a public bug.
 
-Install the Python package:
-```bash
-source /opt/netbox/venv/bin/activate
-pip install netbox-data-flows
-```
+Please report bugs and feature requests in GitHub.
 
-Add the plugin in NetBox configuration
-```python
-# Add in: /opt/netbox/netbox/netbox/configuration.py
-
-PLUGINS = [
-  'netbox_data_flows',
-]
-```
-
-Create the database migrations:
-```bash
-source /opt/netbox/venv/bin/activate
-/opt/netbox/netbox/manage.py migrate netbox_data_flows
-```
-
-The plugin will be removed at the next NetBox update.
-
-### Permanent installation
-
-Add the Python package to `local_requirements`:
-```bash
-echo netbox-data-flows >> /opt/netbox/local_requirements.txt 
-```
-
-Add the plugin in NetBox configuration
-```python
-# Add in: /opt/netbox/netbox/netbox/configuration.py
-
-PLUGINS = [
-  'netbox_data_flows',
-]
-```
-
-Run the `upgrade.sh` script:
-```bash
-/opt/netbox/upgrade.sh
-```
-
-## Configuration
-
-There is no `PLUGIN_CONFIG` configuration for this plugin. However, several
-other aspects can be configured.
-
-### Nomenclature
-
-The name of Data Flows, Data Flow Groups and Object Aliases is not
-constrained. You may wish to enforce your own validation rules in your
-configuration, e.g.:
-
-```python
-# Add in: /opt/netbox/netbox/netbox/configuration.py
-
-CUSTOM_VALIDATORS = {
-    "netbox_data_flows.objectalias": [
-        {
-            "name": {
-                "regex": "(host|net)_[a-z_]+"
-            },
-        }
-    ]
-}
-```
-
-Similar settings can be applied to:
-* Applications: netbox_data_flows.application
-* Application Roles: netbox_data_flows.applicationrole
-* Data Flows: netbox_data_flows.dataflow
-* Data Flow Groups: netbox_data_flows.dataflowgroup
-* Object Aliases: netbox_data_flows.objectalias
-
-Full reference: [CUSTOM_VALIDATORS - NetBox Documentation](https://docs.netbox.dev/en/stable/configuration/data-validation/#custom_validators)
-
-### Protocol Choices
-
-You can edit the list of available protocols when creating a data flow.
-
-```python
-# Add in: /opt/netbox/netbox/netbox/configuration.py
-
-FIELD_CHOICES = {
-    'netbox_data_flows.DataFlow.protocol+': (
-        ('igmp', "IGMP"),
-    )
-}
-```
-
-Full reference: [FIELD_CHOICES - NetBox Documentation](https://docs.netbox.dev/en/stable/configuration/data-validation/#field_choices)
-
-## Data model
-
-### Application and Application Role
-
-**Applications** are logical grouping of data flows and can be business
-applications or infrastructure. Examples of applications:
-* Active Directory
-* MySuperBusinessApp
-* Network management
-* ...
-  
-**Application Role** is a label to help you categorize your applications.
-Each Application may have one Application Role.
-Examples of roles:
-* Infrastructure
-* Business Division 1
-* ...
-
-### Data Flow
-
-**Data Flows** modelize a network connection between two objects. They may be
-assigned to an Application
-
-Data Flows should have a source, a destination, a protocol, source ports and
-destination ports. Only the protocol is mandatory. 
-
-**Data Flow Groups** form a forest of groups. A tree can be assigned to a
-single Application. Data Flow Groups can be enabled and disabled and inherit
-the status of their parent. Disabled Data Flow Groups disable all the Data
-Flows contained within.
-
-### Object Alias
-
-**Object Aliases** are a group of references to other NetBox objects. Object
-Aliases are used as sources and destinations of Data Flows and corresponds to
-the groups or aliases used in firewall configuration. Internally, Object
-Aliases contain Object Alias Targets, because Django cannot create ManyToMany
-relationships to generic objects. Object Alias Targets are not exposed in the
-interface and should be transparent for the user.
-
-Object Aliases currently supports:
-* IP Addresses (ipam.ipaddress)
-* IP Ranges (ipam.iprange)
-* Prefixes (ipam.prefix)
-If an IP Address is assigned to a device or virtual machine, that device is
-also displayed.
-
-## Development
-
-Contributions are welcomed. This plugin is developped on the free time of its
-author, so do not expect regular releases.
+[GitHub Discussions](https://github.com/Alef-Burzmali/netbox-data-flows/discussions) are opened for general help requests and any other topics you may want to discuss.
 
 ### Know bugs and limitations
-* REST API and GraphQL API are not tested
+* REST API is not tested in depth
+* GraphQL API is not implemented
 
 See also the [list of issues](https://github.com/Alef-Burzmali/netbox-data-flows/issues)
-
-###  Planned Evolution
-* Include data's type/nature and link to data flows or at rest on devices
-
