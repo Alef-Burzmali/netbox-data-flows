@@ -27,7 +27,7 @@ The application allows you to group all the related data flows.
 ### Device tab views
 
 ![List of data flows involving a VM](docs/media/tuto-vm-tab.png)
-The plugin adds Tab views to Device, Virtual Machines, IP addresses, IP ranges and Prefixes to list all the data flows that involve them as a source or destination.
+The plugin adds Tab views to Devices, Virtual Machines, IP addresses, IP ranges and Prefixes to list all the data flows that involve them as a source or destination.
 
 ## Getting started
 
