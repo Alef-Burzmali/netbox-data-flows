@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load i18n %}
 {% load perms %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
@@ -8,23 +9,23 @@
 {% block extra_controls %}
   {% if perms.netbox_data_flows.change_objectalias %}
     <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" type="button" class="btn btn-primary">
-      <i class="mdi mdi-plus-thick"></i> Add aliased objects
+      <i class="mdi mdi-plus-thick"></i> {% trans "Add member objects" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-5">
       <div class="card">
-        <h5 class="card-header">Object Alias</h5>
+        <h5 class="card-header">{% trans "Object Alias" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
         </table>
@@ -34,16 +35,17 @@
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
+    {# FIXME: put table in Tab #}
     <div class="col col-md-7">
       <div class="card">
-        <h5 class="card-header">Member objects</h5>
+        <h5 class="card-header">{% trans "Member objects" %}</h5>
         <div class="card-body table-responsive">
           {% render_table targets_table %}
         </div>
       {% if perms.netbox_data_flows.change_objectalias %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-sm btn-primary">
-            <i class="mdi mdi-plus-thick"></i> Add aliased objects
+          <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus-thick"></i> {% trans "Add member objects" %}
           </a>
         </div>
       {% endif %}
@@ -52,10 +54,11 @@
     </div>
   </div>
 
+  {# FIXME: include #}
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Source in Data Flows</h5>
+        <h5 class="card-header">{% trans "Source in Data Flows" %}</h5>
         <div class="card-body table-responsive">
           {% render_table dataflow_sources_table %}
         </div>
@@ -63,10 +66,10 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Destination in Data Flows</h5>
+        <h5 class="card-header">{% trans "Destination in Data Flows" %}</h5>
         <div class="card-body table-responsive">
           {% render_table dataflow_destinations_table %}
         </div>
@@ -74,7 +77,7 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       {% plugin_full_width_page object %}
     </div>

@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load i18n %}
 {% load perms %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
@@ -11,21 +12,21 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Application</h5>
+        <h5 class="card-header">{% trans "Application" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Role</th>
+            <th scope="row">{% trans "Role" %}</th>
             <td>{{ object.role|placeholder|linkify }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
         </table>
@@ -40,10 +41,10 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Data Flow Groups</h5>
+        <h5 class="card-header">{% trans "Data Flow Groups" %}</h5>
         <div class="card-body table-responsive">
           {% render_table dataflowgroups_table %}
         </div>
@@ -51,10 +52,10 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Data Flows</h5>
+        <h5 class="card-header">{% trans "Data Flows" %}</h5>
         <div class="card-body table-responsive">
           {% render_table dataflows_table %}
         </div>
@@ -62,7 +63,7 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       {% plugin_full_width_page object %}
     </div>

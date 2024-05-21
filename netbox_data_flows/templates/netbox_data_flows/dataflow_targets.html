@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load i18n %}
 {% load perms %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
@@ -14,21 +15,21 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Specifications</h5>
+        <h5 class="card-header">{% trans "Specifications" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Protocol</th>
+            <th scope="row">{% trans "Protocol" %}</th>
             <td>{{ object.get_protocol_display|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Source ports</th>
+            <th scope="row">{% trans "Source ports" %}</th>
             <td>{{ object.source_port_list|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Destination ports</th>
+            <th scope="row">{% trans "Destination ports" %}</th>
             <td>{{ object.destination_port_list|placeholder }}</td>
           </tr>
         </table>
@@ -36,10 +37,11 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  {# FIXME: include #}
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Sources</h5>
+        <h5 class="card-header">{% trans "Sources" %}</h5>
         <div class="card-body table-responsive">
           {% render_table sources_table %}
         </div>
@@ -47,10 +49,10 @@
     </div>
   </div>
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Destinations</h5>
+        <h5 class="card-header">{% trans "Destinations" %}</h5>
         <div class="card-body table-responsive">
           {% render_table destinations_table %}
         </div>

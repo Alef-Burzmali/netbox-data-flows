@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load i18n %}
 {% load perms %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
@@ -13,27 +14,27 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Data Flow</h5>
+        <h5 class="card-header">{% trans "Data Flow" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Application</th>
+            <th scope="row">{% trans "Application" %}</th>
             <td>{{ object.application|linkify }}</td>
           </tr>
           <tr>
-            <th scope="row">Group</th>
+            <th scope="row">{% trans "Group" %}</th>
             <td>
               {{ object.group|placeholder|linkify }}
             </td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Status</th>
+            <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.inherited_status_display bg_color=object.get_status_color %}</td>
           </tr>
         </table>
@@ -45,43 +46,43 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Specifications</h5>
+        <h5 class="card-header">{% trans "Specifications" %}</h5>
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Protocol</th>
+            <th scope="row">{% trans "Protocol" %}</th>
             <td>{{ object.get_protocol_display|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Source ports</th>
+            <th scope="row">{% trans "Source ports" %}</th>
             <td>{{ object.source_port_list|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Destination ports</th>
+            <th scope="row">{% trans "Destination ports" %}</th>
             <td>{{ object.destination_port_list|placeholder }}</td>
           </tr>
           {% for o in sources %}
             <tr>
               {% if forloop.first %}
-                <th scope="row" rowspan="{{ sources|length }}">Sources</th>
+                <th scope="row" rowspan="{{ sources|length }}">{% trans "Sources" %}</th>
               {% endif %}
               <td>{{ o|linkify }}</td>
             </tr>
           {% empty %}
             <tr>
-              <th scope="row">Sources</th>
+              <th scope="row">{% trans "Sources" %}</th>
               <td>{{ ""|placeholder }}</td>
             </tr>
           {% endfor %}
           {% for o in destinations %}
             <tr>
               {% if forloop.first %}
-                <th scope="row" rowspan="{{ destinations|length }}">Destinations</th>
+                <th scope="row" rowspan="{{ destinations|length }}">{% trans "Destinations" %}</th>
               {% endif %}
               <td>{{ o|linkify }}</td>
             </tr>
           {% empty %}
             <tr>
-              <th scope="row">Destinations</th>
+              <th scope="row">{% trans "Destinations" %}</th>
               <td>{{ ""|placeholder }}</td>
             </tr>
           {% endfor %}
@@ -92,10 +93,10 @@
   </div>
 
   {% if children_table %}
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Children Data Flows</h5>
+        <h5 class="card-header">{% trans "Children Data Flows" %}</h5>
         <div class="card-body table-responsive">
           {% render_table children_table %}
         </div>
@@ -104,9 +105,9 @@
   </div>
   {% endif %}
 
-  <div class="row mb-3">
+  <div class="row">
     <div class="col col-md-12">
-        {% plugin_full_width_page object %}
+      {% plugin_full_width_page object %}
     </div>
   </div>
 {% endblock content %}

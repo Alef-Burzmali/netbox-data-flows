@@ -1,5 +1,8 @@
-{% if objectalias and perms.netbox_data_flows.change_objectalias %}
-  <a href="{% url 'plugins:netbox_data_flows:objectalias_removetarget' pk=objectalias.pk alias_pk=record.pk %}?return_url={% url 'plugins:netbox_data_flows:objectalias' pk=objectalias.pk %}" class="btn btn-sm btn-danger" title="Unlink aliased object">
-    <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i>
+{% load i18n %}
+{% load perms %}
+
+{% if objectalias and request.user|can_change:objectalias %}
+  <a href="{% url 'plugins:netbox_data_flows:objectalias_removetarget' pk=objectalias.pk alias_pk=record.pk %}?return_url={% url 'plugins:netbox_data_flows:objectalias' pk=objectalias.pk %}" class="btn btn-danger lh-1" title="{% trans 'Unlink aliased object' %}">
+    <i class="mdi mdi-ethernet-cable-off"></i>
   </a>
 {% endif %}
