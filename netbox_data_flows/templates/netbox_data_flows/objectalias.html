@@ -39,9 +39,7 @@
     <div class="col col-md-7">
       <div class="card">
         <h5 class="card-header">{% trans "Member objects" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table targets_table %}
-        </div>
+        {% render_table targets_table %}
       {% if perms.netbox_data_flows.change_objectalias %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-primary btn-sm">
@@ -59,9 +57,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Source in Data Flows" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table dataflow_sources_table %}
-        </div>
+        {% render_table dataflow_sources_table %}
       </div>
     </div>
   </div>
@@ -70,9 +66,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Destination in Data Flows" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table dataflow_destinations_table %}
-        </div>
+        {% render_table dataflow_destinations_table %}
       </div>
     </div>
   </div>

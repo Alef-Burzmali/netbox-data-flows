@@ -9,9 +9,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Object Aliases" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table aliases_table %}
-        </div>
+        {% render_table aliases_table %}
       </div>
     </div>
   </div>
@@ -21,9 +19,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Source in Data Flows" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table dataflow_sources_table %}
-        </div>
+        {% render_table dataflow_sources_table %}
       </div>
     </div>
   </div>
@@ -32,9 +28,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Destination in Data Flows" %}</h5>
-        <div class="card-body table-responsive">
-          {% render_table dataflow_destinations_table %}
-        </div>
+        {% render_table dataflow_destinations_table %}
       </div>
     </div>
   </div>
