@@ -1,4 +1,5 @@
 from netbox.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
+from netbox.plugins.utils import get_plugin_config
 
 
 #
@@ -6,6 +7,7 @@ from netbox.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 #
 
 APP_LABEL = "netbox_data_flows"
+top_level_menu = get_plugin_config("netbox_data_flows", "top_level_menu")
 
 
 # clone of netbox.navigation_menu.get_model_item, but for plugin
@@ -48,24 +50,39 @@ def get_model_buttons(model_name, actions=("add", "import")):
 # Nav menus
 #
 
-menu = PluginMenu(
-    label="Data Flows",
-    icon_class="mdi mdi-vector-polyline",
-    groups=(
-        (
-            "Applications",
+application_item = get_model_item("application", "Applications")
+applicationrole_item = get_model_item("applicationrole", "Application Roles")
+dataflow_item = get_model_item("dataflow", "Data Flows")
+dataflowgroup_item = get_model_item("dataflowgroup", "Data Flow Groups")
+objectalias_item = get_model_item("objectalias", "Object Aliases")
+
+if top_level_menu:
+    menu = PluginMenu(
+        label="Data Flows",
+        icon_class="mdi mdi-vector-polyline",
+        groups=(
             (
-                get_model_item("application", "Applications"),
-                get_model_item("applicationrole", "Application Roles"),
+                "Applications",
+                (
+                    application_item,
+                    applicationrole_item,
+                ),
+            ),
+            (
+                "Data Flows",
+                (
+                    dataflow_item,
+                    dataflowgroup_item,
+                    objectalias_item,
+                ),
             ),
         ),
-        (
-            "Data Flows",
-            (
-                get_model_item("dataflow", "Data Flows"),
-                get_model_item("dataflowgroup", "Data Flow Groups"),
-                get_model_item("objectalias", "Object Aliases"),
-            ),
-        ),
-    ),
-)
+    )
+else:
+    menu_items = [
+        application_item,
+        applicationrole_item,
+        dataflow_item,
+        dataflowgroup_item,
+        objectalias_item,
+    ]

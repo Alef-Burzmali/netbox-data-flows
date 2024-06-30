@@ -92,8 +92,25 @@ Deleting the data of the plugin is not recommended. If you really want to do it:
 
 ## Configuration
 
-There is no `PLUGIN_CONFIG` configuration for this plugin. However, several
-other aspects can be configured.
+The plugin can be configured in NetBox's `configuration.py` file.
+
+### Options
+
+You can configure the plugin by changing `PLUGIN_CONFIG`:
+
+```python
+# Add in: /opt/netbox/netbox/netbox/configuration.py
+
+PLUGINS_CONFIG = {
+    'netbox_data_flows': {
+        # Create a menu section for the plugin
+        'top_level_menu': True,
+    }
+}
+```
+
+Supported options:
+* `top_level_menu`: if set to `True` (default), the plugin will create its own menu section in the left navigation panel. If set to `False`, the plugin will be in a subsection under the `Plugins` section.
 
 ### Nomenclature
 
