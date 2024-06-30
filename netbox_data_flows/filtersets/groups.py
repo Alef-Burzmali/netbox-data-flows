@@ -20,10 +20,10 @@ class DataFlowGroupFilterSet(
         label="Parent (ID)",
     )
     parent = ModelMultipleChoiceFilter(
-        field_name="parent__name",
+        field_name="parent__slug",
         queryset=models.DataFlowGroup.objects.all(),
-        to_field_name="name",
-        label="Parent (name)",
+        to_field_name="slug",
+        label="Parent (slug)",
     )
     ancestor_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
@@ -32,8 +32,8 @@ class DataFlowGroupFilterSet(
     )
     ancestor = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
-        to_field_name="name",
-        label="Ancestor (name)",
+        to_field_name="slug",
+        label="Ancestor (slug)",
         method="filter_ancestors",
     )
 
@@ -43,6 +43,7 @@ class DataFlowGroupFilterSet(
             "id",
             "name",
             "slug",
+            "description",
             "status",
         )
 
