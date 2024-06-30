@@ -14,7 +14,9 @@ class DataFlowsConfig(PluginConfig):
     base_url = "data-flows"
     author = "Thomas Fargeix"
     required_settings = []
-    default_settings = {}
+    default_settings = {
+        "top_level_menu": True,
+    }
     min_version = "4.0.0"
     max_version = "4.0.99"
 
