@@ -23,6 +23,7 @@ class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
         fields = (
             "id",
             "name",
+            "slug",
             "description",
         )
 
@@ -33,8 +34,10 @@ class ApplicationFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
         label="Application Role (ID)",
     )
     role = ModelMultipleChoiceFilter(
+        field_name="role__slug",
         queryset=models.ApplicationRole.objects.all(),
-        label="Application Role (Name)",
+        to_field_name="slug",
+        label="Application Role (Slug)",
     )
 
     class Meta:
