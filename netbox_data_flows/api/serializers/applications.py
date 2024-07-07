@@ -47,7 +47,9 @@ class ApplicationSerializer(NetBoxModelSerializer):
         view_name="plugins-api:netbox_data_flows-api:application-detail"
     )
     dataflow_count = serializers.IntegerField(read_only=True)
-    role = ApplicationRoleSerializer(nested=True)
+    role = ApplicationRoleSerializer(
+        nested=True, required=False, allow_null=True, default=None
+    )
 
     class Meta:
         model = models.Application

@@ -60,7 +60,7 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
         queryset=models.ObjectAliasTarget.objects.all(),
         serializer=ObjectAliasTargetSerializer,
         nested=True,
-        required=True,
+        required=False,
         many=True,
     )
 
