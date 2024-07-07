@@ -1,27 +1,15 @@
 from django.test import TestCase
 
+from dcim import models as dcim
+from ipam import models as ipam
+from virtualization import models as virtualization
+
 from netbox_data_flows import models, filtersets, choices
 
 from .data import TestData
 
 
-class ApplicationFilterSetAddin:
-    def test_application(self):
-        applications = models.Application.objects.all()[:2]
-        params = {"application_id": [applications[0].pk, applications[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {"application": [applications[0].name, applications[1].name]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_application_role(self):
-        roles = models.Application.objects.all()[:2]
-        params = {"application_role_id": [roles[0].pk, roles[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {"application_role": [roles[0].slug, roles[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-
-class ApplicationRoleFilterSetTestCase(TestCase):
+class ApplicationRoleTestCase(TestCase):
     queryset = models.ApplicationRole.objects.all()
     filterset = filtersets.ApplicationRoleFilterSet
 
@@ -50,7 +38,7 @@ class ApplicationRoleFilterSetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ApplicationFilterSetTestCase(TestCase):
+class ApplicationTestCase(TestCase):
     queryset = models.Application.objects.all()
     filterset = filtersets.ApplicationFilterSet
 
@@ -80,7 +68,7 @@ class ApplicationFilterSetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
 
-class DataFlowGroupFilterSetTestCase(TestCase):
+class DataFlowGroupTestCase(TestCase):
     queryset = models.DataFlowGroup.objects.all()
     filterset = filtersets.DataFlowGroupFilterSet
 
@@ -179,3 +167,540 @@ class DataFlowGroupFilterSetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {"application_role": [roles[0].slug, roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+
+class ObjectAliasTargetTestCase(TestCase):
+    queryset = models.ObjectAliasTarget.objects.all()
+    filterset = filtersets.ObjectAliasTargetFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        TestData.create_objectaliastargets()
+
+    def test_prefixes(self):
+        prefixes = ipam.Prefix.objects.all()
+        params = {"prefixes": [prefixes[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"prefixes": [prefixes[0].pk, prefixes[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        for obj in prefixes:
+            params = {"prefixes": [obj.pk]}
+            self.assertEqual(
+                self.filterset(params, self.queryset).qs.first().target, obj
+            )
+
+    def test_ranges(self):
+        ipranges = ipam.IPRange.objects.all()
+        params = {"ipranges": [ipranges[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"ipranges": [ipranges[0].pk, ipranges[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        for obj in ipranges:
+            params = {"ipranges": [obj.pk]}
+            self.assertEqual(
+                self.filterset(params, self.queryset).qs.first().target, obj
+            )
+
+    def test_ipaddresses(self):
+        ipaddresses = ipam.IPAddress.objects.all()
+        params = {"ipaddresses": [ipaddresses[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        for obj in ipaddresses:
+            params = {"ipaddresses": [obj.pk]}
+            self.assertEqual(
+                self.filterset(params, self.queryset).qs.first().target, obj
+            )
+
+    def test_devices(self):
+        devices = dcim.Device.objects.all()
+        params = {"devices": [devices[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"devices": [devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"devices": [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_virtual_machines(self):
+        virtual_machines = virtualization.VirtualMachine.objects.all()
+        params = {"virtual_machines": [virtual_machines[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "virtual_machines": [
+                virtual_machines[0].pk,
+                virtual_machines[1].pk,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_multiple_targets(self):
+        params = {
+            "prefixes": [ipam.Prefix.objects.first().pk],
+            "ipranges": [ipam.IPRange.objects.first().pk],
+            "ipaddresses": [ipam.IPAddress.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "devices": [dcim.Device.objects.first().pk],
+            "virtual_machines": [
+                virtualization.VirtualMachine.objects.first().pk
+            ],
+        }
+        # 2x 2 IP => 4 targets
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {
+            "ipaddresses": [ipam.IPAddress.objects.first().pk],
+            "virtual_machines": [
+                virtualization.VirtualMachine.objects.first().pk
+            ],
+        }
+        # 1 + 2 IP => 3
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "ipaddresses": [ipam.IPAddress.objects.first().pk],
+            "devices": [dcim.Device.objects.first().pk],
+        }
+        # ip is assigned to first interface of device
+        # 1 + 2 IP, but with 1 duplicate => 2
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ObjectAliasTestCase(TestCase):
+    queryset = models.ObjectAlias.objects.all()
+    filterset = filtersets.ObjectAliasFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        TestData.create_objectaliases()
+
+    def test_q(self):
+        params = {"q": "OBJECT ALIAS 1"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"q": "device"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {"name": ["Object Alias 1", "Object Alias 3"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {"description": ["Device 1 and Device 2", "VM 2"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_targets(self):
+        targets = models.ObjectAliasTarget.objects.order_by("pk")
+        params = {"targets": [targets[0]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"targets": [targets[1]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"targets": [targets[9], targets[10], targets[12]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class DataFlowTestCase(TestCase):
+    queryset = models.DataFlow.objects.all()
+    filterset = filtersets.DataFlowFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        TestData.create_dataflows()
+
+    def test_q(self):
+        params = {"q": "DATA FLOW 1"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"q": "udp"}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {"name": ["Data Flow 1", "Data Flow 3"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {"description": ["ICMP from any to any"]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_status(self):
+        params = {"status": choices.DataFlowStatusChoices.STATUS_ENABLED}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {"status": choices.DataFlowStatusChoices.STATUS_DISABLED}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_inherited_status(self):
+        params = {
+            "inherited_status": choices.DataFlowStatusChoices.STATUS_ENABLED
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {
+            "inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_application(self):
+        applications = models.Application.objects.all()[:2]
+        params = {"application_id": [applications[0].pk, applications[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {"application": [applications[0].name, applications[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_application_role(self):
+        roles = models.ApplicationRole.objects.all()[:2]
+        params = {"application_role_id": [roles[0].pk, roles[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {"application_role": [roles[0].slug, roles[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_group(self):
+        groups = models.DataFlowGroup.objects.all()
+        params = {"group_id": [groups[2].pk, groups[3].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"group": [groups[2].slug, groups[3].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"group_id": [groups[6].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {"group": [groups[6].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_recursive_group(self):
+        groups = models.DataFlowGroup.objects.all()
+        params = {"recursive_group_id": [groups[0].pk]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            5,
+            f"Recursive group by ID: {groups[0]}",
+        )
+        params = {"recursive_group": [groups[0].slug]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            5,
+            f"Recursive group by slug: {groups[0]}",
+        )
+        params = {"recursive_group_id": [groups[1].pk]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            1,
+            f"Recursive group by ID: {groups[1]}",
+        )
+        params = {"recursive_group": [groups[1].slug]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            1,
+            f"Recursive group by slug: {groups[1]}",
+        )
+        params = {"recursive_group_id": [groups[6].pk]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            4,
+            f"Recursive group by ID: {groups[6]}",
+        )
+        params = {"recursive_group": [groups[6].slug]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            4,
+            f"Recursive group by slug: {groups[6]}",
+        )
+        params = {"recursive_group_id": [groups[1].pk, groups[5].pk]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            5,
+            f"Recursive group by ID: {groups[1]} and {groups[5]}",
+        )
+        params = {"recursive_group": [groups[1].slug, groups[5].slug]}
+        self.assertEqual(
+            self.filterset(params, self.queryset).qs.count(),
+            5,
+            f"Recursive group by slug: {groups[1]} and {groups[5]}",
+        )
+
+    def test_protocol(self):
+        params = {"protocol": [choices.DataFlowProtocolChoices.PROTOCOL_ANY]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "protocol": [
+                choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
+                choices.DataFlowProtocolChoices.PROTOCOL_SCTP,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_source_ports(self):
+        params = {"source_ports": [200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ports": [55, 57]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ports": [55, 57, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_destination_ports(self):
+        params = {"destination_ports": [80]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"destination_ports": [81]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"destination_ports": [81, 82]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"destination_ports": [81, 82, 300]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_source_and_destination_ports(self):
+        params = {"source_ports": [55], "destination_ports": [81]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ports": [55, 57], "destination_ports": [81, 82]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ports": [200], "destination_ports": [200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ports": [200], "destination_ports": [300]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"source_ports": [55, 57, 300], "destination_ports": [82]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_source_is_null(self):
+        params = {"source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_source_aliases(self):
+        aliases = models.ObjectAlias.objects.all()
+        params = {"source_aliases": [aliases[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "source_aliases": [
+                aliases[1].pk,
+                aliases[3].pk,
+                aliases[4].pk,
+                aliases[6].pk,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"source_aliases": [aliases[1].pk, aliases[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_source_prefixes(self):
+        prefixes = ipam.Prefix.objects.all()
+        params = {"source_prefixes": [prefixes[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {"source_prefixes": [prefixes[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_source_ipranges(self):
+        ipranges = ipam.IPRange.objects.all()
+        params = {"source_ipranges": [ipranges[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ipranges": [ipranges[0].pk, ipranges[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_source_ipaddresses(self):
+        ipaddresses = ipam.IPAddress.objects.all()
+        params = {"source_ipaddresses": [ipaddresses[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_ipaddresses": [ipaddresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_source_devices(self):
+        devices = dcim.Device.objects.all()[:2]
+        params = {"source_devices": [devices[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_devices": [devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_devices": [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_source_virtual_machines(self):
+        vms = virtualization.VirtualMachine.objects.all()[:2]
+        params = {"source_virtual_machines": [vms[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"source_virtual_machines": [vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"source_virtual_machines": [vms[0].pk, vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_OR_of_sources(self):
+        aliases = models.ObjectAlias.objects.all()[:1]
+        prefixes = ipam.Prefix.objects.all()[:1]
+        ipranges = ipam.IPRange.objects.all()[:1]
+        ipaddresses = ipam.IPAddress.objects.all()[:3]
+        devices = dcim.Device.objects.all()[:2]
+        vms = virtualization.VirtualMachine.objects.all()[:2]
+
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+            "source_aliases": [aliases[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {
+            "source_prefixes": [prefixes[0].pk],
+            "source_devices": [devices[0].pk, devices[1].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {
+            "source_ipranges": [ipranges[0].pk],
+            "source_ipaddresses": [ipaddresses[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "source_devices": [devices[0].pk],
+            "source_ipaddresses": [ipaddresses[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "source_virtual_machines": [vms[1].pk],
+            "source_devices": [devices[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_destination_is_null(self):
+        params = {
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_destination_aliases(self):
+        aliases = models.ObjectAlias.objects.all()
+        params = {"destination_aliases": [aliases[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "destination_aliases": [
+                aliases[1].pk,
+                aliases[3].pk,
+                aliases[4].pk,
+                aliases[6].pk,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {"destination_aliases": [aliases[0].pk, aliases[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_destination_prefixes(self):
+        prefixes = ipam.Prefix.objects.all()
+        params = {"destination_prefixes": [prefixes[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"destination_prefixes": [prefixes[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_destination_ipranges(self):
+        ipranges = ipam.IPRange.objects.all()
+        params = {"destination_ipranges": [ipranges[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"destination_ipranges": [ipranges[0].pk, ipranges[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_destination_ipaddresses(self):
+        ipaddresses = ipam.IPAddress.objects.all()
+        params = {"destination_ipaddresses": [ipaddresses[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "destination_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"destination_ipaddresses": [ipaddresses[5].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_destination_devices(self):
+        devices = dcim.Device.objects.all()[:2]
+        params = {"destination_devices": [devices[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"destination_devices": [devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"destination_devices": [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_destination_virtual_machines(self):
+        vms = virtualization.VirtualMachine.objects.all()[:2]
+        params = {"destination_virtual_machines": [vms[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"destination_virtual_machines": [vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"destination_virtual_machines": [vms[0].pk, vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_OR_of_destinations(self):
+        aliases = models.ObjectAlias.objects.all()[:2]
+        prefixes = ipam.Prefix.objects.all()[:1]
+        ipranges = ipam.IPRange.objects.all()[:1]
+        ipaddresses = ipam.IPAddress.objects.all()[:3]
+        devices = dcim.Device.objects.all()[:2]
+        vms = virtualization.VirtualMachine.objects.all()[:2]
+
+        params = {
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+            "destination_aliases": [aliases[1].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {
+            "destination_prefixes": [prefixes[0].pk],
+            "destination_devices": [devices[0].pk, devices[1].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "destination_ipranges": [ipranges[0].pk],
+            "destination_ipaddresses": [ipaddresses[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {
+            "destination_devices": [devices[0].pk],
+            "destination_ipaddresses": [ipaddresses[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "destination_virtual_machines": [vms[1].pk],
+            "destination_devices": [devices[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_AND_of_source_and_destinations(self):
+        aliases = models.ObjectAlias.objects.all()
+        prefixes = ipam.Prefix.objects.all()[:1]
+        devices = dcim.Device.objects.all()[:2]
+        vms = virtualization.VirtualMachine.objects.all()[:2]
+
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL,
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL,
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL,
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL,
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+        params = {
+            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+            "destination_aliases": [aliases[3].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "source_devices": [devices[1].pk],
+            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL,
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {
+            "source_prefixes": [prefixes[0].pk],
+            "destination_virtual_machines": [vms[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+        params = {
+            "source_devices": [devices[0].pk],
+            "destination_devices": [devices[0].pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
