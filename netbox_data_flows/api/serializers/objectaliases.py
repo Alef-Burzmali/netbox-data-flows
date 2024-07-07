@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from core.models import ObjectType
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import (
     NetBoxModelSerializer,
@@ -15,11 +16,23 @@ __all__ = (
 )
 
 
+class NestableGenericObjectSerializer(GenericObjectSerializer):
+    # Hack to get utilities.api.get_prefetches_for_serializer to
+    # stop prefetching our fields.
+
+    nested = True
+
+    class Meta:
+        model = ObjectType
+        fields = ["object_type", "object_id"]
+        brief_fields = ["object_type", "object_id"]
+
+
 class ObjectAliasTargetSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail"
     )
-    target = GenericObjectSerializer(
+    target = NestableGenericObjectSerializer(
         required=True,
         many=False,
     )
