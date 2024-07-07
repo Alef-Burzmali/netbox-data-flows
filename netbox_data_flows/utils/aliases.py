@@ -3,7 +3,7 @@ import logging
 from django import forms
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, RestrictedError
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -100,8 +100,11 @@ class AddAliasesView(generic_views.ObjectEditView):
         logger = logging.getLogger("netbox_data_flows.views.AddAliasesView")
         obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
 
+        # Take a snapshot for change logging (if editing an existing object)
         if obj.pk and hasattr(obj, "snapshot"):
             obj.snapshot()
+
+        # obj = self.alter_object(obj, request, args, kwargs)
 
         form = self.form(data=request.POST, files=request.FILES)
         restrict_form_fields(form, request.user)
@@ -117,8 +120,6 @@ class AddAliasesView(generic_views.ObjectEditView):
                         if a.pk is None:
                             a.save()
                     getattr(obj, self.aliases_attribute).add(*aliases)
-                    form.pre_save_object(form, obj, aliases)
-                    obj.save()
 
                 msg = f"Added {len(aliases)} alias to"
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")
@@ -216,11 +217,10 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                 aliases = getattr(obj, self.aliases_attribute)
                 with transaction.atomic():
                     aliases.remove(alias)
-                    obj.save()
 
-            except ProtectedError as e:
+            except (ProtectedError, RestrictedError) as e:
                 logger.info(
-                    "Caught ProtectedError while attempting to delete object"
+                    f"Caught {type(e)} while attempting to delete object"
                 )
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
@@ -230,7 +230,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                 messages.error(request, mark_safe(e.message))
                 return redirect(obj.get_absolute_url())
 
-            msg = "Removed alias from"
+            msg = f"Removed alias {alias} from"
             logger.info(f"{msg} {obj} (PK: {obj.pk})")
             if hasattr(obj, "get_absolute_url"):
                 msg = mark_safe(
@@ -241,8 +241,10 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                 msg = f"{msg} {obj}"
             messages.success(request, msg)
 
-            return_url = self.get_return_url(request, obj)
-            return redirect(return_url)
+            return_url = form.cleaned_data.get("return_url")
+            if return_url and return_url.startswith("/"):
+                return redirect(return_url)
+            return redirect(self.get_return_url(request, obj))
 
         else:
             logger.debug("Form validation failed")
