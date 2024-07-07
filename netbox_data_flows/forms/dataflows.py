@@ -224,6 +224,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
         queryset=models.Application.objects.all(),
         required=False,
         to_field_name="name",
+        help_text="Application",
     )
     group = CSVModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
@@ -234,10 +235,12 @@ class DataFlowImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=True,
+        help_text="Status",
     )
     protocol = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowProtocolChoices),
         required=True,
+        help_text="Protocol",
     )
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(
