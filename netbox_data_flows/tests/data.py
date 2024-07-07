@@ -1,3 +1,9 @@
+import itertools
+
+from dcim import models as dcim
+from ipam import models as ipam
+from virtualization import models as virtualization
+
 from netbox_data_flows import models, choices
 
 
@@ -7,6 +13,7 @@ class TestData:
     _dataflows = []
     _dataflowgroups = []
     _objectaliases = []
+    _targets = []
 
     @classmethod
     def create_applicationroles(cls):
@@ -165,3 +172,351 @@ class TestData:
                 obj.save()
 
         return cls._dataflowgroups
+
+    @classmethod
+    def create_objectaliastargets(cls):
+        if not cls._targets:
+            vlans = [
+                ipam.VLAN(
+                    vid=100,
+                    name="Vlan 100",
+                ),
+                ipam.VLAN(
+                    vid=200,
+                    name="Vlan 200",
+                ),
+            ]
+            ipam.VLAN.objects.bulk_create(vlans)
+
+            prefixes = [
+                ipam.Prefix(
+                    prefix="10.0.0.0/16",
+                ),
+                ipam.Prefix(
+                    prefix="10.0.1.0/24",
+                ),
+                ipam.Prefix(
+                    prefix="10.0.2.0/24",
+                ),
+                ipam.Prefix(
+                    prefix="10.100.0.0/16",
+                    vlan=vlans[0],
+                ),
+                ipam.Prefix(
+                    prefix="10.200.0.0/16",
+                    vlan=vlans[1],
+                ),
+            ]
+            ipam.Prefix.objects.bulk_create(prefixes)
+
+            ranges = [
+                ipam.IPRange(
+                    start_address="10.0.1.10/24",
+                    end_address="10.0.1.49/24",
+                    size=40,
+                ),
+                ipam.IPRange(
+                    start_address="10.0.2.10/24",
+                    end_address="10.0.3.10/24",
+                    size=256,
+                ),
+            ]
+            ipam.IPRange.objects.bulk_create(ranges)
+
+            ips = [
+                ipam.IPAddress(address="10.0.1.1/24"),
+                ipam.IPAddress(address="10.0.1.2/24"),
+                ipam.IPAddress(address="10.0.2.1/24"),
+                ipam.IPAddress(address="10.0.2.2/24"),
+                ipam.IPAddress(address="10.0.3.3/24"),
+                ipam.IPAddress(address="10.100.1.1/24"),
+                ipam.IPAddress(address="10.200.1.1/24"),
+                ipam.IPAddress(address="10.10.0.1/24"),
+            ]
+            ipam.IPAddress.objects.bulk_create(ips)
+
+            site = dcim.Site.objects.create(
+                name="Site 1",
+                slug="site-1",
+            )
+            manufacturer = dcim.Manufacturer.objects.create(
+                name="Manufacturer 1",
+                slug="manufacturer-1",
+            )
+            dev_type = dcim.DeviceType.objects.create(
+                manufacturer=manufacturer,
+                model="Device Type 1",
+                slug="device-type-1",
+                u_height=1,
+            )
+            dev_role = dcim.DeviceRole.objects.create(
+                name="Device Role 1",
+                slug="device-role-1",
+                color="ff0000",
+                vm_role=True,
+            )
+            devices = [
+                dcim.Device(
+                    name="Device 1",
+                    device_type=dev_type,
+                    role=dev_role,
+                    site=site,
+                ),
+                dcim.Device(
+                    name="Device 2",
+                    device_type=dev_type,
+                    role=dev_role,
+                    site=site,
+                ),
+            ]
+            interfaces = []
+            for obj in devices:
+                obj.save()
+                interfaces += [
+                    dcim.Interface.objects.create(
+                        device=obj,
+                        name="eth0",
+                        type="1000base-t",
+                    ),
+                    dcim.Interface.objects.create(
+                        device=obj,
+                        name="eth1",
+                        type="1000base-t",
+                    ),
+                ]
+
+            vms = [
+                virtualization.VirtualMachine(
+                    name="VM 1",
+                ),
+                virtualization.VirtualMachine(
+                    name="VM 2",
+                ),
+            ]
+            vminterfaces = []
+            for obj in vms:
+                obj.save()
+                vminterfaces += [
+                    virtualization.VMInterface.objects.create(
+                        virtual_machine=obj,
+                        name="eth0",
+                    ),
+                    virtualization.VMInterface.objects.create(
+                        virtual_machine=obj,
+                        name="eth1",
+                    ),
+                ]
+
+            ips[0].assigned_object = interfaces[0]
+            ips[1].assigned_object = interfaces[1]
+            ips[4].assigned_object = interfaces[2]
+            ips[2].assigned_object = vminterfaces[0]
+            ips[3].assigned_object = vminterfaces[1]
+            ips[5].assigned_object = vminterfaces[2]
+            for obj in ips:
+                obj.save()
+
+            # Targets
+            # 0-2: Prefix
+            # 3-4: Prefix with VLAN
+            # 5-6: IP Ranges
+            # 7-8: IP of device 1
+            # 9-10: IP of vm 1
+            # 11-11: IP of device 2
+            # 12-12: IP of vm 2
+            # 13-14: IPs
+            for obj in itertools.chain(prefixes, ranges, ips):
+                t = models.ObjectAliasTarget.get_or_create(obj)
+                t.save()
+                cls._targets += [t]
+
+        return cls._targets
+
+    @classmethod
+    def create_objectaliases(cls):
+        if not cls._objectaliases:
+            cls.create_objectaliastargets()
+
+            cls._objectaliases = [
+                models.ObjectAlias(
+                    name="Object Alias 1",
+                    description="Prefixes 1 and 2",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 2",
+                    description="Empty",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 3",
+                    description="Prefix 1 and Range 1",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 4",
+                    description="Device 1 and VM 1",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 5",
+                    description="Device 1 and Device 2",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 6",
+                    description="VM 2",
+                ),
+                models.ObjectAlias(
+                    name="Object Alias 7",
+                    description="IP 13 and 14",
+                ),
+            ]
+            for obj in cls._objectaliases:
+                obj.save()
+
+            targets = models.ObjectAliasTarget.objects.order_by("pk")
+            cls._objectaliases[0].targets.set(targets[0:2])
+            cls._objectaliases[1].targets.set([])
+            cls._objectaliases[2].targets.set([targets[0], targets[5]])
+            cls._objectaliases[3].targets.set(targets[7:11])
+            cls._objectaliases[4].targets.set(
+                [targets[7], targets[8], targets[11]]
+            )
+            cls._objectaliases[5].targets.set([targets[12]])
+            cls._objectaliases[6].targets.set(targets[13:15])
+
+        return cls._objectaliases
+
+    @classmethod
+    def create_dataflows(cls):
+        if not cls._dataflows:
+            apps = cls.create_applications()
+            groups = cls.create_dataflowgroups()
+            aliases = cls.create_objectaliases()
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 1",
+                    description="Any from any to any",
+                    application=None,
+                    group=None,
+                    status=choices.DataFlowStatusChoices.STATUS_DISABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+                    source_ports=None,
+                    destination_ports=None,
+                )
+            ]
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 2",
+                    description="ICMP from any to any",
+                    application=None,
+                    group=None,
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
+                    source_ports=None,
+                    destination_ports=None,
+                )
+            ]
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 3",
+                    description=(
+                        "TCP/80 from Object Alias 1 to Object Alias 2, "
+                        "inherit disabled"
+                    ),
+                    application=apps[0],
+                    group=groups[2],
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
+                    source_ports=None,
+                    destination_ports=[80],
+                )
+            ]
+            cls._dataflows[-1].sources.set([aliases[0]])
+            cls._dataflows[-1].destinations.set([aliases[1]])
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 4",
+                    description=(
+                        "TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, "
+                        "inherit enabled"
+                    ),
+                    application=apps[1],
+                    group=groups[6],
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
+                    source_ports=None,
+                    destination_ports=[81, 82],
+                )
+            ]
+            cls._dataflows[-1].sources.set([aliases[0]])
+            cls._dataflows[-1].destinations.set([aliases[1]])
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 5",
+                    description=(
+                        "UDP/81 and UDP/82 from UDP/55, UDP/57 from Object Alias 2 and "
+                        "Object Alias 3 to Object Alias 4, inherit enabled but disabled"
+                    ),
+                    application=apps[1],
+                    group=groups[6],
+                    status=choices.DataFlowStatusChoices.STATUS_DISABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_UDP,
+                    source_ports=[55, 57],
+                    destination_ports=[81, 82],
+                )
+            ]
+            cls._dataflows[-1].sources.set([aliases[1], aliases[2]])
+            cls._dataflows[-1].destinations.set([aliases[3]])
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 6",
+                    description=(
+                        "TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, "
+                        "inherit enabled"
+                    ),
+                    application=apps[1],
+                    group=groups[6],
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP_UDP,
+                    source_ports=None,
+                    destination_ports=[100],
+                )
+            ]
+            cls._dataflows[-1].destinations.set([aliases[3], aliases[4]])
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 7",
+                    description=(
+                        "SCTP/200 from SCTP/200 from Object Alias 5 to Any, "
+                        "inherit enabled"
+                    ),
+                    application=None,
+                    group=groups[6],
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_SCTP,
+                    source_ports=[200],
+                    destination_ports=[200],
+                )
+            ]
+            cls._dataflows[-1].sources.set([aliases[4]])
+
+            cls._dataflows += [
+                models.DataFlow.objects.create(
+                    name="Data Flow 8",
+                    description=(
+                        "TCP/400 from TCP/400 from Object Alias 6 to Object Alias 3"
+                    ),
+                    application=None,
+                    group=None,
+                    status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
+                    source_ports=[400],
+                    destination_ports=[400],
+                )
+            ]
+            cls._dataflows[-1].sources.set([aliases[5]])
+            cls._dataflows[-1].destinations.set([aliases[2], aliases[5]])
+
+        return cls._dataflows
