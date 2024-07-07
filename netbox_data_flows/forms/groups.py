@@ -126,15 +126,19 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
+        to_field_name="name",
+        help_text="Application",
     )
     parent = CSVModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
         to_field_name="slug",
+        help_text="Parent group of the data flow group",
     )
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
+        help_text="Status",
     )
 
     class Meta:
@@ -146,6 +150,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
             "application",
             "parent",
             "status",
+            "comments",
         )
 
 

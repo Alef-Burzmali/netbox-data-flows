@@ -103,6 +103,7 @@ class ApplicationImportForm(NetBoxModelImportForm):
         fields = (
             "name",
             "description",
+            "comments",
             "role",
         )
 
