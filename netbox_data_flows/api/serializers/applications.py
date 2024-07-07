@@ -20,25 +20,25 @@ class ApplicationRoleSerializer(NetBoxModelSerializer):
     class Meta:
         model = models.ApplicationRole
         fields = (
-            "id",
-            "url",
-            "display",
-            "name",
+            "application_count",
+            "created",
+            "custom_fields",
             "description",
+            "display",
+            "id",
+            "last_updated",
+            "name",
             "slug",
             "tags",
-            "custom_fields",
-            "created",
-            "last_updated",
-            "application_count",
+            "url",
         )
         brief_fields = (
-            "id",
-            "url",
-            "display",
-            "name",
             "description",
+            "display",
+            "id",
+            "name",
             "slug",
+            "url",
         )
 
 
@@ -54,24 +54,23 @@ class ApplicationSerializer(NetBoxModelSerializer):
     class Meta:
         model = models.Application
         fields = (
-            "id",
-            "url",
+            "comments",
+            "created",
+            "custom_fields",
+            "dataflow_count",
+            "description",
             "display",
+            "id",
+            "last_updated",
             "name",
             "role",
-            "description",
-            "comments",
             "tags",
-            "custom_fields",
-            "created",
-            "last_updated",
-            "dataflow_count",
+            "url",
         )
         brief_fields = (
-            "id",
-            "url",
-            "display",
-            "name",
             "description",
-            "slug",
+            "display",
+            "id",
+            "name",
+            "url",
         )

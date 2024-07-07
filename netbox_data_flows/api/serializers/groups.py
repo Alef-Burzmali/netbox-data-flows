@@ -28,24 +28,23 @@ class NestedDataFlowGroupSerializer(WritableNestedSerializer):
     class Meta:
         model = models.DataFlowGroup
         fields = (
-            "id",
-            "url",
-            "display",
-            "name",
+            "_depth",
             "description",
+            "id",
+            "name",
             "slug",
             "status",
-            "_depth",
+            "url",
         )
         brief_fields = (
-            "id",
-            "url",
-            "display",
-            "name",
+            "_depth",
             "description",
+            "display",
+            "id",
+            "name",
             "slug",
             "status",
-            "_depth",
+            "url",
         )
 
 
@@ -72,29 +71,29 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = models.DataFlowGroup
         fields = (
-            "id",
-            "url",
-            "display",
-            "slug",
-            "application",
-            "parent",
-            "name",
-            "description",
-            "status",
-            "inherited_status",
-            "comments",
-            "tags",
-            "custom_fields",
-            "created",
-            "last_updated",
             "_depth",
+            "application",
+            "comments",
+            "created",
+            "custom_fields",
+            "description",
+            "display",
+            "id",
+            "inherited_status",
+            "last_updated",
+            "name",
+            "parent",
+            "slug",
+            "status",
+            "tags",
+            "url",
         )
         brief_fields = (
-            "id",
-            "url",
-            "display",
-            "name",
             "description",
+            "display",
+            "id",
+            "name",
             "slug",
             "status",
+            "url",
         )
