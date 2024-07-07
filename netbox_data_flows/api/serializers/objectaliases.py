@@ -40,15 +40,15 @@ class ObjectAliasTargetSerializer(NetBoxModelSerializer):
     class Meta:
         model = models.ObjectAliasTarget
         fields = (
-            "id",
-            "url",
             "display",
+            "id",
             "target",
+            "url",
         )
         brief_fields = (
+            "display",
             "id",
             "url",
-            "display",
         )
 
 
@@ -67,18 +67,18 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
     class Meta:
         model = models.ObjectAlias
         fields = (
-            "id",
-            "url",
-            "display",
-            "name",
-            "description",
             "comments",
+            "description",
+            "display",
+            "id",
+            "name",
             "targets",
+            "url",
         )
         brief_fields = (
-            "id",
-            "url",
-            "display",
-            "name",
             "description",
+            "display",
+            "id",
+            "name",
+            "url",
         )
