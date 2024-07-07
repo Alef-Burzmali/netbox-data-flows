@@ -30,10 +30,10 @@ class DataFlowFilterSet(
         label="Group, direct membership (ID)",
     )
     group = ModelMultipleChoiceFilter(
-        field_name="group__name",
+        field_name="group__slug",
         queryset=models.DataFlowGroup.objects.all(),
-        to_field_name="name",
-        label="Group, direct membership (name)",
+        to_field_name="slug",
+        label="Group, direct membership (slug)",
     )
     recursive_group_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
@@ -42,8 +42,8 @@ class DataFlowFilterSet(
     )
     recursive_group = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
-        to_field_name="name",
-        label="Group, recursive membership (name)",
+        to_field_name="slug",
+        label="Group, recursive membership (slug)",
         method="filter_recursive_groups",
     )
 
@@ -132,6 +132,7 @@ class DataFlowFilterSet(
         fields = (
             "id",
             "name",
+            "description",
             "status",
         )
 
@@ -139,7 +140,8 @@ class DataFlowFilterSet(
         if not value.strip():
             return queryset
 
-        return queryset.filter(name__icontains=value)
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        return queryset.filter(qs_filter)
 
     def filter_recursive_groups(self, queryset, field_name, value):
         if not value:
