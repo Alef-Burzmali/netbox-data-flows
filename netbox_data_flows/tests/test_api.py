@@ -17,14 +17,15 @@ class PluginUrlBase:
 
 
 class APIViewTestCases(_APIViewTestCases):
-    class APIViewTestClassNoGraphQL(
-        _APIViewTestCases.GetObjectViewTestCase,
-        _APIViewTestCases.ListObjectsViewTestCase,
-        _APIViewTestCases.CreateObjectViewTestCase,
-        _APIViewTestCases.UpdateObjectViewTestCase,
-        _APIViewTestCases.DeleteObjectViewTestCase,
-    ):
-        pass
+    class APIViewTestCaseNoGraphQL(_APIViewTestCases.APIViewTestCase):
+        def test_graphql_get_object(self):
+            self.skipTest("GraphQL not supported")
+
+        def test_graphql_list_objects(self):
+            self.skipTest("GraphQL not supported")
+
+        def test_graphql_filter_objects(self):
+            self.skipTest("GraphQL not supported")
 
 
 class AppTest(PluginUrlBase, APITestCase):
@@ -36,7 +37,7 @@ class AppTest(PluginUrlBase, APITestCase):
 
 
 class ApplicationRoleTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.ApplicationRole
     brief_fields = [
@@ -72,7 +73,7 @@ class ApplicationRoleTestCase(
 
 
 class ApplicationTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.Application
     brief_fields = [
@@ -110,7 +111,7 @@ class ApplicationTestCase(
 
 
 class DataFlowGroupTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.DataFlowGroup
     brief_fields = [
@@ -159,7 +160,7 @@ class DataFlowGroupTestCase(
 
 
 class ObjectAliasTargetTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.ObjectAliasTarget
     brief_fields = [
@@ -240,7 +241,7 @@ class ObjectAliasTargetTestCase(
 
 
 class ObjectAliasTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.ObjectAlias
     brief_fields = [
@@ -278,7 +279,7 @@ class ObjectAliasTestCase(
 
 
 class DataFlowTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestClassNoGraphQL
+    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
 ):
     model = models.DataFlow
     brief_fields = [
