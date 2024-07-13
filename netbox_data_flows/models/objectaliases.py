@@ -40,6 +40,7 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         """
         Return ObjectAliasTarget containing any one of the objects in parameter
         """
+        # FIXME: Lazy load
         ip_ct = ObjectType.objects.get_for_model(IPAddress)
 
         if not objects:
@@ -83,6 +84,7 @@ class ObjectAliasTarget(models.Model):
         """Return an existing instance for this target or create one"""
         instance = cls.objects.contains(target).first()
         if not instance:
+            # FIXME: target._meta
             ct = ObjectType.objects.get_for_model(target.__class__)
             type = (ct.app_label, ct.model)
 
