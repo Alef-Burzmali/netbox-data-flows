@@ -9,12 +9,14 @@ If you want a more general explanation of the models used by the plugin, head to
 ## Scenario
 
 In this tutorial, we want to document the data flows of two applications:
+
 * Acme Inc, a business application composed of a frontend, a backend and a database.
 * Zabbix, a support application that monitors our servers, our routers and our Acme Inc application.
 
 ## Basic example
 
 Let's start by documenting the two data flow below:
+
 * The 3 frontend servers of Acme talk with the API exposed on the backend server
 * Both the frontend servers and the backend servers communicate with the database server.
 
@@ -29,6 +31,7 @@ First, go the bottom of the NetBox navigation menu to find the Data Flow plugin,
 Think of an **Object Alias** as a reusable group of IP addresses, ranges or prefixes that we can use as source and/or destination in many data flows. The technical reasons for its existence are detailed in the [data model](data-model.md).
 
 Our Object Aliases can contain any number of the following native NetBox objects:
+
 * An IP Address (and implicitly the device, virtual machine or network interface associated to it)
 * An IP Range
 * A Prefix
@@ -71,6 +74,7 @@ Let's repeat the same process for 'acme_backend' and 'acme_database'.
 Now that we have object aliases, we can create data flows. In the NetBox navigation menu, select *Data Flows* under the *Data Flows* section, and click on "Add" to create a new data flow.
 
 For the plugin, a data flow is a network connection between some sources and some destinations (another set of object aliases), using a specific protocol:
+
 * The sources are zero, one or more object aliases
 * The destinations are also zero, one or more (potentially different) object aliases
 * The protocol can be Any/ICMP/TCP/UDP/TCP+UDP/SCTP
@@ -112,6 +116,7 @@ Here, you can create two Application Roles, which represent the category of appl
 | Support applications  |
 
 Application Roles have:
+
 * A mandatory name and slug
 * An optional description
 
@@ -124,6 +129,7 @@ Go to the *Applications* list under the *Applications* section.
 You can now create our two Applications. An application is a logical container for our data flows, which identify their purpose: *we have that data flow in our network because of that application*.
 
 Applications can have:
+
 * A mandatory name
 * An optional application role
 * Optional description and comments
@@ -149,12 +155,14 @@ Application are used to describe the reason why a data flow exists, however it i
 A group can contain data flows associated with several applications.
 
 Depending on your needs, you can have:
+
 * A group containing all the data flows in a DMZ, regardless of their applications
 * A group containing all the data flows related to the backend of a specific application
 * The same group contained in a more generic group containing all the data flows of that application
 * ...
 
 In our example, we will create the following hierarchy of groups:
+
 * Acme Inc. data flows: all the data flows of that application
   * Acme Inc. external access: data flows related to user access to the frontend
   * Acme Inc. backend access: data flows related to user access to the backend
@@ -165,6 +173,7 @@ In our example, we will create the following hierarchy of groups:
   * Zabbix network discovery
 
 Data Flow Groups can have:
+
 * A mandatory name and slug
 * A mandatory status
 * An optional application
@@ -180,6 +189,7 @@ Data Flow Groups can have:
 > In this example, we have disabled the group "Acme Inc. external access".
 
 The detail page of a group will list:
+
 * Its child groups
 * The data flows it directly contains 
 * The data flows all its children contain
@@ -199,7 +209,7 @@ Now, we can create the other Object Aliases that we need, such as the network ra
 
 Let's create the remaining data flows.
 
-![The object aliases for Acme and Zabbix have been created](media/tuto-dataflow-list.png)
+![The object aliases for Acme and Zabbix have been created](media/tuto-dataflow-list-all.png)
 
 > [!NOTE]
 > Because we have disabled the group "Acme Inc. external access", the data flow it contains is marked as *Disabled (Inherited)*.
@@ -222,6 +232,7 @@ And this VM is one of the frontend servers:
 ![Tab view in a virtual machine](media/tuto-vm-tab.png)
 
 This tab is automatically displayed when an object is member of at least one object alias. It is displayed for:
+
 * IP Addresses
 * IP Ranges
 * Prefixes

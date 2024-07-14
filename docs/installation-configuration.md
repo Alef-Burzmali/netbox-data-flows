@@ -110,6 +110,7 @@ PLUGINS_CONFIG = {
 ```
 
 Supported options:
+
 * `top_level_menu`: if set to `True` (default), the plugin will create its own menu section in the left navigation panel. If set to `False`, the plugin will be in a subsection under the `Plugins` section.
 
 ### Nomenclature
@@ -133,6 +134,7 @@ CUSTOM_VALIDATORS = {
 ```
 
 Similar settings can be applied to:
+
 * Applications: `netbox_data_flows.application`
 * Application Roles: `netbox_data_flows.applicationrole`
 * Data Flows: `netbox_data_flows.dataflow`

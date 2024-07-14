@@ -39,7 +39,7 @@ The data model and design's decisions can be found in the [documentation](docs/d
 
 ## Installation and configuration
 
-Instructions to install, configure, update or uninstall the plugin can be found in the [plugins's documentation](docs/installation-configuration.md).
+Instructions to install, configure, update or uninstall the plugin can be found in the [plugin's documentation](docs/installation-configuration.md).
 
 ### Supported Versions
 
@@ -60,14 +60,14 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 
 Contributions are welcomed. This plugin is developped on the free time of its author, so do not expect regular releases.
 
-Please report security vulnerabilities via [GitHub security advisory](https://github.com/Alef-Burzmali/netbox-data-flows/security). Do not create a public issue. See also the [Security Policy](SECURITY.md).
+Please report security vulnerabilities via [GitHub security advisory](https://github.com/Alef-Burzmali/netbox-data-flows/security). Do not create a public issue. See also the [Security Policy](https://github.com/Alef-Burzmali/blob/main/SECURITY.md).
 
 Please report bugs and feature requests in GitHub.
 
 [GitHub Discussions](https://github.com/Alef-Burzmali/netbox-data-flows/discussions) are opened for general help requests and any other topics you may want to discuss.
 
 ### Known bugs and limitations
-* REST API is not tested in depth
+
 * GraphQL API is not implemented
 
 See also the [list of issues](https://github.com/Alef-Burzmali/netbox-data-flows/issues).

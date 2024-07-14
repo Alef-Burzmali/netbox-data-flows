@@ -7,11 +7,13 @@ If you want an example on how to use the plugin, head towards the [quick start t
 The goal of this plugin is to document the data flows of applications and systems, which should already be documented in your NetBox instance.
 
 It aims to:
+
 * Document known TCP, UDP, ICMP or SCTP data flows
 * Group them and link them to applications for better manageability
 * Provide a useful source of truth to generate firewall or other filtering rules (network ACL, security contracts, etc.)
 
 It does not try to:
+
 * Document the existing firewall or network filtering rules
 * Provision firewall or filtering rules (still possible via scripts)
 
@@ -24,12 +26,14 @@ Furthermore, a device may have several network interfaces, each with zero, one o
 For some data flows, it does not make sense to specify single IP addresses as source or as destination. For example, all the devices in a network segment may want to connect to the same DNS or LDAP servers. Or a monitoring server may scan entire network ranges.
 
 As such, it was decided to use NetBox's **IP Address**, **IP Range** and **IP Prefix** objects as the sources and destinations of data flows:
+
 * If the source is a single IP of a single device, you can use the IP Address assigned to that device.
 * If the source is any IP of a device, you can list all the IP addresses assigned to that device.
 * If the destination is a whole Prefix or IP Range, you can use that object.
 * If the destination is a specific set of IP Addresses, you can list them explicitely.
 
 It was decided not to use the native **Service** object:
+
 * The Service represents a TCP, SCTP or UDP listener and does not work as a possible Source for the data flow
 * It does not support other protocols, such as ICMP
 * It is easy to combine a list of IP, prefixes and ranges, but combining them with a service (i.e.: a IP/protocol/port association) is much more complicated 
@@ -54,7 +58,10 @@ The following sections explain the different objects created by the plugin.
 ### Application and Application Role
 
 **Applications** are logical grouping of data flows and can be business
-applications or infrastructure. Examples of applications:
+applications or infrastructure.
+
+Examples of applications:
+
 * Active Directory
 * MySuperBusinessApp
 * Network management
@@ -62,7 +69,9 @@ applications or infrastructure. Examples of applications:
   
 **Application Role** is a label to help you categorize your applications.
 Each Application may have one Application Role.
+
 Examples of roles:
+
 * Infrastructure
 * Business Division 1
 * ...
@@ -82,8 +91,10 @@ Data Flows should have a source, a destination, a protocol, source ports and des
 Internally, Object Aliases contain **Object Alias Targets**, because Django cannot create ManyToMany relationships to generic objects. Object Alias Targets are not exposed in the interface and should be transparent for the user.
 
 Object Aliases can contain:
+
 * IP Addresses (`ipam.ipaddress`)
 * IP Ranges (`ipam.iprange`)
 * Prefixes (`ipam.prefix`)
+
 If an IP Address is assigned to a device or virtual machine, that device is
 also displayed.
