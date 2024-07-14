@@ -8,22 +8,33 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    uses: ./.github/workflows/python-build.yml
-  testpypi-publish:
+  build-package:
+    uses: ./.github/workflows/build-package.yml
+
+  publish-pypi:
     name: Upload release to PyPI
-    needs: build
+    needs: [build-package]
     runs-on: ubuntu-latest
+
     environment:
       name: pypi
       url: https://pypi.org/p/netbox-data-flows
+
     permissions:
       id-token: write
+
     steps:
-      - run: mkdir dist
-      - uses: actions/download-artifact@v4
+      - name: Create staging directory
+        run: mkdir dist
+
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@v4
         with:
           name: distributions
           path: dist/
+
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+
+  publish-documentation:
+    uses: ./.github/workflows/publish-documentation.yml

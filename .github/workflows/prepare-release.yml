@@ -9,29 +9,36 @@ permissions:
   contents: write
 
 jobs:
-  black:
-    uses: ./.github/workflows/python-black.yml
-  build:
-    needs: black
-    uses: ./.github/workflows/python-build.yml
+  build-package:
+    uses: ./.github/workflows/build-package.yml
+
   autorelease:
     name: Create Draft Release
-    needs: [black, build]
+    needs: [build-package]
     runs-on: "ubuntu-latest"
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Get version of project
         run: |
           PROJECT_VERSION=$(grep -F "__version__ =" netbox_data_flows/__init__.py | cut -d\" -f2)
           echo "Version from __init__.py: ${PROJECT_VERSION}"
           echo "PROJECT_VERSION=${PROJECT_VERSION}" >> $GITHUB_ENV
-      - run: mkdir dist
-      - uses: actions/download-artifact@v4
+
+      - name: Create staging directory
+        run: mkdir dist
+
+      - name: Fetch build artifacts
+        uses: actions/download-artifact@v4
         with:
           name: distributions
           path: dist/
-      - name: Prepare release Notes
-        run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+
+      - name: Prepare Release Notes
+        run: git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+
       - name: Create Release Draft
         uses: softprops/action-gh-release@v2
         with:

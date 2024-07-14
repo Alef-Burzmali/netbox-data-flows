@@ -1,3 +1,7 @@
 include *.md
 recursive-include netbox_data_flows/templates *.html
 recursive-include docs *.md *.png
+
+exclude .editorconfig .pre-commit-config.yaml
+exclude mkdocs.yml
+exclude requirements_dev.txt requirements_docs.txt

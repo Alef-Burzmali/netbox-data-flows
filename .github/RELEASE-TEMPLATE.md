@@ -9,7 +9,7 @@ Use version 0.8 if you need compatibility with NetBox 3.7
 ## Update procedure
 * Run NetBox's `upgrade.sh`, and restart NetBox
 
-Check [the documentation](https://github.com/Alef-Burzmali/netbox-data-flows/blob/main/docs/installation-configuration.md#upgrade) for further instructions.
+Check [the documentation](https://alef-burzmali.github.io/netbox-data-flows/installation-configuration/#upgrade) for further instructions.
 
 ## Changes
 * ...
