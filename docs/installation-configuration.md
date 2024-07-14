@@ -19,7 +19,7 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 > Plugin versions before v1.0.0 can support earlier versions of NetBox. However, they are not supported and not recommended for production use.
 
 > [!WARNING]
-> The plugin uses some classes that are not explicitely exported in 
+> The plugin uses some classes that are not explicitely exported in
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is therefore not fully guaranteed.
 
 ### Dependencies
@@ -37,7 +37,7 @@ The plugin is available at [PyPi](https://pypi.org/project/netbox-data-flows/).
 
 Add the Python package to your `local_requirements` file:
 ```bash
-echo netbox-data-flows >> /opt/netbox/local_requirements.txt 
+echo netbox-data-flows >> /opt/netbox/local_requirements.txt
 ```
 
 Enable the plugin in NetBox configuration:
