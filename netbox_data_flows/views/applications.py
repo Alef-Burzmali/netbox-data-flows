@@ -34,9 +34,7 @@ class ApplicationListView(generic.ObjectListView):
 
 @register_model_view(models.Application)
 class ApplicationView(generic.ObjectView):
-    queryset = models.Application.objects.prefetch_related(
-        "role", "contacts", "dataflows", "dataflow_groups"
-    )
+    queryset = models.Application.objects.prefetch_related("role", "contacts", "dataflows", "dataflow_groups")
 
     def get_extra_context(self, request, instance):
         dataflowgroups_table = tables.DataFlowGroupTable(

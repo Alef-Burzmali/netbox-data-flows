@@ -23,9 +23,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 (
                     "created",
@@ -56,9 +54,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 ("target_id", models.PositiveBigIntegerField()),
                 (
@@ -66,12 +62,8 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         limit_choices_to=models.Q(
                             models.Q(
-                                models.Q(
-                                    ("app_label", "ipam"), ("model", "prefix")
-                                ),
-                                models.Q(
-                                    ("app_label", "ipam"), ("model", "iprange")
-                                ),
+                                models.Q(("app_label", "ipam"), ("model", "prefix")),
+                                models.Q(("app_label", "ipam"), ("model", "iprange")),
                                 models.Q(
                                     ("app_label", "ipam"),
                                     ("model", "ipaddress"),
@@ -94,9 +86,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 (
                     "created",
@@ -118,15 +108,11 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(blank=True, max_length=200)),
                 (
                     "size",
-                    models.PositiveSmallIntegerField(
-                        default=0, editable=False
-                    ),
+                    models.PositiveSmallIntegerField(default=0, editable=False),
                 ),
                 (
                     "tags",
-                    taggit.managers.TaggableManager(
-                        through="extras.TaggedItem", to="extras.Tag"
-                    ),
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
                 ),
                 (
                     "targets",
@@ -145,9 +131,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 (
                     "created",
@@ -198,9 +182,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "tags",
-                    taggit.managers.TaggableManager(
-                        through="extras.TaggedItem", to="extras.Tag"
-                    ),
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
                 ),
             ],
             options={
@@ -212,9 +194,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 (
                     "created",
@@ -243,9 +223,7 @@ class Migration(migrations.Migration):
                         base_field=models.PositiveIntegerField(
                             validators=[
                                 django.core.validators.MinValueValidator(1),
-                                django.core.validators.MaxValueValidator(
-                                    65535
-                                ),
+                                django.core.validators.MaxValueValidator(65535),
                             ]
                         ),
                         blank=True,
@@ -259,9 +237,7 @@ class Migration(migrations.Migration):
                         base_field=models.PositiveIntegerField(
                             validators=[
                                 django.core.validators.MinValueValidator(1),
-                                django.core.validators.MaxValueValidator(
-                                    65535
-                                ),
+                                django.core.validators.MaxValueValidator(65535),
                             ]
                         ),
                         blank=True,
@@ -305,9 +281,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "tags",
-                    taggit.managers.TaggableManager(
-                        through="extras.TaggedItem", to="extras.Tag"
-                    ),
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
                 ),
             ],
             options={
@@ -319,9 +293,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     "id",
-                    models.BigAutoField(
-                        auto_created=True, primary_key=True, serialize=False
-                    ),
+                    models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
                 ),
                 (
                     "created",
@@ -344,9 +316,7 @@ class Migration(migrations.Migration):
                 ("description", models.CharField(blank=True, max_length=200)),
                 (
                     "tags",
-                    taggit.managers.TaggableManager(
-                        through="extras.TaggedItem", to="extras.Tag"
-                    ),
+                    taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
                 ),
             ],
             options={
@@ -368,9 +338,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="application",
             name="tags",
-            field=taggit.managers.TaggableManager(
-                through="extras.TaggedItem", to="extras.Tag"
-            ),
+            field=taggit.managers.TaggableManager(through="extras.TaggedItem", to="extras.Tag"),
         ),
         migrations.AddConstraint(
             model_name="objectaliastarget",

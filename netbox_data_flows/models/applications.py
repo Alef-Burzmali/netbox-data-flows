@@ -29,17 +29,13 @@ class ApplicationRole(OrganizationalModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse(
-            "plugins:netbox_data_flows:applicationrole", args=[self.pk]
-        )
+        return reverse("plugins:netbox_data_flows:applicationrole", args=[self.pk])
 
 
 class Application(ContactsMixin, NetBoxModel):
     """Representation of an application hosted on devices or VM"""
 
-    name = models.CharField(
-        max_length=100, unique=True, help_text="The name of this application"
-    )
+    name = models.CharField(max_length=100, unique=True, help_text="The name of this application")
     description = models.CharField(
         max_length=200,
         blank=True,

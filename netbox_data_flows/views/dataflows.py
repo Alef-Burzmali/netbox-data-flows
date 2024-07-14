@@ -84,9 +84,7 @@ class DataFlowTargetView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        sources_targets = itertools.chain.from_iterable(
-            alias.targets.all() for alias in instance.sources.all()
-        )
+        sources_targets = itertools.chain.from_iterable(alias.targets.all() for alias in instance.sources.all())
         destinations_targets = itertools.chain.from_iterable(
             alias.targets.all() for alias in instance.destinations.all()
         )
@@ -95,12 +93,8 @@ class DataFlowTargetView(generic.ObjectView):
         sources_targets = set(sources_targets)
         destinations_targets = set(destinations_targets)
 
-        sources_table = tables.ObjectAliasTargetTable(
-            sources_targets, extra_context={"objectalias": None}
-        )
-        destinations_table = tables.ObjectAliasTargetTable(
-            destinations_targets, extra_context={"objectalias": None}
-        )
+        sources_table = tables.ObjectAliasTargetTable(sources_targets, extra_context={"objectalias": None})
+        destinations_table = tables.ObjectAliasTargetTable(destinations_targets, extra_context={"objectalias": None})
 
         return {
             "sources_table": sources_table,

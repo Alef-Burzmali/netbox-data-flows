@@ -124,10 +124,7 @@ class AddAliasesView(generic_views.ObjectEditView):
                 msg = f"Added {len(aliases)} alias to"
                 logger.info(f"{msg} {obj} (PK: {obj.pk})")
                 if hasattr(obj, "get_absolute_url"):
-                    msg = mark_safe(
-                        f'{msg} <a href="{obj.get_absolute_url()}">'
-                        f"{escape(obj)}</a>"
-                    )
+                    msg = mark_safe(f'{msg} <a href="{obj.get_absolute_url()}">' f"{escape(obj)}</a>")
                 else:
                     msg = f"{msg} {obj}"
                 messages.success(request, msg)
@@ -176,9 +173,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
             request: The current request
         """
         obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
-        alias = get_object_or_404(
-            getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
-        )
+        alias = get_object_or_404(getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"])
         form = self.form(initial=request.GET)
 
         return render(
@@ -202,9 +197,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
         """
         logger = logging.getLogger("netbox_data_flows.views.RemoveAliasView")
         obj = get_object_or_404(self.queryset, pk=kwargs["pk"])
-        alias = get_object_or_404(
-            getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"]
-        )
+        alias = get_object_or_404(getattr(obj, self.aliases_attribute), pk=kwargs["alias_pk"])
         form = self.form(data=request.POST)
 
         if obj.pk and hasattr(obj, "snapshot"):
@@ -219,9 +212,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
                     aliases.remove(alias)
 
             except (ProtectedError, RestrictedError) as e:
-                logger.info(
-                    f"Caught {type(e)} while attempting to delete object"
-                )
+                logger.info(f"Caught {type(e)} while attempting to delete object")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 
@@ -233,10 +224,7 @@ class RemoveAliasView(generic_views.ObjectDeleteView):
             msg = f"Removed alias {alias} from"
             logger.info(f"{msg} {obj} (PK: {obj.pk})")
             if hasattr(obj, "get_absolute_url"):
-                msg = mark_safe(
-                    f'{msg} <a href="{obj.get_absolute_url()}">'
-                    f"{escape(obj)}</a>"
-                )
+                msg = mark_safe(f'{msg} <a href="{obj.get_absolute_url()}">' f"{escape(obj)}</a>")
             else:
                 msg = f"{msg} {obj}"
             messages.success(request, msg)

@@ -103,13 +103,9 @@ class DataFlowGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_inherited_status(self):
-        params = {
-            "inherited_status": choices.DataFlowStatusChoices.STATUS_ENABLED
-        }
+        params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_ENABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
-        params = {
-            "inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED
-        }
+        params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_parent(self):
@@ -185,9 +181,7 @@ class ObjectAliasTargetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         for obj in prefixes:
             params = {"prefixes": [obj.pk]}
-            self.assertEqual(
-                self.filterset(params, self.queryset).qs.first().target, obj
-            )
+            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
 
     def test_ranges(self):
         ipranges = ipam.IPRange.objects.all()
@@ -197,9 +191,7 @@ class ObjectAliasTargetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         for obj in ipranges:
             params = {"ipranges": [obj.pk]}
-            self.assertEqual(
-                self.filterset(params, self.queryset).qs.first().target, obj
-            )
+            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
 
     def test_ipaddresses(self):
         ipaddresses = ipam.IPAddress.objects.all()
@@ -209,9 +201,7 @@ class ObjectAliasTargetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         for obj in ipaddresses:
             params = {"ipaddresses": [obj.pk]}
-            self.assertEqual(
-                self.filterset(params, self.queryset).qs.first().target, obj
-            )
+            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
 
     def test_devices(self):
         devices = dcim.Device.objects.all()
@@ -243,17 +233,13 @@ class ObjectAliasTargetTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {
             "devices": [dcim.Device.objects.first().pk],
-            "virtual_machines": [
-                virtualization.VirtualMachine.objects.first().pk
-            ],
+            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
         }
         # 2x 2 IP => 4 targets
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {
             "ipaddresses": [ipam.IPAddress.objects.first().pk],
-            "virtual_machines": [
-                virtualization.VirtualMachine.objects.first().pk
-            ],
+            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
         }
         # 1 + 2 IP => 3
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
@@ -327,13 +313,9 @@ class DataFlowTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_inherited_status(self):
-        params = {
-            "inherited_status": choices.DataFlowStatusChoices.STATUS_ENABLED
-        }
+        params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_ENABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
-        params = {
-            "inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED
-        }
+        params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_application(self):
@@ -456,9 +438,7 @@ class DataFlowTestCase(TestCase):
     def test_source_is_null(self):
         params = {"source_is_null": choices.TargetIsEmptyChoice.STATUS_NULL}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {
-            "source_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL
-        }
+        params = {"source_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_source_aliases(self):
@@ -553,13 +533,9 @@ class DataFlowTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_destination_is_null(self):
-        params = {
-            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL
-        }
+        params = {"destination_is_null": choices.TargetIsEmptyChoice.STATUS_NULL}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {
-            "destination_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL
-        }
+        params = {"destination_is_null": choices.TargetIsEmptyChoice.STATUS_NOT_NULL}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_destination_aliases(self):
@@ -596,9 +572,7 @@ class DataFlowTestCase(TestCase):
         ipaddresses = ipam.IPAddress.objects.all()
         params = {"destination_ipaddresses": [ipaddresses[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {
-            "destination_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]
-        }
+        params = {"destination_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {"destination_ipaddresses": [ipaddresses[5].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)

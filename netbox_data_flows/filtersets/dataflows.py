@@ -217,9 +217,7 @@ class DataFlowFilterSet(
         if hasattr(self, "_sources_pk"):
             sources |= Q(sources__in=self._sources_pk)
         if hasattr(self, "_sources"):
-            sources |= Q(
-                sources__in=models.ObjectAlias.objects.contains(*self._sources)
-            )
+            sources |= Q(sources__in=models.ObjectAlias.objects.contains(*self._sources))
 
         destinations = Q()
         if hasattr(self, "_destinations_is_null"):
@@ -230,10 +228,6 @@ class DataFlowFilterSet(
         if hasattr(self, "_destinations_pk"):
             destinations |= Q(destinations__in=self._destinations_pk)
         if hasattr(self, "_destinations"):
-            destinations |= Q(
-                destinations__in=models.ObjectAlias.objects.contains(
-                    *self._destinations
-                )
-            )
+            destinations |= Q(destinations__in=models.ObjectAlias.objects.contains(*self._destinations))
 
         return qs.filter(sources).filter(destinations).distinct()

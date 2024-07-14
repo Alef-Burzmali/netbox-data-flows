@@ -19,17 +19,13 @@ __all__ = ("DataFlowGroup",)
 
 class DataFlowGroupQuerySet(TreeQuerySet):
     def only_disabled(self):
-        return self.filter(
-            status=DataFlowStatusChoices.STATUS_DISABLED
-        ).get_descendants(include_self=True)
+        return self.filter(status=DataFlowStatusChoices.STATUS_DISABLED).get_descendants(include_self=True)
 
     def only_enabled(self):
         return self.exclude(pk__in=self.only_disabled().only("pk"))
 
 
-class DataFlowGroupManager(
-    models.Manager.from_queryset(DataFlowGroupQuerySet), TreeManager
-):
+class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), TreeManager):
     pass
 
 
@@ -66,21 +62,14 @@ class DataFlowGroup(NestedGroupModel):
     def inherited_status(self):
         if self.status == DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
-        elif (
-            self.get_ancestors(include_self=False)
-            .filter(status=DataFlowStatusChoices.STATUS_DISABLED)
-            .exists()
-        ):
+        elif self.get_ancestors(include_self=False).filter(status=DataFlowStatusChoices.STATUS_DISABLED).exists():
             return DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
         else:
             return self.status
 
     @property
     def inherited_status_display(self):
-        if (
-            self.inherited_status
-            == DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
-        ):
+        if self.inherited_status == DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED:
             return DataFlowInheritedStatusChoices.CHOICES[2][1]
 
         return self.get_status_display()
@@ -114,9 +103,7 @@ class DataFlowGroup(NestedGroupModel):
     )
 
     def get_absolute_url(self):
-        return reverse(
-            "plugins:netbox_data_flows:dataflowgroup", args=[self.pk]
-        )
+        return reverse("plugins:netbox_data_flows:dataflowgroup", args=[self.pk])
 
     def validate_unique(self, exclude=None):
         if self.parent is None:
@@ -126,13 +113,6 @@ class DataFlowGroup(NestedGroupModel):
                 application=self.application,
                 parent__isnull=True,
             ).exists():
-                raise ValidationError(
-                    {
-                        "name": (
-                            "A data flow with this name already exists for "
-                            "this application."
-                        )
-                    }
-                )
+                raise ValidationError({"name": ("A data flow with this name already exists for " "this application.")})
 
         super().validate_unique(exclude=exclude)

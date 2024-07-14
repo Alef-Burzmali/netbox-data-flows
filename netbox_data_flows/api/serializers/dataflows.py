@@ -14,16 +14,10 @@ __all__ = ("DataFlowSerializer",)
 
 
 class DataFlowSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflow-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:dataflow-detail")
 
-    application = ApplicationSerializer(
-        nested=True, required=False, allow_null=True, default=None
-    )
-    group = DataFlowGroupSerializer(
-        nested=True, required=False, allow_null=True, default=None
-    )
+    application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
+    group = DataFlowGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     inherited_status = ChoiceField(
@@ -31,9 +25,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
         required=False,
         read_only=True,
     )
-    protocol = ChoiceField(
-        choices=choices.DataFlowProtocolChoices, required=False
-    )
+    protocol = ChoiceField(choices=choices.DataFlowProtocolChoices, required=False)
 
     sources = SerializedPKRelatedField(
         queryset=models.ObjectAlias.objects.all(),

@@ -22,9 +22,7 @@ class Command(BaseCommand):
 
         if orphaned:
             if options["check_only"]:
-                self.stdout.write(
-                    f"Identified {len(orphaned)} orphaned aliases."
-                )
+                self.stdout.write(f"Identified {len(orphaned)} orphaned aliases.")
                 sys.exit(1)
             else:
                 ObjectAliasTarget.objects.filter(pk__in=orphaned).delete()

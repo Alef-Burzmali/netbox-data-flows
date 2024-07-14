@@ -80,9 +80,7 @@ class ObjectAliasTable(NetBoxTable):
     #    url_params={"pk": "pk"},
     #    verbose_name="Objects",
     # )
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:objectalias_list"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:objectalias_list")
 
     class Meta(NetBoxTable.Meta):
         model = ObjectAlias

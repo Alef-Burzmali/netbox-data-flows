@@ -28,19 +28,14 @@ class DataFlowQuerySet(RestrictedQuerySet):
     def only_disabled(self):
         disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
         return self.filter(
-            models.Q(status=DataFlowStatusChoices.STATUS_DISABLED)
-            | models.Q(group_id__in=disabled_groups)
+            models.Q(status=DataFlowStatusChoices.STATUS_DISABLED) | models.Q(group_id__in=disabled_groups)
         )
 
     def only_enabled(self):
         disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
-        return self.filter(
-            status=DataFlowStatusChoices.STATUS_ENABLED
-        ).exclude(group_id__in=disabled_groups)
+        return self.filter(status=DataFlowStatusChoices.STATUS_ENABLED).exclude(group_id__in=disabled_groups)
 
-    def part_of_group_recursive(
-        self, *dataflowgroups, include_direct_children=True
-    ):
+    def part_of_group_recursive(self, *dataflowgroups, include_direct_children=True):
         group_ids = [getattr(dfg, "pk", dfg) for dfg in dataflowgroups]
         subgroups = (
             DataFlowGroup.objects.filter(pk__in=group_ids)
@@ -56,14 +51,10 @@ class DataFlowQuerySet(RestrictedQuerySet):
         ).distinct()
 
     def sources(self, *targets):
-        return self.filter(
-            models.Q(sources__in=ObjectAlias.objects.contains(*targets))
-        ).distinct()
+        return self.filter(models.Q(sources__in=ObjectAlias.objects.contains(*targets))).distinct()
 
     def destinations(self, *targets):
-        return self.filter(
-            models.Q(destinations__in=ObjectAlias.objects.contains(*targets))
-        ).distinct()
+        return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains(*targets))).distinct()
 
 
 class DataFlow(NetBoxModel):
@@ -105,21 +96,14 @@ class DataFlow(NetBoxModel):
     def inherited_status(self):
         if self.status == DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
-        elif (
-            self.group
-            and self.group.inherited_status
-            != DataFlowInheritedStatusChoices.STATUS_ENABLED
-        ):
+        elif self.group and self.group.inherited_status != DataFlowInheritedStatusChoices.STATUS_ENABLED:
             return DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
         else:
             return self.status
 
     @property
     def inherited_status_display(self):
-        if (
-            self.inherited_status
-            == DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
-        ):
+        if self.inherited_status == DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED:
             return DataFlowInheritedStatusChoices.CHOICES[2][1]
 
         return self.get_status_display()

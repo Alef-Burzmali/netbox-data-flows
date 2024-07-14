@@ -46,24 +46,12 @@ class TestData:
             roles = cls.create_applicationroles()
 
             cls._applications = (
-                models.Application(
-                    name="Application 1", description="barfoo 1", role=roles[0]
-                ),
-                models.Application(
-                    name="Application 2", description="barfoo 2", role=roles[1]
-                ),
-                models.Application(
-                    name="Application 3", description="barfoo 3", role=roles[1]
-                ),
-                models.Application(
-                    name="Application 4", description="barfoo 4", role=roles[2]
-                ),
-                models.Application(
-                    name="Application 5", description="barfoo 5", role=None
-                ),
-                models.Application(
-                    name="Application 6", description="barfoo 6", role=None
-                ),
+                models.Application(name="Application 1", description="barfoo 1", role=roles[0]),
+                models.Application(name="Application 2", description="barfoo 2", role=roles[1]),
+                models.Application(name="Application 3", description="barfoo 3", role=roles[1]),
+                models.Application(name="Application 4", description="barfoo 4", role=roles[2]),
+                models.Application(name="Application 5", description="barfoo 5", role=None),
+                models.Application(name="Application 6", description="barfoo 6", role=None),
             )
             for obj in cls._applications:
                 obj.save()
@@ -375,9 +363,7 @@ class TestData:
             cls._objectaliases[1].targets.set([])
             cls._objectaliases[2].targets.set([targets[0], targets[5]])
             cls._objectaliases[3].targets.set(targets[7:11])
-            cls._objectaliases[4].targets.set(
-                [targets[7], targets[8], targets[11]]
-            )
+            cls._objectaliases[4].targets.set([targets[7], targets[8], targets[11]])
             cls._objectaliases[5].targets.set([targets[12]])
             cls._objectaliases[6].targets.set(targets[13:15])
 
@@ -417,10 +403,7 @@ class TestData:
             cls._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 3",
-                    description=(
-                        "TCP/80 from Object Alias 1 to Object Alias 2, "
-                        "inherit disabled"
-                    ),
+                    description=("TCP/80 from Object Alias 1 to Object Alias 2, " "inherit disabled"),
                     application=apps[0],
                     group=groups[2],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -435,10 +418,7 @@ class TestData:
             cls._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 4",
-                    description=(
-                        "TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, "
-                        "inherit enabled"
-                    ),
+                    description=("TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, " "inherit enabled"),
                     application=apps[1],
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -471,10 +451,7 @@ class TestData:
             cls._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 6",
-                    description=(
-                        "TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, "
-                        "inherit enabled"
-                    ),
+                    description=("TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, " "inherit enabled"),
                     application=apps[1],
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -488,10 +465,7 @@ class TestData:
             cls._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 7",
-                    description=(
-                        "SCTP/200 from SCTP/200 from Object Alias 5 to Any, "
-                        "inherit enabled"
-                    ),
+                    description=("SCTP/200 from SCTP/200 from Object Alias 5 to Any, " "inherit enabled"),
                     application=None,
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -505,9 +479,7 @@ class TestData:
             cls._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 8",
-                    description=(
-                        "TCP/400 from TCP/400 from Object Alias 6 to Object Alias 3"
-                    ),
+                    description=("TCP/400 from TCP/400 from Object Alias 6 to Object Alias 3"),
                     application=None,
                     group=None,
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,

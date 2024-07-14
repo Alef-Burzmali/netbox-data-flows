@@ -29,9 +29,7 @@ class NestableGenericObjectSerializer(GenericObjectSerializer):
 
 
 class ObjectAliasTargetSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail")
     target = NestableGenericObjectSerializer(
         required=True,
         many=False,
@@ -53,9 +51,7 @@ class ObjectAliasTargetSerializer(NetBoxModelSerializer):
 
 
 class ObjectAliasSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:objectalias-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:objectalias-detail")
     targets = SerializedPKRelatedField(
         queryset=models.ObjectAliasTarget.objects.all(),
         serializer=ObjectAliasTargetSerializer,
