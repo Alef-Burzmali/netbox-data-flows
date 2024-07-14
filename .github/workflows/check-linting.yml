@@ -1,0 +1,49 @@
+name: Check linting on push and pull request
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-linting:
+    name: Check linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & set up configuration
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements_dev.txt
+
+      - name: "Check code formatting with black"
+        run: |
+          black --check netbox_data_flows
+
+      - name: "Check PEP8 compliance with Flake8"
+        run: |
+          flake8 --extend-ignore=D100,D101,D102,D103,D104,D105,D106,D107,D401 --max-line-length 120 netbox_data_flows
+
+      - name: "Check import order"
+        run: |
+          isort --check netbox_data_flows
+
+      - name: "Check manifest"
+        run: |
+          check-manifest
