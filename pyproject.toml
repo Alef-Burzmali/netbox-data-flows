@@ -6,26 +6,27 @@ authors = [
 ]
 license = {text = "Apache 2.0"}
 readme = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.10"
 keywords = ["netbox", "netbox-plugins"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Plugins",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: Apache Software License",
     "Topic :: System :: Networking",
 ]
+requires-python = ">=3.10"
 dynamic = ["version"]
 
 [project.urls]
 "Homepage" = "https://github.com/Alef-Burzmali/netbox-data-flows"
+"Documentation" = "https://Alef-Burzmali.github.io/netbox-data-flows"
 "Bug Tracker" = "https://github.com/Alef-Burzmali/netbox-data-flows/issues"
 
 [build-system]
-requires = ["setuptools>=61.0","black"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -34,5 +35,15 @@ zip-safe = false
 [tool.setuptools.dynamic]
 version = {attr = "netbox_data_flows.__version__"}
 
+[tool.setuptools.package-data]
+netbox_data_flows = ["templates/**"]
+
 [tool.black]
-line-length = 79
+line-length = 120
+target_version = ["py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 120

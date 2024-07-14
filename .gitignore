@@ -3,3 +3,5 @@
 netbox_data_flows.egg-info/
 dist/
 build/
+site/
+.coverage

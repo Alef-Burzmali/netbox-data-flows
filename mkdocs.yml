@@ -1,0 +1,66 @@
+site_name: NetBox Data Flows
+site_url: https://Alef-Burzmali.github.io/netbox-data-flows
+repo_name: Alef-Burzmali/netbox-data-flows
+repo_url: https://github.com/Alef-Burzmali/netbox-data-flows
+strict: yes
+theme:
+  name: material
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to Dark Mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/lightbulb
+        name: Switch to Light Mode
+  features:
+    - navigation.sections
+    - content.code.copy
+plugins:
+  - include-markdown
+  - search:
+      lang: en
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            heading_level: 3
+            members_order: source
+            show_root_heading: true
+            show_root_full_path: false
+            show_root_toc_entry: false
+            show_source: false
+markdown_extensions:
+  - attr_list
+  - footnotes
+  - github-callouts
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      linenums: false
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tilde
+  - toc:
+      baselevel: 2
+      permalink: true
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Alef-Burzmali/netbox-data-flows
+      name: Github
+nav:
+  - Home: index.md
+  - Documentation:
+    - Quick Start: quick-start.md
+    - Installation and Configuration: installation-configuration.md
+    - Data Model: data-model.md
+  - Development:
+    - Changelog: changelog.md
+    - Security policy: security.md
