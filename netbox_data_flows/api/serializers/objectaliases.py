@@ -2,10 +2,7 @@ from rest_framework import serializers
 
 from core.models import ObjectType
 from netbox.api.fields import SerializedPKRelatedField
-from netbox.api.serializers import (
-    NetBoxModelSerializer,
-    GenericObjectSerializer,
-)
+from netbox.api.serializers import GenericObjectSerializer, NetBoxModelSerializer
 
 from netbox_data_flows import models
 

@@ -1,13 +1,11 @@
 from django.urls import reverse
 
-# from rest_framework import status
-
 from utilities.testing import APITestCase
 from utilities.testing import APIViewTestCases as _APIViewTestCases
 
 from ipam import models as ipam
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 from .data import TestData
 

@@ -5,7 +5,7 @@ from dcim import models as dcim
 from ipam import models as ipam
 from virtualization import models as virtualization
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 from .data import TestData
 
@@ -18,10 +18,7 @@ class ObjectAliasTargetTestCase(TestCase):
         TestData.create_objectaliastargets()
 
     def test_objectalias_assignment_coherency(self):
-        from netbox_data_flows.models.objectaliases import (
-            OBJECTALIAS_ASSIGNMENT_OBJECTS,
-            OBJECTALIAS_ASSIGNMENT_MODELS,
-        )
+        from netbox_data_flows.models.objectaliases import OBJECTALIAS_ASSIGNMENT_MODELS, OBJECTALIAS_ASSIGNMENT_OBJECTS
 
         models = tuple((m._meta.app_label, m._meta.model_name) for m in OBJECTALIAS_ASSIGNMENT_OBJECTS)
         self.assertEqual(

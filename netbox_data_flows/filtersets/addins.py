@@ -1,8 +1,8 @@
 from django_filters import FilterSet
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
-from .filters import ModelMultipleChoiceFilter, ChoiceFilter
+from .filters import ChoiceFilter, ModelMultipleChoiceFilter
 
 
 __all__ = (

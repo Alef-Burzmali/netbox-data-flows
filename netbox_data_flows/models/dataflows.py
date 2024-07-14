@@ -5,16 +5,12 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from netbox.models import NetBoxModel
-from utilities.querysets import RestrictedQuerySet
 from utilities.data import array_to_string
+from utilities.querysets import RestrictedQuerySet
 
-from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
+from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 
-from netbox_data_flows.choices import (
-    DataFlowProtocolChoices,
-    DataFlowStatusChoices,
-    DataFlowInheritedStatusChoices,
-)
+from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowProtocolChoices, DataFlowStatusChoices
 from netbox_data_flows.utils.helpers import object_list_to_string
 
 from .groups import DataFlowGroup

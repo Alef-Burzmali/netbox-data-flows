@@ -3,7 +3,7 @@ from rest_framework import serializers
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 from .applications import ApplicationSerializer
 from .groups import DataFlowGroupSerializer

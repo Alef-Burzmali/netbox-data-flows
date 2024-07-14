@@ -4,16 +4,15 @@ from django import forms
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import ProtectedError, RestrictedError
-from django.shortcuts import get_object_or_404, render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from netbox.views import generic as generic_views
-
 from extras.signals import clear_events
+from netbox.views import generic as generic_views
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
-from utilities.forms import restrict_form_fields, ConfirmationForm
+from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict
 

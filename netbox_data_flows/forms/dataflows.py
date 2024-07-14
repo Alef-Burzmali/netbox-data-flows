@@ -1,11 +1,6 @@
 from django import forms
 
-from netbox.forms import (
-    NetBoxModelForm,
-    NetBoxModelBulkEditForm,
-    NetBoxModelImportForm,
-    NetBoxModelFilterSetForm,
-)
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField,
@@ -20,11 +15,11 @@ from utilities.forms.fields import (
 from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
-from ipam.models import Prefix, IPRange, IPAddress
-from ipam.constants import SERVICE_PORT_MIN, SERVICE_PORT_MAX
+from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
+from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 
 __all__ = (

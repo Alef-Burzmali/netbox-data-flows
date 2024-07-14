@@ -44,6 +44,12 @@ target_version = ["py310", "py311", "py312"]
 
 [tool.isort]
 profile = "black"
+line_length = 120
+lines_after_imports = 2
+skip_gitignore = true
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "NETBOX_CORE", "NETBOX_APPS", "FIRSTPARTY", "LOCALFOLDER"]
+known_netbox_core = ["account", "core", "extras", "netbox", "utilities", "users"]
+known_netbox_apps = ["circuits", "dcim", "ipam", "tenancy", "virtualization", "vpn", "wireless"]
 
 [tool.flake8]
 max-line-length = 120

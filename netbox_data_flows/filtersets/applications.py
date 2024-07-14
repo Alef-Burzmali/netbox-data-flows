@@ -1,9 +1,7 @@
 from django.db.models import Q
 
-from netbox.filtersets import (
-    NetBoxModelFilterSet,
-    OrganizationalModelFilterSet,
-)
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
+
 from tenancy.filtersets import ContactModelFilterSet
 
 from netbox_data_flows import models

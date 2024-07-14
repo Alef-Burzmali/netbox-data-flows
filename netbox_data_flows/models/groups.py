@@ -6,10 +6,7 @@ from django.utils.functional import cached_property
 from netbox.models import NestedGroupModel
 from utilities.mptt import TreeManager, TreeQuerySet
 
-from netbox_data_flows.choices import (
-    DataFlowStatusChoices,
-    DataFlowInheritedStatusChoices,
-)
+from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowStatusChoices
 
 from .applications import Application
 

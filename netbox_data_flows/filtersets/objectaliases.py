@@ -1,9 +1,9 @@
 from django.db.models import Q
 
-from netbox.filtersets import NetBoxModelFilterSet, BaseFilterSet
+from netbox.filtersets import BaseFilterSet, NetBoxModelFilterSet
 
 from dcim.models import Device
-from ipam.models import Prefix, IPRange, IPAddress
+from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models

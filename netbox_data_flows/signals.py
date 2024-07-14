@@ -1,10 +1,7 @@
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
-from netbox_data_flows.models.objectaliases import (
-    ObjectAliasTarget,
-    OBJECTALIAS_ASSIGNMENT_OBJECTS,
-)
+from netbox_data_flows.models.objectaliases import OBJECTALIAS_ASSIGNMENT_OBJECTS, ObjectAliasTarget
 
 
 @receiver(pre_delete)

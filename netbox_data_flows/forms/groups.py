@@ -1,11 +1,6 @@
 from django import forms
 
-from netbox.forms import (
-    NetBoxModelForm,
-    NetBoxModelBulkEditForm,
-    NetBoxModelFilterSetForm,
-    NetBoxModelImportForm,
-)
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField,
@@ -18,7 +13,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 
 __all__ = (
