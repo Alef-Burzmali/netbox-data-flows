@@ -7,8 +7,7 @@ from ipam.models import IPAddress
 
 
 def object_list_to_string(objects, *, linkify=False, default="", separator=", "):
-    """Take a list of objects and return a string, with optional links"""
-
+    """Take a list of objects and return a string, with optional links."""
     if not objects:
         return default
 
@@ -19,7 +18,7 @@ def object_list_to_string(objects, *, linkify=False, default="", separator=", ")
 
 
 def get_assignment_querystring(models):
-    """Construct a query filter from a list of model names"""
+    """Construct a query filter from a list of model names."""
     qs = Q()
     for app_label, model in models:
         qs |= Q(app_label=app_label, model=model)
@@ -28,10 +27,7 @@ def get_assignment_querystring(models):
 
 
 def _get_ip_qs(device):
-    """
-    Return a querystring matching any IP assigned to the device
-    """
-
+    """Return a querystring matching any IP assigned to the device."""
     interfaces = device.interfaces.all()
     ct = ObjectType.objects.get_for_model(interfaces.model)
 
@@ -42,19 +38,13 @@ def _get_ip_qs(device):
 
 
 def get_one_device_ipaddresses(device):
-    """
-    Return the list of IP addresses of a device or virtual machine
-    """
-
+    """Return the list of IP addresses of a device or virtual machine."""
     ip_qs = _get_ip_qs(device)
     return IPAddress.objects.filter(ip_qs)
 
 
 def get_device_ipaddresses(*devices):
-    """
-    Return the list of IP addresses of a list of devices or virtual machines
-    """
-
+    """Return the list of IP addresses of a list of devices or virtual machines."""
     qs = Q()
     for dev in devices:
         qs |= _get_ip_qs(dev)

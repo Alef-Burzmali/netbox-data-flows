@@ -25,7 +25,7 @@ __all__ = (
 
 
 class AddAliasesForm(forms.Form):
-    """Link aliased objects to an object"""
+    """Link aliased objects to an object."""
 
     aliased_fields = tuple()
 
@@ -37,8 +37,7 @@ class AddAliasesForm(forms.Form):
 
     def pre_save_object(self, bound, obj, aliases):
         """
-        Hook to further modify the object once the aliases have been
-        added and before closing the transaction
+        Hook to further modify the object once the aliases have been added and before closing the transaction.
 
         bound: bound form instance
         obj: edited object
@@ -48,7 +47,7 @@ class AddAliasesForm(forms.Form):
 
 
 class AddAliasesView(generic_views.ObjectEditView):
-    """Link aliased objects to an object"""
+    """Link aliased objects to an object."""
 
     form = None
     alias_model = None
@@ -156,7 +155,7 @@ class AddAliasesView(generic_views.ObjectEditView):
 
 
 class RemoveAliasView(generic_views.ObjectDeleteView):
-    """Remove aliased objects from an object"""
+    """Remove aliased objects from an object."""
 
     form = ConfirmationForm
     aliases_attribute = None

@@ -54,7 +54,7 @@ class DataFlowQuerySet(RestrictedQuerySet):
 
 
 class DataFlow(NetBoxModel):
-    """Representation of a data flow for an application"""
+    """Representation of a data flow for an application."""
 
     name = models.CharField(max_length=200)
     description = models.CharField(

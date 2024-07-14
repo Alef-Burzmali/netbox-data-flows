@@ -52,4 +52,5 @@ known_netbox_core = ["account", "core", "extras", "netbox", "utilities", "users"
 known_netbox_apps = ["circuits", "dcim", "ipam", "tenancy", "virtualization", "vpn", "wireless"]
 
 [tool.flake8]
+extend-ignore = ["D100","D101","D102","D103","D104","D105","D106","D107","D401"]
 max-line-length = 120

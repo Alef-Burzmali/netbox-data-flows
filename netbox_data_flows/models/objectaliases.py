@@ -34,9 +34,7 @@ OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(OBJECTALIAS_ASSIGNMENT_MO
 
 class ObjectAliasTargetQuerySet(RestrictedQuerySet):
     def contains(self, *objects):
-        """
-        Return ObjectAliasTarget containing any one of the objects in parameter
-        """
+        """Return ObjectAliasTarget containing any one of the objects in parameter."""
         # FIXME: Lazy load
         ip_ct = ObjectType.objects.get_for_model(IPAddress)
 
@@ -74,7 +72,7 @@ class ObjectAliasTarget(models.Model):
 
     @classmethod
     def get_or_create(cls, target):
-        """Return an existing instance for this target or create one"""
+        """Return an existing instance for this target or create one."""
         instance = cls.objects.contains(target).first()
         if not instance:
             # FIXME: target._meta
@@ -161,8 +159,7 @@ class ObjectAliasTarget(models.Model):
         return self.target_type.model
 
     def __contains__(self, other: "ObjectAliasTarget"):
-        """Return True if other is fully contained in this ObjectAliasTarget"""
-
+        """Return True if other is fully contained in this ObjectAliasTarget."""
         if not isinstance(other, self.__class__):
             raise TypeError(f"{self.__class__} can only be compared to other " f"{self.__class__}, not {type(other)}")
 
@@ -198,15 +195,13 @@ class ObjectAliasTarget(models.Model):
 
 class ObjectAliasQuerySet(RestrictedQuerySet):
     def contains(self, *objects):
-        """
-        Return ObjectAlias containing any one of the objects in parameter
-        """
+        """Return ObjectAlias containing any one of the objects in parameter."""
         targets = ObjectAliasTarget.objects.contains(*objects)
         return self.filter(targets__in=targets).distinct()
 
 
 class ObjectAlias(NetBoxModel):
-    """Source or Destination of a Data Flow"""
+    """Source or Destination of a Data Flow."""
 
     name = models.CharField(
         max_length=100,
@@ -239,8 +234,7 @@ class ObjectAlias(NetBoxModel):
         return self.name
 
     def __contains__(self, other: "ObjectAlias"):
-        """Return True if other is fully contained in this ObjectAlias"""
-
+        """Return True if other is fully contained in this ObjectAlias."""
         if isinstance(other, self.__class__):
             return all(t in self for t in other.targets.all())
 

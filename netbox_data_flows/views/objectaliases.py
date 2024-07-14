@@ -89,7 +89,7 @@ class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
 
 @register_model_view(models.ObjectAlias, name="addtarget", path="link")
 class ObjectAliasAddTargetView(AddAliasesView):
-    """Add ObjectAliasTarget(s) to an ObjectAlias"""
+    """Add ObjectAliasTarget(s) to an ObjectAlias."""
 
     queryset = models.ObjectAlias.objects.all()
     form = forms.ObjectAliasAddTargetForm
@@ -99,7 +99,7 @@ class ObjectAliasAddTargetView(AddAliasesView):
 
 @register_model_view(models.ObjectAlias, name="removetarget", path="unlink/<int:alias_pk>")
 class ObjectAliasRemoveTargetView(RemoveAliasView):
-    """Remove one ObjectAliasTarget from an ObjectAlias"""
+    """Remove one ObjectAliasTarget from an ObjectAlias."""
 
     queryset = models.ObjectAlias.objects.all()
     aliases_attribute = "targets"
