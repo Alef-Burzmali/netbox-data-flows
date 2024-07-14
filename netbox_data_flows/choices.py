@@ -10,7 +10,7 @@ __all__ = (
 
 
 class DataFlowProtocolChoices(ChoiceSet):
-    """List of protocols allowed for data flows"""
+    """List of protocols allowed for data flows."""
 
     # Enable dynamic configuration
     key = "DataFlow.protocol"
@@ -33,7 +33,7 @@ class DataFlowProtocolChoices(ChoiceSet):
 
 
 class DataFlowStatusChoices(ChoiceSet):
-    """List of statuses for data flows"""
+    """List of statuses for data flows and groups."""
 
     STATUS_ENABLED = "enabled"
     STATUS_DISABLED = "disabled"
@@ -45,7 +45,7 @@ class DataFlowStatusChoices(ChoiceSet):
 
 
 class DataFlowInheritedStatusChoices(DataFlowStatusChoices):
-    """List of statuses for data flows"""
+    """List of inherited statuses for data flows and groups."""
 
     STATUS_ENABLED = "enabled"
     STATUS_DISABLED = "disabled"
@@ -59,6 +59,8 @@ class DataFlowInheritedStatusChoices(DataFlowStatusChoices):
 
 
 class TargetIsEmptyChoice(ChoiceSet):
+    """List of statuses for null target, for forms."""
+
     STATUS_NULL = "true"
     STATUS_NOT_NULL = "false"
 

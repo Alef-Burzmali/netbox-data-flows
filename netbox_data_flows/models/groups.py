@@ -27,7 +27,7 @@ class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), 
 
 
 class DataFlowGroup(NestedGroupModel):
-    """Hierachical group of Data Flows associated to one application"""
+    """Hierachical group of Data Flows."""
 
     # Inherited fields:
     # parent

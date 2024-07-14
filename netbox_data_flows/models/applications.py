@@ -13,7 +13,8 @@ __all__ = (
 
 class ApplicationRole(OrganizationalModel):
     """
-    Functional role of an application,
+    Functional role of an application.
+
     e.g.: "Infrastructure", "Management", "Business"
     """
 
@@ -33,7 +34,7 @@ class ApplicationRole(OrganizationalModel):
 
 
 class Application(ContactsMixin, NetBoxModel):
-    """Representation of an application hosted on devices or VM"""
+    """Representation of an application hosted on devices or VM."""
 
     name = models.CharField(max_length=100, unique=True, help_text="The name of this application")
     description = models.CharField(

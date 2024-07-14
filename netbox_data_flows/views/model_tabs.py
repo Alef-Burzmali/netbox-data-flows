@@ -28,14 +28,10 @@ def _count_related_aliases_or_dataflows(obj):
 
 
 class DataFlowListTabViewBase(generic.ObjectView):
-    """
-    Add a tab with ObjectAlias and DataFlows to built-in
-    models
-    """
+    """Add a tab with ObjectAlias and DataFlows to built-in models."""
 
     def __init_subclass__(cls, /, model, **kwargs):
-        """Create a subclass associated to a NetBox model"""
-
+        """Create a subclass associated to a NetBox model."""
         super().__init_subclass__(**kwargs)
 
         # map the queryset to our NetBox model
