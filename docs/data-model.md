@@ -36,7 +36,7 @@ It was decided not to use the native **Service** object:
 
 * The Service represents a TCP, SCTP or UDP listener and does not work as a possible Source for the data flow
 * It does not support other protocols, such as ICMP
-* It is easy to combine a list of IP, prefixes and ranges, but combining them with a service (i.e.: a IP/protocol/port association) is much more complicated 
+* It is easy to combine a list of IP, prefixes and ranges, but combining them with a service (i.e.: a IP/protocol/port association) is much more complicated
 * Trying to bypass these limitations led to a technical implementation that was too complex and error-prone.
 
 To ease maintenance, the IP Addresses, IP Ranges and Prefixes are grouped in Object Aliases. These can be seen as reusable groups of addresses that can be a source or a destination to one or several data flows.
@@ -66,7 +66,7 @@ Examples of applications:
 * MySuperBusinessApp
 * Network management
 * ...
-  
+
 **Application Role** is a label to help you categorize your applications.
 Each Application may have one Application Role.
 
@@ -80,7 +80,7 @@ Examples of roles:
 
 **Data Flows** modelize a network connection between two objects. They may be assigned to an Application.
 
-Data Flows should have a source, a destination, a protocol, source ports and destination ports. Only the protocol is mandatory. 
+Data Flows should have a source, a destination, a protocol, source ports and destination ports. Only the protocol is mandatory.
 
 **Data Flow Groups** form a forest of groups. They can also be assigned to an Application. Data Flow Groups can be enabled and disabled and inherit the status of their parent. Disabled Data Flow Groups disable all the Data Flows contained within.
 

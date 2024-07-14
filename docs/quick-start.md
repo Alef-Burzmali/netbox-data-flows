@@ -20,7 +20,7 @@ Let's start by documenting the two data flow below:
 * The 3 frontend servers of Acme talk with the API exposed on the backend server
 * Both the frontend servers and the backend servers communicate with the database server.
 
-There are two mandatory objects to do that: the Object Aliases and the Data Flows. 
+There are two mandatory objects to do that: the Object Aliases and the Data Flows.
 
 ### Object Aliases
 
@@ -135,7 +135,7 @@ Applications can have:
 * Optional description and comments
 * Optional contacts in the Contacts tab.
 
-| Name                  | Application role   
+| Name                  | Application role
 | --------------------- | --------------------- |
 | Acme Inc. website     | Business applications |
 | Zabbix                | Support applications  |
@@ -191,7 +191,7 @@ Data Flow Groups can have:
 The detail page of a group will list:
 
 * Its child groups
-* The data flows it directly contains 
+* The data flows it directly contains
 * The data flows all its children contain
 
 ![The detail page of a group](media/tuto-dfg-details.png)
