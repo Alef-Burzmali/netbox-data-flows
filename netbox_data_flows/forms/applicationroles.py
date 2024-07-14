@@ -1,20 +1,11 @@
 from django import forms
 
-from netbox.forms import (
-    NetBoxModelForm,
-    NetBoxModelBulkEditForm,
-    NetBoxModelFilterSetForm,
-    NetBoxModelImportForm,
-)
-from utilities.forms.fields import (
-    SlugField,
-    TagFilterField,
-)
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
+from utilities.forms.fields import SlugField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
-from netbox_data_flows.models import (
-    ApplicationRole,
-)
+from netbox_data_flows.models import ApplicationRole
+
 
 __all__ = (
     "ApplicationRoleForm",

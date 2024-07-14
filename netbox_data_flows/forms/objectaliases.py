@@ -1,24 +1,16 @@
 from django import forms
 
-from netbox.forms import (
-    NetBoxModelForm,
-    NetBoxModelBulkEditForm,
-    NetBoxModelFilterSetForm,
-    NetBoxModelImportForm,
-)
-from utilities.forms.fields import (
-    CommentField,
-    TagFilterField,
-    DynamicModelMultipleChoiceField,
-)
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
+from utilities.forms.fields import CommentField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
-from ipam.models import Prefix, IPRange, IPAddress
+from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models
 from netbox_data_flows.utils.aliases import AddAliasesForm
+
 
 __all__ = (
     "ObjectAliasForm",

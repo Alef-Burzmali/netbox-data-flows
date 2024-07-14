@@ -1,8 +1,9 @@
-from core.models import ObjectType
-from ipam.models import IPAddress
-
 from django.db.models import Q
 from django.utils.safestring import mark_safe
+
+from core.models import ObjectType
+
+from ipam.models import IPAddress
 
 
 def object_list_to_string(objects, *, linkify=False, default="", separator=", "):

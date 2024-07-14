@@ -1,16 +1,7 @@
 from django.forms import IntegerField
+from django_filters import ChoiceFilter, ModelMultipleChoiceFilter, MultipleChoiceFilter
 
-from django_filters import (
-    ChoiceFilter,
-    MultipleChoiceFilter,
-    ModelMultipleChoiceFilter,
-)
-
-from utilities.filters import (
-    multivalue_field_factory,
-    MultiValueNumberFilter,
-    TreeNodeMultipleChoiceFilter,
-)
+from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter, multivalue_field_factory
 
 
 __all__ = (

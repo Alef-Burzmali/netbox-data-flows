@@ -7,10 +7,9 @@ from core.models import ObjectType
 from netbox.models import NetBoxModel
 from utilities.querysets import RestrictedQuerySet
 
-from ipam.models import Prefix, IPRange, IPAddress
+from ipam.models import IPAddress, IPRange, Prefix
 
-from netbox_data_flows.utils.helpers import get_assignment_querystring
-from netbox_data_flows.utils.helpers import get_device_ipaddresses
+from netbox_data_flows.utils.helpers import get_assignment_querystring, get_device_ipaddresses
 
 
 __all__ = (

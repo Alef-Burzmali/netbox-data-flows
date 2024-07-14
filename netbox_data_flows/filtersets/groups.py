@@ -7,6 +7,7 @@ from netbox_data_flows import models
 from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
 from .filters import ModelMultipleChoiceFilter
 
+
 __all__ = ("DataFlowGroupFilterSet",)
 
 

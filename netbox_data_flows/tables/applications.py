@@ -1,9 +1,7 @@
 import django_tables2 as tables
 
-from netbox.tables import (
-    columns,
-    NetBoxTable,
-)
+from netbox.tables import NetBoxTable, columns
+
 from tenancy.tables import ContactsColumnMixin
 
 from netbox_data_flows.models import Application, ApplicationRole

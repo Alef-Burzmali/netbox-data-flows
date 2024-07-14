@@ -4,7 +4,7 @@ from dcim import models as dcim
 from ipam import models as ipam
 from virtualization import models as virtualization
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 
 class TestData:

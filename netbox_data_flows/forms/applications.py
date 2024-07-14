@@ -1,24 +1,12 @@
 from django import forms
 
-from netbox.forms import (
-    NetBoxModelForm,
-    NetBoxModelBulkEditForm,
-    NetBoxModelFilterSetForm,
-    NetBoxModelImportForm,
-)
-from tenancy.forms import ContactModelFilterForm
-from utilities.forms.fields import (
-    CommentField,
-    CSVModelChoiceField,
-    DynamicModelChoiceField,
-    TagFilterField,
-)
+from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
+from utilities.forms.fields import CommentField, CSVModelChoiceField, DynamicModelChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
-from netbox_data_flows.models import (
-    Application,
-    ApplicationRole,
-)
+from tenancy.forms import ContactModelFilterForm
+
+from netbox_data_flows.models import Application, ApplicationRole
 
 
 __all__ = (

@@ -7,16 +7,11 @@ from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
-from utilities.testing import (
-    ViewTestCases,
-    create_tags,
-    post_data,
-    disable_warnings,
-)
+from utilities.testing import ViewTestCases, create_tags, disable_warnings, post_data
 
 from ipam import models as ipam
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 from .data import TestData
 

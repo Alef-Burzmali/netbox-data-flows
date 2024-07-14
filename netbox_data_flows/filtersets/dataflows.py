@@ -3,10 +3,10 @@ from django.db.models import Q
 from netbox.filtersets import NetBoxModelFilterSet
 
 from dcim.models import Device
-from ipam.models import Prefix, IPRange, IPAddress
+from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
-from netbox_data_flows import models, choices
+from netbox_data_flows import choices, models
 
 from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
 from .filters import (
@@ -16,6 +16,7 @@ from .filters import (
     MultiValueNumberFilter,
     MultiValueNumericArrayFilter,
 )
+
 
 __all__ = ("DataFlowFilterSet",)
 
