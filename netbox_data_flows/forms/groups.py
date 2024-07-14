@@ -164,12 +164,8 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
 
     tag = TagFilterField(model)
 
-    application = DynamicModelMultipleChoiceField(
-        queryset=models.Application.objects.all(), required=False
-    )
-    application_role = DynamicModelMultipleChoiceField(
-        queryset=models.ApplicationRole.objects.all(), required=False
-    )
+    application = DynamicModelMultipleChoiceField(queryset=models.Application.objects.all(), required=False)
+    application_role = DynamicModelMultipleChoiceField(queryset=models.ApplicationRole.objects.all(), required=False)
     parent_id = DynamicModelMultipleChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,

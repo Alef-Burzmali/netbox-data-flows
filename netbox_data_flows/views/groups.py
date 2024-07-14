@@ -58,9 +58,7 @@ class DataFlowGroupView(generic.ObjectView):
 
         # dataflows of our descendants
         dataflows_recursive_table = tables.DataFlowTable(
-            models.DataFlow.objects.part_of_group_recursive(
-                instance, include_direct_children=False
-            ).prefetch_related(
+            models.DataFlow.objects.part_of_group_recursive(instance, include_direct_children=False).prefetch_related(
                 "application",
                 "application__role",
                 "group",

@@ -37,9 +37,7 @@ class PluginUrlBase:
         return reverse(url_format.format(action), kwargs=kwargs)
 
 
-class ApplicationRoleTestCase(
-    PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase
-):
+class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase):
     model = models.ApplicationRole
 
     @classmethod
@@ -74,9 +72,7 @@ class ApplicationRoleTestCase(
         }
 
 
-class ApplicationTestCase(
-    PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
-):
+class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
     model = models.Application
 
     @classmethod
@@ -115,9 +111,7 @@ class ApplicationTestCase(
         }
 
 
-class DataFlowGroupTestCase(
-    PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase
-):
+class DataFlowGroupTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase):
     model = models.DataFlowGroup
 
     @classmethod
@@ -218,14 +212,8 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
                 "name,description,application,group,status,protocol,"
                 "source_ports,destination_ports,sources,destinations,comments"
             ),
-            (
-                f"DF 7,Desc 7,{apps[0].name},{groups[0].slug},{enabled},{proto_any},"
-                ",,,,Comments 7"
-            ),
-            (
-                f"DF 8,Desc 8,{apps[1].name},,{disabled},{proto_icmp},"
-                ",,,,Comments 8"
-            ),
+            (f"DF 7,Desc 7,{apps[0].name},{groups[0].slug},{enabled},{proto_any}," ",,,,Comments 7"),
+            (f"DF 8,Desc 8,{apps[1].name},,{disabled},{proto_icmp}," ",,,,Comments 8"),
             (
                 f"DF 9,Desc 9,,{groups[2].slug},{enabled},{proto_tcp},"
                 f'"10,20","50-60",{aliases[0].name},{aliases[1].name},'
@@ -234,10 +222,7 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
                 f"DF 11,Desc 10,{apps[1].name},,{disabled},{proto_udp},"
                 f',443,"{aliases[0].name},{aliases[1].name}",,Comments'
             ),
-            (
-                f"DF 11,Desc 11,,,{enabled},{proto_tcp_udp},"
-                f',443,,"{aliases[2].name},{aliases[3].name}",Comments'
-            ),
+            (f"DF 11,Desc 11,,,{enabled},{proto_tcp_udp}," f',443,,"{aliases[2].name},{aliases[3].name}",Comments'),
         )
 
         cls.csv_update_data = (
@@ -316,26 +301,18 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
         data.update(post_data(bulk_edit_data))
 
         # Assign model-level permission
-        obj_perm = ObjectPermission(
-            name="Test permission", actions=["view", "change"]
-        )
+        obj_perm = ObjectPermission(name="Test permission", actions=["view", "change"])
         obj_perm.save()
         obj_perm.users.add(self.user)
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try POST with model-level permission
-        self.assertHttpStatus(
-            self.client.post(self._get_url("bulk_edit"), data), 302
-        )
-        for i, instance in enumerate(
-            self._get_queryset().filter(pk__in=pk_list)
-        ):
+        self.assertHttpStatus(self.client.post(self._get_url("bulk_edit"), data), 302)
+        for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
             self.assertInstanceEqual(instance, changelog_data)
 
 
-class ObjectAliasTestCase(
-    PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
-):
+class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
     model = models.ObjectAlias
 
     @classmethod
@@ -388,29 +365,16 @@ class ObjectAliasTestCase(
     def assertTargetsEqual(self, instance, data):
         forms_targets = []
         if data:
-            forms_targets += list(
-                ipam.Prefix.objects.filter(pk__in=data["aliased_prefixes"])
-            )
-            forms_targets += list(
-                ipam.IPRange.objects.filter(pk__in=data["aliased_ipranges"])
-            )
-            forms_targets += list(
-                ipam.IPAddress.objects.filter(
-                    pk__in=data["aliased_ipaddresses"]
-                )
-            )
+            forms_targets += list(ipam.Prefix.objects.filter(pk__in=data["aliased_prefixes"]))
+            forms_targets += list(ipam.IPRange.objects.filter(pk__in=data["aliased_ipranges"]))
+            forms_targets += list(ipam.IPAddress.objects.filter(pk__in=data["aliased_ipaddresses"]))
 
         expected_targets = []
         for expected_target_obj in forms_targets:
-            expected_target = models.ObjectAliasTarget.get_or_create(
-                expected_target_obj
-            )
+            expected_target = models.ObjectAliasTarget.get_or_create(expected_target_obj)
             self.assertTrue(
                 expected_target.pk is not None,
-                msg=(
-                    f"Target {expected_target} ({expected_target_obj}) has "
-                    "not been saved by the creation form"
-                ),
+                msg=(f"Target {expected_target} ({expected_target_obj}) has " "not been saved by the creation form"),
             )
             expected_targets += [expected_target.pk]
 
@@ -424,9 +388,7 @@ class ObjectAliasTestCase(
 
         # Try GET without permission
         with disable_warnings("django.request"):
-            self.assertHttpStatus(
-                self.client.get(self._get_url("addtarget", instance)), 403
-            )
+            self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance)), 403)
 
         # Try POST without permission
         request = {
@@ -450,9 +412,7 @@ class ObjectAliasTestCase(
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
-        self.assertHttpStatus(
-            self.client.get(self._get_url("addtarget", instance)), 200
-        )
+        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance)), 200)
 
         # Try POST with model-level permission
         request = {
@@ -466,9 +426,7 @@ class ObjectAliasTestCase(
         # Verify ObjectChange creation
         if issubclass(instance.__class__, ChangeLoggingMixin):
             objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(
-                    instance
-                ),
+                changed_object_type=ContentType.objects.get_for_model(instance),
                 changed_object_id=instance.pk,
             )
             self.assertEqual(len(objectchanges), 1)
@@ -499,14 +457,10 @@ class ObjectAliasTestCase(
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with a permitted object
-        self.assertHttpStatus(
-            self.client.get(self._get_url("addtarget", instance1)), 200
-        )
+        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance1)), 200)
 
         # Try GET with a non-permitted object
-        self.assertHttpStatus(
-            self.client.get(self._get_url("addtarget", instance2)), 404
-        )
+        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance2)), 404)
 
         # Try to edit a permitted object
         request = {
@@ -573,9 +527,7 @@ class ObjectAliasTestCase(
         # Verify ObjectChange creation
         if issubclass(instance.__class__, ChangeLoggingMixin):
             objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(
-                    instance
-                ),
+                changed_object_type=ContentType.objects.get_for_model(instance),
                 changed_object_id=instance.pk,
             )
             self.assertEqual(len(objectchanges), 1)

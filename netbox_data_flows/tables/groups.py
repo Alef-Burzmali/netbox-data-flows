@@ -38,9 +38,7 @@ class DataFlowGroupTable(NetBoxTable):
         verbose_name="Data Flows",
     )
 
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:dataflowgroup_list"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:dataflowgroup_list")
 
     class Meta(NetBoxTable.Meta):
         model = DataFlowGroup

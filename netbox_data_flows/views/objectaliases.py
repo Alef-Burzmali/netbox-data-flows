@@ -40,14 +40,10 @@ class ObjectAliasView(generic.ObjectView):
         )
         targets_table.configure(request)
 
-        dataflow_sources_table = tables.DataFlowTable(
-            instance.dataflow_sources.all()
-        )
+        dataflow_sources_table = tables.DataFlowTable(instance.dataflow_sources.all())
         dataflow_sources_table.configure(request)
 
-        dataflow_destinations_table = tables.DataFlowTable(
-            instance.dataflow_destinations.all()
-        )
+        dataflow_destinations_table = tables.DataFlowTable(instance.dataflow_destinations.all())
         dataflow_destinations_table.configure(request)
 
         return {
@@ -101,9 +97,7 @@ class ObjectAliasAddTargetView(AddAliasesView):
     aliases_attribute = "targets"
 
 
-@register_model_view(
-    models.ObjectAlias, name="removetarget", path="unlink/<int:alias_pk>"
-)
+@register_model_view(models.ObjectAlias, name="removetarget", path="unlink/<int:alias_pk>")
 class ObjectAliasRemoveTargetView(RemoveAliasView):
     """Remove one ObjectAliasTarget from an ObjectAlias"""
 

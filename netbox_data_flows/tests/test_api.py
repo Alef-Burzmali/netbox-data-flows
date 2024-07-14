@@ -36,9 +36,7 @@ class AppTest(PluginUrlBase, APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ApplicationRoleTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class ApplicationRoleTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ApplicationRole
     brief_fields = [
         "description",
@@ -72,9 +70,7 @@ class ApplicationRoleTestCase(
         }
 
 
-class ApplicationTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class ApplicationTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.Application
     brief_fields = [
         "description",
@@ -110,9 +106,7 @@ class ApplicationTestCase(
         }
 
 
-class DataFlowGroupTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.DataFlowGroup
     brief_fields = [
         "description",
@@ -159,9 +153,7 @@ class DataFlowGroupTestCase(
         }
 
 
-class ObjectAliasTargetTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class ObjectAliasTargetTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ObjectAliasTarget
     brief_fields = [
         "display",
@@ -240,9 +232,7 @@ class ObjectAliasTargetTestCase(
         pass
 
 
-class ObjectAliasTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ObjectAlias
     brief_fields = [
         "description",
@@ -278,9 +268,7 @@ class ObjectAliasTestCase(
         }
 
 
-class DataFlowTestCase(
-    PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL
-):
+class DataFlowTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.DataFlow
     brief_fields = [
         "description",

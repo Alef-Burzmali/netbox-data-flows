@@ -30,9 +30,7 @@ OBJECTALIAS_ASSIGNMENT_MODELS = (
     ("ipam", "iprange"),
     ("ipam", "ipaddress"),
 )
-OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(
-    OBJECTALIAS_ASSIGNMENT_MODELS
-)
+OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(OBJECTALIAS_ASSIGNMENT_MODELS)
 
 
 class ObjectAliasTargetQuerySet(RestrictedQuerySet):
@@ -56,13 +54,9 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
                 try:
                     ip_addresses = get_device_ipaddresses(t)
                 except Exception as e:
-                    raise Exception(
-                        f"Cannot test if {self.__class__} contains {t}"
-                    ) from e
+                    raise Exception(f"Cannot test if {self.__class__} contains {t}") from e
 
-                query |= models.Q(
-                    target_type=ip_ct, target_id__in=ip_addresses
-                )
+                query |= models.Q(target_type=ip_ct, target_id__in=ip_addresses)
 
         return self.filter(query)
 
@@ -89,9 +83,7 @@ class ObjectAliasTarget(models.Model):
             type = (ct.app_label, ct.model)
 
             if type not in OBJECTALIAS_ASSIGNMENT_MODELS:
-                raise TypeError(
-                    f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
-                )
+                raise TypeError(f"Unsupported type {':'.join(type)} for ObjectAliasTarget")
 
             instance = cls(target=target)
 
@@ -173,10 +165,7 @@ class ObjectAliasTarget(models.Model):
         """Return True if other is fully contained in this ObjectAliasTarget"""
 
         if not isinstance(other, self.__class__):
-            raise TypeError(
-                f"{self.__class__} can only be compared to other "
-                f"{self.__class__}, not {type(other)}"
-            )
+            raise TypeError(f"{self.__class__} can only be compared to other " f"{self.__class__}, not {type(other)}")
 
         attr_mapping = {
             "ipaddress": "address",
@@ -185,23 +174,17 @@ class ObjectAliasTarget(models.Model):
         }
 
         if self._model == "ipaddress":
-            return (other._model == "ipaddress") and (
-                other.target.address == self.target.address
-            )
+            return (other._model == "ipaddress") and (other.target.address == self.target.address)
 
         try:
             own_value = getattr(self.target, attr_mapping[self._model])
         except KeyError:
-            raise RuntimeError(
-                f"ObjectAliasTarget has a unsupported model: {self._model}"
-            )
+            raise RuntimeError(f"ObjectAliasTarget has a unsupported model: {self._model}")
 
         try:
             other_value = getattr(other.target, attr_mapping[other._model])
         except KeyError:
-            raise RuntimeError(
-                f"ObjectAliasTarget has a unsupported model: {other._model}"
-            )
+            raise RuntimeError(f"ObjectAliasTarget has a unsupported model: {other._model}")
 
         return other_value in own_value
 
@@ -209,9 +192,7 @@ class ObjectAliasTarget(models.Model):
         if self.target_type:
             type = (self.target_type.app_label, self.target_type.model)
             if type not in OBJECTALIAS_ASSIGNMENT_MODELS:
-                raise ValidationError(
-                    f"Unsupported type {':'.join(type)} for ObjectAliasTarget"
-                )
+                raise ValidationError(f"Unsupported type {':'.join(type)} for ObjectAliasTarget")
 
         super().save(*args, **kwargs)
 
@@ -267,6 +248,4 @@ class ObjectAlias(NetBoxModel):
         try:
             return any(other in t for t in self.targets.all())
         except TypeError as e:
-            raise TypeError(
-                f"{self.__class__} cannot be compared with {type(other)}"
-            ) from e
+            raise TypeError(f"{self.__class__} cannot be compared with {type(other)}") from e

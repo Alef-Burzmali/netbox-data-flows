@@ -117,9 +117,7 @@ class ApplicationFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Application
     tag = TagFilterField(model)
 
-    role = forms.ModelMultipleChoiceField(
-        queryset=ApplicationRole.objects.all(), required=False
-    )
+    role = forms.ModelMultipleChoiceField(queryset=ApplicationRole.objects.all(), required=False)
 
     fieldsets = (
         FieldSet(

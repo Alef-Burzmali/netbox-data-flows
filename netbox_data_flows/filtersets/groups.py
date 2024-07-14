@@ -51,11 +51,7 @@ class DataFlowGroupFilterSet(
         if not value.strip():
             return queryset
 
-        qs_filter = (
-            Q(name__icontains=value)
-            | Q(description__icontains=value)
-            | Q(slug__icontains=value)
-        )
+        qs_filter = Q(name__icontains=value) | Q(description__icontains=value) | Q(slug__icontains=value)
         return queryset.filter(qs_filter)
 
     def filter_ancestors(self, queryset, name, value):
@@ -64,8 +60,6 @@ class DataFlowGroupFilterSet(
 
         ancestors = [getattr(dfg, "pk", dfg) for dfg in value]
         descendants = (
-            models.DataFlowGroup.objects.filter(pk__in=ancestors)
-            .get_descendants(include_self=True)
-            .only("pk")
+            models.DataFlowGroup.objects.filter(pk__in=ancestors).get_descendants(include_self=True).only("pk")
         )
         return queryset.filter(pk__in=descendants)

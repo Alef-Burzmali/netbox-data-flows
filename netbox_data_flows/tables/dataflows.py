@@ -49,9 +49,7 @@ class DataFlowTable(NetBoxTable):
         orderable=False,
     )
 
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:dataflow_list"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:dataflow_list")
 
     class Meta(NetBoxTable.Meta):
         model = DataFlow
@@ -124,9 +122,7 @@ class DataFlowRuleTable(NetBoxTable):
         accessor=tables.A("destination_list"),
         orderable=False,
     )
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:dataflow_rules"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:dataflow_rules")
 
     class Meta(NetBoxTable.Meta):
         model = DataFlow

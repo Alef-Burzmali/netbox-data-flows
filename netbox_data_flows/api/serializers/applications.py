@@ -12,9 +12,7 @@ __all__ = (
 
 
 class ApplicationRoleSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:applicationrole-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:applicationrole-detail")
     application_count = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -43,13 +41,9 @@ class ApplicationRoleSerializer(NetBoxModelSerializer):
 
 
 class ApplicationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:application-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:application-detail")
     dataflow_count = serializers.IntegerField(read_only=True)
-    role = ApplicationRoleSerializer(
-        nested=True, required=False, allow_null=True, default=None
-    )
+    role = ApplicationRoleSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = models.Application

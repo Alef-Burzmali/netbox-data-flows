@@ -23,10 +23,7 @@ class ObjectAliasTargetTestCase(TestCase):
             OBJECTALIAS_ASSIGNMENT_MODELS,
         )
 
-        models = tuple(
-            (m._meta.app_label, m._meta.model_name)
-            for m in OBJECTALIAS_ASSIGNMENT_OBJECTS
-        )
+        models = tuple((m._meta.app_label, m._meta.model_name) for m in OBJECTALIAS_ASSIGNMENT_OBJECTS)
         self.assertEqual(
             models,
             OBJECTALIAS_ASSIGNMENT_MODELS,
@@ -115,9 +112,7 @@ class ObjectAliasTargetTestCase(TestCase):
 
         # IP
         self.assertEqual(targets[7].parent, dcim.Device.objects.first())
-        self.assertEqual(
-            targets[9].parent, virtualization.VirtualMachine.objects.first()
-        )
+        self.assertEqual(targets[9].parent, virtualization.VirtualMachine.objects.first())
         self.assertIsNone(targets[13].parent)
 
 
@@ -170,26 +165,16 @@ class DataFlowTestCase(TestCase):
 
     def test_qs_part_of_group_recursive(self):
         groups = models.DataFlowGroup.objects.all()
-        qs = self.model.objects.part_of_group_recursive(
-            groups[1], groups[2], include_direct_children=False
-        )
+        qs = self.model.objects.part_of_group_recursive(groups[1], groups[2], include_direct_children=False)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 1)
-        qs = self.model.objects.part_of_group_recursive(
-            groups[1], groups[2], include_direct_children=True
-        )
+        qs = self.model.objects.part_of_group_recursive(groups[1], groups[2], include_direct_children=True)
         self.assertEqual(qs.count(), 1)
-        qs = self.model.objects.part_of_group_recursive(
-            groups[2], include_direct_children=False
-        )
+        qs = self.model.objects.part_of_group_recursive(groups[2], include_direct_children=False)
         self.assertEqual(qs.count(), 0)
-        qs = self.model.objects.part_of_group_recursive(
-            groups[2], include_direct_children=True
-        )
+        qs = self.model.objects.part_of_group_recursive(groups[2], include_direct_children=True)
         self.assertEqual(qs.count(), 1)
-        qs = self.model.objects.part_of_group_recursive(
-            groups[1], groups[5], include_direct_children=False
-        )
+        qs = self.model.objects.part_of_group_recursive(groups[1], groups[5], include_direct_children=False)
         self.assertEqual(qs.count(), 5)
 
     def test_qs_sources(self):
@@ -262,9 +247,7 @@ class DataFlowTestCase(TestCase):
         d = self.model(
             name="New DF 1",
             status=choices.DataFlowStatusChoices.STATUS_ENABLED,
-            group=models.DataFlowGroup.objects.filter(
-                status=choices.DataFlowStatusChoices.STATUS_DISABLED
-            ).first(),
+            group=models.DataFlowGroup.objects.filter(status=choices.DataFlowStatusChoices.STATUS_DISABLED).first(),
             protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
         )
         self.assertEqual(
@@ -274,9 +257,7 @@ class DataFlowTestCase(TestCase):
         d = self.model(
             name="New DF 2",
             status=choices.DataFlowStatusChoices.STATUS_DISABLED,
-            group=models.DataFlowGroup.objects.filter(
-                status=choices.DataFlowStatusChoices.STATUS_DISABLED
-            ).first(),
+            group=models.DataFlowGroup.objects.filter(status=choices.DataFlowStatusChoices.STATUS_DISABLED).first(),
             protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
         )
         self.assertEqual(d.inherited_status, d.status)

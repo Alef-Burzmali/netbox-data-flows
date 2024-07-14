@@ -24,9 +24,7 @@ class ApplicationRoleTable(NetBoxTable):
         url_params={"role_id": "pk"},
         verbose_name="Applications",
     )
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:applicationrole_list"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:applicationrole_list")
 
     class Meta(NetBoxTable.Meta):
         model = ApplicationRole
@@ -61,9 +59,7 @@ class ApplicationTable(ContactsColumnMixin, NetBoxTable):
         url_params={"application_id": "pk"},
         verbose_name="Data Flows",
     )
-    tags = columns.TagColumn(
-        url_name="plugins:netbox_data_flows:application_list"
-    )
+    tags = columns.TagColumn(url_name="plugins:netbox_data_flows:application_list")
 
     class Meta(NetBoxTable.Meta):
         model = Application

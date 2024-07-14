@@ -18,9 +18,7 @@ __all__ = (
 
 
 class NestedDataFlowGroupSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail")
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     _depth = serializers.IntegerField(source="level", read_only=True)
@@ -49,9 +47,7 @@ class NestedDataFlowGroupSerializer(WritableNestedSerializer):
 
 
 class DataFlowGroupSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail"
-    )
+    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail")
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     inherited_status = ChoiceField(
@@ -60,12 +56,8 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
         read_only=True,
     )
 
-    application = ApplicationSerializer(
-        nested=True, required=False, allow_null=True, default=None
-    )
-    parent = NestedDataFlowGroupSerializer(
-        nested=True, required=False, allow_null=True, default=None
-    )
+    application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
+    parent = NestedDataFlowGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     _depth = serializers.IntegerField(source="level", read_only=True)
 
     class Meta:
