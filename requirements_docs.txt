@@ -1,0 +1,11 @@
+# Requirements to build the documentation
+
+markdown-callouts
+mkdocs
+mkdocs-autorefs
+mkdocs-include-markdown-plugin
+mkdocs-material
+mkdocs-material-extensions
+mkdocstrings
+mkdocstrings-python
+pymdown-extensions

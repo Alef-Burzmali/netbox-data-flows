@@ -1,0 +1,12 @@
+# Requirements to run CI/CD build the package
+
+pip>=24.0
+
+black
+check-manifest
+coverage
+flake8
+flake8-docstrings
+flake8-pyproject
+isort
+pre-commit
