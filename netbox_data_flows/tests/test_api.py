@@ -47,7 +47,8 @@ class ApplicationRoleTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoG
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_applicationroles()
+        data = TestData()
+        data.get_applicationroles()
 
         cls.create_data = [
             {
@@ -80,8 +81,9 @@ class ApplicationTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
 
     @classmethod
     def setUpTestData(cls):
-        roles = TestData.create_applicationroles()
-        TestData.create_applications()
+        data = TestData()
+        roles = data.get_applicationroles()
+        data.get_applications()
 
         cls.create_data = [
             {
@@ -118,8 +120,9 @@ class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGra
 
     @classmethod
     def setUpTestData(cls):
-        apps = TestData.create_applications()
-        groups = TestData.create_dataflowgroups()
+        data = TestData()
+        apps = data.get_applications()
+        groups = data.get_dataflowgroups()
 
         cls.create_data = [
             {
@@ -175,7 +178,8 @@ class ObjectAliasTargetTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseN
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_objectaliastargets()
+        data = TestData()
+        data.get_objectaliastargets()
 
         ipaddresses = [
             ipam.IPAddress(address="192.168.0.1/24"),
@@ -242,8 +246,9 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
 
     @classmethod
     def setUpTestData(cls):
-        targets = TestData.create_objectaliastargets()
-        TestData.create_objectaliases()
+        data = TestData()
+        targets = data.get_objectaliastargets()
+        data.get_objectaliases()
 
         cls.create_data = [
             {
@@ -278,10 +283,11 @@ class DataFlowTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL)
 
     @classmethod
     def setUpTestData(cls):
-        apps = TestData.create_applications()
-        groups = TestData.create_dataflowgroups()
-        aliases = TestData.create_objectaliases()
-        TestData.create_dataflows()
+        data = TestData()
+        apps = data.get_applications()
+        groups = data.get_dataflowgroups()
+        aliases = data.get_objectaliases()
+        data.get_dataflows()
 
         cls.create_data = [
             {

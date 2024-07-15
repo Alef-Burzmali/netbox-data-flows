@@ -37,7 +37,8 @@ class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectV
 
     @classmethod
     def setUpTestData(cls):
-        roles = TestData.create_applicationroles()
+        data = TestData()
+        roles = data.get_applicationroles()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -72,8 +73,9 @@ class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
 
     @classmethod
     def setUpTestData(cls):
-        roles = TestData.create_applicationroles()
-        applications = TestData.create_applications()
+        data = TestData()
+        roles = data.get_applicationroles()
+        applications = data.get_applications()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -111,8 +113,9 @@ class DataFlowGroupTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectVie
 
     @classmethod
     def setUpTestData(cls):
-        apps = TestData.create_applications()
-        groups = TestData.create_dataflowgroups()
+        data = TestData()
+        apps = data.get_applications()
+        groups = data.get_dataflowgroups()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -170,10 +173,11 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        apps = TestData.create_applications()
-        groups = TestData.create_dataflowgroups()
-        aliases = TestData.create_objectaliases()
-        dataflows = TestData.create_dataflows()
+        data = TestData()
+        apps = data.get_applications()
+        groups = data.get_dataflowgroups()
+        aliases = data.get_objectaliases()
+        dataflows = data.get_dataflows()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -312,7 +316,8 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
 
     @classmethod
     def setUpTestData(cls):
-        aliases = TestData.create_objectaliases()
+        data = TestData()
+        aliases = data.get_objectaliases()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 

@@ -1,0 +1,91 @@
+name: Run tests on push and pull request
+
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+    branches-ignore:
+      - 'gh-pages'
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-linting:
+    name: Run tests
+    runs-on: ubuntu-latest
+    env:
+      NETBOX_CONFIGURATION: netbox.configuration_testing
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+        node-version: ['18.x']
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: netbox
+          POSTGRES_PASSWORD: netbox
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: netbox-data-flows
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Checkout lastest NetBox release
+        uses: actions/checkout@main
+        with:
+          repository: "netbox-community/netbox"
+          path: netbox
+          ref: master
+
+      - name: Install NetBox
+        working-directory: netbox
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install coverage tblib
+
+      - name: Install NetBox Data Flows
+        working-directory: netbox-data-flows
+        run: |
+          pip install .
+
+      - name: Configure NetBox
+        working-directory: netbox
+        run: |
+          echo >> netbox/netbox/configuration_testing.py
+          echo "PLUGINS = ['netbox_data_flows']" >> netbox/netbox/configuration_testing.py
+          echo >> netbox/netbox/configuration_testing.py
+
+      - name: Check missing migrations
+        working-directory: netbox
+        run: |
+          python netbox/manage.py makemigrations --check netbox_data_flows
+
+      - name: Run tests
+        working-directory: netbox
+        run: |
+          python netbox/manage.py test --parallel auto netbox_data_flows
