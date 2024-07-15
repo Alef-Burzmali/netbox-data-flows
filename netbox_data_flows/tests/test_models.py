@@ -15,7 +15,8 @@ class ObjectAliasTargetTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_objectaliastargets()
+        data = TestData()
+        cls.targets = data.get_objectaliastargets()
 
     def test_objectalias_assignment_coherency(self):
         from netbox_data_flows.models.objectaliases import OBJECTALIAS_ASSIGNMENT_MODELS, OBJECTALIAS_ASSIGNMENT_OBJECTS
@@ -98,7 +99,7 @@ class ObjectAliasTargetTestCase(TestCase):
             self.assertIn(str(t), t.name)
 
     def test_parent(self):
-        targets = TestData.create_objectaliastargets()
+        targets = self.targets
 
         # Prefixes
         self.assertIsNone(targets[0].parent)
@@ -118,7 +119,8 @@ class ObjectAliasTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_objectaliases()
+        data = TestData()
+        data.get_objectaliases()
 
     def test_qs_contains(self):
         ips = ipam.IPAddress.objects.all()[:3]
@@ -148,7 +150,8 @@ class DataFlowTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_dataflows()
+        data = TestData()
+        cls.dataflows = data.get_dataflows()
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()
@@ -273,7 +276,7 @@ class DataFlowTestCase(TestCase):
         )
         self.assertEqual(d.inherited_status, d.status)
 
-        dataflows = TestData.create_dataflows()
+        dataflows = self.dataflows
         self.assertEqual(
             dataflows[0].inherited_status,
             choices.DataFlowInheritedStatusChoices.STATUS_DISABLED,
@@ -301,7 +304,8 @@ class DataFlowGroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_dataflowgroups()
+        data = TestData()
+        data.get_dataflowgroups()
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()

@@ -8,17 +8,16 @@ from netbox_data_flows import choices, models
 
 
 class TestData:
-    _applicationsroles = []
-    _applications = []
-    _dataflows = []
-    _dataflowgroups = []
-    _objectaliases = []
-    _targets = []
+    _applicationsroles = None
+    _applications = None
+    _dataflows = None
+    _dataflowgroups = None
+    _objectaliases = None
+    _targets = None
 
-    @classmethod
-    def create_applicationroles(cls):
-        if not cls._applicationsroles:
-            cls._applicationsroles = (
+    def get_applicationroles(self):
+        if not self._applicationsroles:
+            self._applicationsroles = (
                 models.ApplicationRole(
                     name="Application Role 1",
                     slug="application-role-1",
@@ -35,17 +34,16 @@ class TestData:
                     description="foobar 3",
                 ),
             )
-            for obj in cls._applicationsroles:
+            for obj in self._applicationsroles:
                 obj.save()
 
-        return cls._applicationsroles
+        return self._applicationsroles
 
-    @classmethod
-    def create_applications(cls):
-        if not cls._applications:
-            roles = cls.create_applicationroles()
+    def get_applications(self):
+        if not self._applications:
+            roles = self.get_applicationroles()
 
-            cls._applications = (
+            self._applications = (
                 models.Application(name="Application 1", description="barfoo 1", role=roles[0]),
                 models.Application(name="Application 2", description="barfoo 2", role=roles[1]),
                 models.Application(name="Application 3", description="barfoo 3", role=roles[1]),
@@ -53,15 +51,14 @@ class TestData:
                 models.Application(name="Application 5", description="barfoo 5", role=None),
                 models.Application(name="Application 6", description="barfoo 6", role=None),
             )
-            for obj in cls._applications:
+            for obj in self._applications:
                 obj.save()
 
-        return cls._applications
+        return self._applications
 
-    @classmethod
-    def create_dataflowgroups(cls):
-        if not cls._dataflowgroups:
-            apps = cls.create_applications()
+    def get_dataflowgroups(self):
+        if not self._dataflowgroups:
+            apps = self.get_applications()
 
             group1 = models.DataFlowGroup(
                 application=None,
@@ -144,7 +141,7 @@ class TestData:
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
             )
 
-            cls._dataflowgroups = [
+            self._dataflowgroups = (
                 group1,
                 group11,
                 group111,
@@ -155,15 +152,14 @@ class TestData:
                 group122,
                 group2,
                 group3,
-            ]
-            for obj in cls._dataflowgroups:
+            )
+            for obj in self._dataflowgroups:
                 obj.save()
 
-        return cls._dataflowgroups
+        return self._dataflowgroups
 
-    @classmethod
-    def create_objectaliastargets(cls):
-        if not cls._targets:
+    def get_objectaliastargets(self):
+        if not self._targets:
             vlans = [
                 ipam.VLAN(
                     vid=100,
@@ -313,19 +309,21 @@ class TestData:
             # 11-11: IP of device 2
             # 12-12: IP of vm 2
             # 13-14: IPs
+            self._targets = []
             for obj in itertools.chain(prefixes, ranges, ips):
                 t = models.ObjectAliasTarget.get_or_create(obj)
                 t.save()
-                cls._targets += [t]
+                self._targets += [t]
 
-        return cls._targets
+            self._targets = tuple(self._targets)
 
-    @classmethod
-    def create_objectaliases(cls):
-        if not cls._objectaliases:
-            cls.create_objectaliastargets()
+        return self._targets
 
-            cls._objectaliases = [
+    def get_objectaliases(self):
+        if not self._objectaliases:
+            self.get_objectaliastargets()
+
+            self._objectaliases = (
                 models.ObjectAlias(
                     name="Object Alias 1",
                     description="Prefixes 1 and 2",
@@ -354,29 +352,29 @@ class TestData:
                     name="Object Alias 7",
                     description="IP 13 and 14",
                 ),
-            ]
-            for obj in cls._objectaliases:
+            )
+            for obj in self._objectaliases:
                 obj.save()
 
             targets = models.ObjectAliasTarget.objects.order_by("pk")
-            cls._objectaliases[0].targets.set(targets[0:2])
-            cls._objectaliases[1].targets.set([])
-            cls._objectaliases[2].targets.set([targets[0], targets[5]])
-            cls._objectaliases[3].targets.set(targets[7:11])
-            cls._objectaliases[4].targets.set([targets[7], targets[8], targets[11]])
-            cls._objectaliases[5].targets.set([targets[12]])
-            cls._objectaliases[6].targets.set(targets[13:15])
+            self._objectaliases[0].targets.set(targets[0:2])
+            self._objectaliases[1].targets.set([])
+            self._objectaliases[2].targets.set([targets[0], targets[5]])
+            self._objectaliases[3].targets.set(targets[7:11])
+            self._objectaliases[4].targets.set([targets[7], targets[8], targets[11]])
+            self._objectaliases[5].targets.set([targets[12]])
+            self._objectaliases[6].targets.set(targets[13:15])
 
-        return cls._objectaliases
+        return self._objectaliases
 
-    @classmethod
-    def create_dataflows(cls):
-        if not cls._dataflows:
-            apps = cls.create_applications()
-            groups = cls.create_dataflowgroups()
-            aliases = cls.create_objectaliases()
+    def get_dataflows(self):
+        if not self._dataflows:
+            apps = self.get_applications()
+            groups = self.get_dataflowgroups()
+            aliases = self.get_objectaliases()
 
-            cls._dataflows += [
+            self._dataflows = []
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 1",
                     description="Any from any to any",
@@ -388,7 +386,7 @@ class TestData:
                     destination_ports=None,
                 )
             ]
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 2",
                     description="ICMP from any to any",
@@ -400,7 +398,7 @@ class TestData:
                     destination_ports=None,
                 )
             ]
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 3",
                     description=("TCP/80 from Object Alias 1 to Object Alias 2, " "inherit disabled"),
@@ -412,10 +410,10 @@ class TestData:
                     destination_ports=[80],
                 )
             ]
-            cls._dataflows[-1].sources.set([aliases[0]])
-            cls._dataflows[-1].destinations.set([aliases[1]])
+            self._dataflows[-1].sources.set([aliases[0]])
+            self._dataflows[-1].destinations.set([aliases[1]])
 
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 4",
                     description=("TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, " "inherit enabled"),
@@ -427,10 +425,10 @@ class TestData:
                     destination_ports=[81, 82],
                 )
             ]
-            cls._dataflows[-1].sources.set([aliases[0]])
-            cls._dataflows[-1].destinations.set([aliases[1]])
+            self._dataflows[-1].sources.set([aliases[0]])
+            self._dataflows[-1].destinations.set([aliases[1]])
 
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 5",
                     description=(
@@ -445,10 +443,10 @@ class TestData:
                     destination_ports=[81, 82],
                 )
             ]
-            cls._dataflows[-1].sources.set([aliases[1], aliases[2]])
-            cls._dataflows[-1].destinations.set([aliases[3]])
+            self._dataflows[-1].sources.set([aliases[1], aliases[2]])
+            self._dataflows[-1].destinations.set([aliases[3]])
 
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 6",
                     description=("TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, " "inherit enabled"),
@@ -460,9 +458,9 @@ class TestData:
                     destination_ports=[100],
                 )
             ]
-            cls._dataflows[-1].destinations.set([aliases[3], aliases[4]])
+            self._dataflows[-1].destinations.set([aliases[3], aliases[4]])
 
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 7",
                     description=("SCTP/200 from SCTP/200 from Object Alias 5 to Any, " "inherit enabled"),
@@ -474,9 +472,9 @@ class TestData:
                     destination_ports=[200],
                 )
             ]
-            cls._dataflows[-1].sources.set([aliases[4]])
+            self._dataflows[-1].sources.set([aliases[4]])
 
-            cls._dataflows += [
+            self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 8",
                     description=("TCP/400 from TCP/400 from Object Alias 6 to Object Alias 3"),
@@ -488,7 +486,9 @@ class TestData:
                     destination_ports=[400],
                 )
             ]
-            cls._dataflows[-1].sources.set([aliases[5]])
-            cls._dataflows[-1].destinations.set([aliases[2], aliases[5]])
+            self._dataflows[-1].sources.set([aliases[5]])
+            self._dataflows[-1].destinations.set([aliases[2], aliases[5]])
 
-        return cls._dataflows
+            self._dataflows = tuple(self._dataflows)
+
+        return self._dataflows

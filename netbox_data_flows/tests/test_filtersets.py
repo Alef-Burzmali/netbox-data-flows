@@ -15,7 +15,8 @@ class ApplicationRoleTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_applicationroles()
+        data = TestData()
+        data.get_applicationroles()
 
     def test_q(self):
         params = {"q": "FOObar 2"}
@@ -44,7 +45,8 @@ class ApplicationTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_applications()
+        data = TestData()
+        data.get_applications()
 
     def test_q(self):
         params = {"q": "application 2"}
@@ -74,7 +76,8 @@ class DataFlowGroupTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_dataflowgroups()
+        data = TestData()
+        data.get_dataflowgroups()
 
     def test_q(self):
         params = {"q": "FOObar2"}
@@ -171,7 +174,8 @@ class ObjectAliasTargetTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_objectaliastargets()
+        data = TestData()
+        data.get_objectaliastargets()
 
     def test_prefixes(self):
         prefixes = ipam.Prefix.objects.all()
@@ -258,7 +262,8 @@ class ObjectAliasTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_objectaliases()
+        data = TestData()
+        data.get_objectaliases()
 
     def test_q(self):
         params = {"q": "OBJECT ALIAS 1"}
@@ -290,7 +295,8 @@ class DataFlowTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        TestData.create_dataflows()
+        data = TestData()
+        data.get_dataflows()
 
     def test_q(self):
         params = {"q": "DATA FLOW 1"}
