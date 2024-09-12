@@ -8,13 +8,20 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from extras.signals import clear_events
 from netbox.views import generic as generic_views
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict
+
+
+try:
+    # NetBox 4.1.0+
+    from core.signals import clear_events
+except ImportError:
+    # COMPAT NetBox 4.0
+    from extras.signals import clear_events
 
 
 __all__ = (
