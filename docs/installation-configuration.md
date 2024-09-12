@@ -8,11 +8,12 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 
 ### Supported Versions
 
-| NetBox version | NetBox Data Flows version     |
+| netbox version | netbox-data-flows version     |
 | -------------- | ----------------------------- |
-| >= 4.0.0       | >= v1.0.0                     |
-| >= 3.7.0       | >= v0.8.0                     |
-| >= 3.6.0       | >= v0.7.3                     |
+| >= 4.1.0       | >= v1.0.4                     |
+| >= 4.0.0       | >= v0.9.0                     |
+| >= 3.7.0       | >= v0.8.0, < v0.9.0           |
+| >= 3.6.0       | >= v0.7.3, < v0.8.0           |
 |  < 3.6.0       | Not supported                 |
 
 > [!CAUTION]
