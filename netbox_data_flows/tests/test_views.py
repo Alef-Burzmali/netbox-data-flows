@@ -3,8 +3,6 @@ from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
-from extras.choices import ObjectChangeActionChoices
-from extras.models import ObjectChange
 from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
 from utilities.testing import ViewTestCases, create_tags, disable_warnings, post_data
@@ -14,6 +12,16 @@ from ipam import models as ipam
 from netbox_data_flows import choices, models
 
 from .data import TestData
+
+
+try:
+    # NetBox 4.1.0+
+    from core.choices import ObjectChangeActionChoices
+    from core.models import ObjectChange
+except ImportError:
+    # COMPAT NetBox 4.0.0
+    from extras.choices import ObjectChangeActionChoices
+    from extras.models import ObjectChange
 
 
 class PluginUrlBase:
