@@ -42,11 +42,9 @@ class ApplicationView(generic.ObjectView):
                 "application",
                 "application__role",
                 "parent",
-            )
-            .annotate(
+            ).annotate(
                 dataflow_count=Count("dataflows", distinct=True),
             )
-            .order_by(*models.DataFlowGroup._meta.ordering)
         )
         dataflowgroups_table.configure(request)
 
