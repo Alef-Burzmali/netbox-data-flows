@@ -9,12 +9,21 @@ permissions:
   contents: write
 
 jobs:
+  check-documentation:
+    uses: ./.github/workflows/check-documentation.yml
+
+  check-linting:
+    uses: ./.github/workflows/check-linting.yml
+
+  run-tests:
+    uses: ./.github/workflows/run-tests.yml
+
   build-package:
     uses: ./.github/workflows/build-package.yml
 
   autorelease:
     name: Create Draft Release
-    needs: [build-package]
+    needs: [check-documentation, check-linting, run-tests, build-package]
     runs-on: "ubuntu-latest"
 
     steps:
