@@ -11,7 +11,6 @@ from utilities.querysets import RestrictedQuerySet
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 
 from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowProtocolChoices, DataFlowStatusChoices
-from netbox_data_flows.utils.helpers import object_list_to_string
 
 from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
@@ -159,16 +158,6 @@ class DataFlow(NetBoxModel):
             return "Any"
 
         return array_to_string(self.destination_ports)
-
-    @property
-    def source_list(self):
-        sources = self.sources.all()
-        return object_list_to_string(sources, linkify=True)
-
-    @property
-    def destination_list(self):
-        destinations = self.destinations.all()
-        return object_list_to_string(destinations, linkify=True)
 
     class Meta:
         ordering = (

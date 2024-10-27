@@ -3,7 +3,8 @@ import django_tables2 as tables
 from netbox.tables import NetBoxTable, columns
 
 from netbox_data_flows.models import ObjectAlias, ObjectAliasTarget
-from netbox_data_flows.utils.tables import RuntimeTemplateColumn
+
+from .columns import RuntimeTemplateColumn
 
 
 __all__ = (

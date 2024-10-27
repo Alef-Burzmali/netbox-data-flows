@@ -1,4 +1,18 @@
+import django_tables2 as tables
+
 from netbox.tables import columns
+
+from netbox_data_flows.utils.helpers import object_list_to_string
+
+
+class ObjectAliasListColumn(tables.Column):
+    """Display the Object Aliases with links but export them without."""
+
+    def render(self, value):
+        return object_list_to_string(value.all(), linkify=True)
+
+    def value(self, value):
+        return object_list_to_string(value.all(), linkify=False, separator=",")
 
 
 class RuntimeTemplateColumn(columns.TemplateColumn):
