@@ -1,8 +1,29 @@
 import django_tables2 as tables
 
 from netbox.tables import columns
+from utilities.data import array_to_string
 
 from netbox_data_flows.utils.helpers import object_list_to_string
+
+
+class PortListColumn(tables.Column):
+    """
+    Display a Port List.
+
+    If empty, is displayed as Any, but exported as None.
+    """
+
+    def render(self, value):
+        if not value:
+            return "Any"
+
+        return array_to_string(value)
+
+    def value(self, value):
+        if not value:
+            return ""
+
+        return array_to_string(value)
 
 
 class ObjectAliasListColumn(tables.Column):
