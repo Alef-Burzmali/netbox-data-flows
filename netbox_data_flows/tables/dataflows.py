@@ -4,7 +4,7 @@ from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
 from netbox_data_flows.models import DataFlow
 
-from .columns import ObjectAliasListColumn
+from .columns import ObjectAliasListColumn, PortListColumn
 
 
 __all__ = (
@@ -30,14 +30,8 @@ class DataFlowTable(NetBoxTable):
     status = ChoiceFieldColumn(accessor=tables.A("inherited_status_display"))
     protocol = ChoiceFieldColumn()
 
-    source_ports = tables.Column(
-        accessor=tables.A("source_port_list"),
-        order_by=tables.A("source_ports"),
-    )
-    destination_ports = tables.Column(
-        accessor=tables.A("destination_port_list"),
-        order_by=tables.A("destination_ports"),
-    )
+    source_ports = PortListColumn()
+    destination_ports = PortListColumn()
     sources = ObjectAliasListColumn(
         orderable=False,
     )
@@ -102,7 +96,7 @@ class DataFlowRuleTable(NetBoxTable):
     status = ChoiceFieldColumn(accessor=tables.A("inherited_status_display"))
     protocol = ChoiceFieldColumn()
 
-    source_ports = tables.Column(
+    source_ports = PortListColumn(
         accessor=tables.A("source_port_list"),
         order_by=tables.A("source_ports"),
     )
