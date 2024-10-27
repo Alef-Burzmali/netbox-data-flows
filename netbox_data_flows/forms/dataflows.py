@@ -9,7 +9,6 @@ from utilities.forms.fields import (
     CSVModelMultipleChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    NumericArrayField,
     TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
@@ -21,6 +20,8 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
 
+from .fields import NumericArrayField
+
 
 __all__ = (
     "DataFlowForm",
@@ -28,6 +29,7 @@ __all__ = (
     "DataFlowImportForm",
     "DataFlowFilterForm",
 )
+
 
 #
 # Object forms
