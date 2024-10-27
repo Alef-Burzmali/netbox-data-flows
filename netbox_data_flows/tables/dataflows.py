@@ -4,6 +4,8 @@ from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
 from netbox_data_flows.models import DataFlow
 
+from .columns import ObjectAliasListColumn
+
 
 __all__ = (
     "DataFlowTable",
@@ -36,12 +38,10 @@ class DataFlowTable(NetBoxTable):
         accessor=tables.A("destination_port_list"),
         order_by=tables.A("destination_ports"),
     )
-    sources = tables.Column(
-        accessor=tables.A("source_list"),
+    sources = ObjectAliasListColumn(
         orderable=False,
     )
-    destinations = tables.Column(
-        accessor=tables.A("destination_list"),
+    destinations = ObjectAliasListColumn(
         orderable=False,
     )
 
@@ -110,12 +110,10 @@ class DataFlowRuleTable(NetBoxTable):
         accessor=tables.A("destination_port_list"),
         order_by=tables.A("destination_ports"),
     )
-    sources = tables.Column(
-        accessor=tables.A("source_list"),
+    sources = ObjectAliasListColumn(
         orderable=False,
     )
-    destinations = tables.Column(
-        accessor=tables.A("destination_list"),
+    destinations = ObjectAliasListColumn(
         orderable=False,
     )
     tags = columns.TagColumn(url_name="plugins:netbox_data_flows:dataflow_rules")
