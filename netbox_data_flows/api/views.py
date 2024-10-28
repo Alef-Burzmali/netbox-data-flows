@@ -43,13 +43,6 @@ class DataFlowGroupViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DataFlowGroupFilterSet
 
 
-class ObjectAliasTargetViewSet(NetBoxModelViewSet):
-    queryset = models.ObjectAliasTarget.objects.all()
-
-    serializer_class = serializers.ObjectAliasTargetSerializer
-    filterset_class = filtersets.ObjectAliasTargetFilterSet
-
-
 class ObjectAliasViewSet(NetBoxModelViewSet):
     queryset = models.ObjectAlias.objects.all()
 
