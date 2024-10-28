@@ -1,7 +1,7 @@
 from netbox.plugins import PluginConfig
 
 
-__version__ = "1.0.7-dev"
+__version__ = "1.1.0-dev"
 
 
 class DataFlowsConfig(PluginConfig):
@@ -17,11 +17,6 @@ class DataFlowsConfig(PluginConfig):
     }
     min_version = "4.0.0"
     max_version = "4.1.99"
-
-    def ready(self):
-        from . import signals  # noqa: F401
-
-        super().ready()
 
 
 config = DataFlowsConfig
