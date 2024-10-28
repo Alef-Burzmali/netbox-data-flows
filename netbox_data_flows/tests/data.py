@@ -192,6 +192,7 @@ class TestData:
                 ),
             ]
             ipam.Prefix.objects.bulk_create(prefixes)
+            self._prefixes = prefixes
 
             ranges = [
                 ipam.IPRange(
@@ -206,6 +207,7 @@ class TestData:
                 ),
             ]
             ipam.IPRange.objects.bulk_create(ranges)
+            self._ranges = ranges
 
             ips = [
                 ipam.IPAddress(address="10.0.1.1/24"),
@@ -218,6 +220,7 @@ class TestData:
                 ipam.IPAddress(address="10.10.0.1/24"),
             ]
             ipam.IPAddress.objects.bulk_create(ips)
+            self._ips = ips
 
             site = dcim.Site.objects.create(
                 name="Site 1",
@@ -323,6 +326,10 @@ class TestData:
         if not self._objectaliases:
             self.get_objectaliastargets()
 
+            prefixes = self._prefixes
+            ip_ranges = self._ranges
+            ip_addresses = self._ips
+
             self._objectaliases = (
                 models.ObjectAlias(
                     name="Object Alias 1",
@@ -355,6 +362,14 @@ class TestData:
             )
             for obj in self._objectaliases:
                 obj.save()
+
+            self._objectaliases[0].prefixes.set(prefixes[0:2])
+            self._objectaliases[2].prefixes.set([prefixes[0]])
+            self._objectaliases[2].ip_ranges.set([ip_ranges[0]])
+            self._objectaliases[3].ip_addresses.set(ip_addresses[0:4])
+            self._objectaliases[4].ip_addresses.set(ip_addresses[0:2] + [ip_addresses[4]])
+            self._objectaliases[5].ip_addresses.set([ip_addresses[5]])
+            self._objectaliases[6].ip_addresses.set(ip_addresses[6:8])
 
             targets = models.ObjectAliasTarget.objects.order_by("pk")
             self._objectaliases[0].targets.set(targets[0:2])

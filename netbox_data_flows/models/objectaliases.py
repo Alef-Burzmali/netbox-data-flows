@@ -158,32 +158,6 @@ class ObjectAliasTarget(models.Model):
     def _model(self):
         return self.target_type.model
 
-    def __contains__(self, other: "ObjectAliasTarget"):
-        """Return True if other is fully contained in this ObjectAliasTarget."""
-        if not isinstance(other, self.__class__):
-            raise TypeError(f"{self.__class__} can only be compared to other " f"{self.__class__}, not {type(other)}")
-
-        attr_mapping = {
-            "ipaddress": "address",
-            "iprange": "range",
-            "prefix": "prefix",
-        }
-
-        if self._model == "ipaddress":
-            return (other._model == "ipaddress") and (other.target.address == self.target.address)
-
-        try:
-            own_value = getattr(self.target, attr_mapping[self._model])
-        except KeyError:
-            raise RuntimeError(f"ObjectAliasTarget has a unsupported model: {self._model}")
-
-        try:
-            other_value = getattr(other.target, attr_mapping[other._model])
-        except KeyError:
-            raise RuntimeError(f"ObjectAliasTarget has a unsupported model: {other._model}")
-
-        return other_value in own_value
-
     def save(self, *args, **kwargs):
         if self.target_type:
             type = (self.target_type.app_label, self.target_type.model)
@@ -196,12 +170,36 @@ class ObjectAliasTarget(models.Model):
 class ObjectAliasQuerySet(RestrictedQuerySet):
     def contains(self, *objects):
         """Return ObjectAlias containing any one of the objects in parameter."""
-        targets = ObjectAliasTarget.objects.contains(*objects)
-        return self.filter(targets__in=targets).distinct()
+        filtering = models.Q()
+        if prefixes := [o for o in objects if o._meta.model_name == "prefix"]:
+            filtering |= models.Q(prefixes__in=prefixes)
+        if ip_ranges := [o for o in objects if o._meta.model_name == "iprange"]:
+            filtering |= models.Q(ip_ranges__in=ip_ranges)
+        if ip_addresses := [o for o in objects if o._meta.model_name == "ipaddress"]:
+            filtering |= models.Q(ip_addresses__in=ip_addresses)
+
+        if other := [o for o in objects if o._meta.model_name not in ("prefix", "iprange", "ipaddress")]:
+            dev_addresses = []
+            for obj in other:
+                try:
+                    dev_addresses += get_device_ipaddresses(obj)
+                except Exception as e:
+                    raise TypeError(f"Cannot test if {self.__class__} contains {obj}") from e
+
+            filtering |= models.Q(ip_addresses__in=dev_addresses)
+
+        return self.filter(filtering).distinct()
 
 
 class ObjectAlias(NetBoxModel):
-    """Source or Destination of a Data Flow."""
+    """
+    Source or Destination of a Data Flow.
+
+    Can contain any number of:
+    * IPAddress
+    * Prefix
+    * IPRange
+    """
 
     name = models.CharField(
         max_length=100,
@@ -221,6 +219,20 @@ class ObjectAlias(NetBoxModel):
         related_name="aliases",
     )
 
+    # Our targets
+    prefixes = models.ManyToManyField(
+        "ipam.Prefix",
+        related_name="data_flow_object_aliases",
+    )
+    ip_ranges = models.ManyToManyField(
+        "ipam.IPRange",
+        related_name="data_flow_object_aliases",
+    )
+    ip_addresses = models.ManyToManyField(
+        "ipam.IPAddress",
+        related_name="data_flow_object_aliases",
+    )
+
     class Meta:
         ordering = ("name",)
         verbose_name_plural = "Object Aliases"
@@ -232,13 +244,3 @@ class ObjectAlias(NetBoxModel):
 
     def __str__(self):
         return self.name
-
-    def __contains__(self, other: "ObjectAlias"):
-        """Return True if other is fully contained in this ObjectAlias."""
-        if isinstance(other, self.__class__):
-            return all(t in self for t in other.targets.all())
-
-        try:
-            return any(other in t for t in self.targets.all())
-        except TypeError as e:
-            raise TypeError(f"{self.__class__} cannot be compared with {type(other)}") from e
