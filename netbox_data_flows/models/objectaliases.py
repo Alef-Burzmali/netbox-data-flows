@@ -32,6 +32,7 @@ OBJECTALIAS_ASSIGNMENT_MODELS = (
 OBJECTALIAS_ASSIGNMENT_QS = get_assignment_querystring(OBJECTALIAS_ASSIGNMENT_MODELS)
 
 
+# FIXME: To delete
 class ObjectAliasTargetQuerySet(RestrictedQuerySet):
     def contains(self, *objects):
         """Return ObjectAliasTarget containing any one of the objects in parameter."""
@@ -58,6 +59,7 @@ class ObjectAliasTargetQuerySet(RestrictedQuerySet):
         return self.filter(query)
 
 
+# FIXME: To delete
 class ObjectAliasTarget(models.Model):
     """
     A single prefix, range or IP address to be used in ObjectAlias.

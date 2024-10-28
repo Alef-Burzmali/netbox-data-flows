@@ -1,57 +1,36 @@
 from rest_framework import serializers
 
-from core.models import ObjectType
 from netbox.api.fields import SerializedPKRelatedField
-from netbox.api.serializers import GenericObjectSerializer, NetBoxModelSerializer
+from netbox.api.serializers import NetBoxModelSerializer
+
+from ipam.api.serializers import IPAddressSerializer, IPRangeSerializer, PrefixSerializer
+from ipam.models import IPAddress, IPRange, Prefix
 
 from netbox_data_flows import models
 
 
-__all__ = (
-    "ObjectAliasTargetSerializer",
-    "ObjectAliasSerializer",
-)
-
-
-class NestableGenericObjectSerializer(GenericObjectSerializer):
-    # Hack to get utilities.api.get_prefetches_for_serializer to
-    # stop prefetching our fields.
-
-    nested = True
-
-    class Meta:
-        model = ObjectType
-        fields = ["object_type", "object_id"]
-        brief_fields = ["object_type", "object_id"]
-
-
-class ObjectAliasTargetSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:objectaliastarget-detail")
-    target = NestableGenericObjectSerializer(
-        required=True,
-        many=False,
-    )
-
-    class Meta:
-        model = models.ObjectAliasTarget
-        fields = (
-            "display",
-            "id",
-            "target",
-            "url",
-        )
-        brief_fields = (
-            "display",
-            "id",
-            "url",
-        )
+__all__ = ("ObjectAliasSerializer",)
 
 
 class ObjectAliasSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:objectalias-detail")
-    targets = SerializedPKRelatedField(
-        queryset=models.ObjectAliasTarget.objects.all(),
-        serializer=ObjectAliasTargetSerializer,
+    prefixes = SerializedPKRelatedField(
+        queryset=Prefix.objects.all(),
+        serializer=PrefixSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
+    ip_ranges = SerializedPKRelatedField(
+        queryset=IPRange.objects.all(),
+        serializer=IPRangeSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
+    ip_addresses = SerializedPKRelatedField(
+        queryset=IPAddress.objects.all(),
+        serializer=IPAddressSerializer,
         nested=True,
         required=False,
         many=True,
@@ -65,7 +44,9 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
             "display",
             "id",
             "name",
-            "targets",
+            "prefixes",
+            "ip_ranges",
+            "ip_addresses",
             "url",
         )
         brief_fields = (

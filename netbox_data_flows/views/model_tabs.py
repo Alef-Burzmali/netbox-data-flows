@@ -58,7 +58,9 @@ class DataFlowListTabViewBase(generic.ObjectView):
     def get_extra_context(self, request, parent):
         aliases_table = tables.ObjectAliasTable(
             models.ObjectAlias.objects.annotate(
-                target_count=Count("targets", distinct=True),
+                prefix_count=Count("prefixes", distinct=True),
+                ip_range_count=Count("ip_ranges", distinct=True),
+                ip_address_count=Count("ip_addresses", distinct=True),
             )
             .order_by(*models.ObjectAlias._meta.ordering)
             .contains(parent)

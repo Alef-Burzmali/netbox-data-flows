@@ -6,17 +6,9 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block extra_controls %}
-  {% if perms.netbox_data_flows.change_objectalias %}
-    <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" type="button" class="btn btn-primary">
-      <i class="mdi mdi-plus-thick"></i> {% trans "Add member objects" %}
-    </a>
-  {% endif %}
-{% endblock extra_controls %}
-
 {% block content %}
   <div class="row">
-    <div class="col col-md-5">
+    <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Object Alias" %}</h5>
         <table class="table table-hover attr-table">
@@ -31,24 +23,51 @@
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/comments.html' %}
-      {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
     {# FIXME: put table in Tab #}
-    <div class="col col-md-7">
-      <div class="card">
-        <h5 class="card-header">{% trans "Member objects" %}</h5>
-        {% render_table targets_table %}
-      {% if perms.netbox_data_flows.change_objectalias %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'plugins:netbox_data_flows:objectalias_addtarget' object.pk %}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick"></i> {% trans "Add member objects" %}
-          </a>
-        </div>
-      {% endif %}
-      </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
       {% plugin_right_page object %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-md-12">
+      {% with count=object.prefixes.count %}
+        {% if count %}
+          <div class="card">
+            <h5 class="card-header">
+              {% trans "Prefixes" %}
+              &nbsp;<span class="badge text-bg-primary rounded-pill">{{ count }}</span>
+            </h5>
+            {% render_table prefix_table %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% with count=object.ip_ranges.count %}
+        {% if count %}
+          <div class="card">
+            <h5 class="card-header">
+              {% trans "IP Ranges" %}
+              &nbsp;<span class="badge text-bg-primary rounded-pill">{{ count }}</span>
+            </h5>
+            {% render_table ip_range_table %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% with count=object.ip_addresses.count %}
+        {% if count %}
+          <div class="card">
+            <h5 class="card-header">
+              {% trans "IP Addresses" %}
+              &nbsp;<span class="badge text-bg-primary rounded-pill">{{ count }}</span>
+            </h5>
+            {% render_table ip_address_table %}
+          </div>
+        {% endif %}
+      {% endwith %}
     </div>
   </div>
 

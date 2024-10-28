@@ -9,7 +9,6 @@ from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models
-from netbox_data_flows.utils.aliases import AddAliasesForm
 
 
 __all__ = (
@@ -17,7 +16,6 @@ __all__ = (
     "ObjectAliasBulkEditForm",
     "ObjectAliasFilterForm",
     "ObjectAliasImportForm",
-    "ObjectAliasAddTargetForm",
 )
 
 #
@@ -28,12 +26,32 @@ __all__ = (
 class ObjectAliasForm(NetBoxModelForm):
     comments = CommentField()
 
+    prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        selector=True,
+        label="Prefixes",
+    )
+    ip_ranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        selector=True,
+        label="IP Ranges",
+    )
+    ip_addresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        selector=True,
+        label="IP Addresses",
+    )
+
     fieldsets = (
         FieldSet(
             "name",
             "description",
             "tags",
         ),
+        FieldSet("prefixes", "ip_ranges", "ip_addresses", name="Aliased objects"),
     )
 
     class Meta:
@@ -43,6 +61,9 @@ class ObjectAliasForm(NetBoxModelForm):
             "description",
             "tags",
             "comments",
+            "prefixes",
+            "ip_ranges",
+            "ip_addresses",
         )
 
 
@@ -57,15 +78,38 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
 
     description = forms.CharField(max_length=200, required=False)
 
+    prefixes = DynamicModelMultipleChoiceField(
+        queryset=Prefix.objects.all(),
+        required=False,
+        selector=True,
+        label="Prefixes",
+    )
+    ip_ranges = DynamicModelMultipleChoiceField(
+        queryset=IPRange.objects.all(),
+        required=False,
+        selector=True,
+        label="IP Ranges",
+    )
+    ip_addresses = DynamicModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        selector=True,
+        label="IP Addresses",
+    )
+
     fieldsets = (
         FieldSet(
             "description",
             "comments",
         ),
+        FieldSet("prefixes", "ip_ranges", "ip_addresses", name="Aliased objects"),
     )
     nullable_fields = (
         "description",
         "comments",
+        "prefixes",
+        "ip_ranges",
+        "ip_addresses",
     )
 
 
@@ -91,28 +135,28 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
     prefixes = DynamicModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         required=False,
-        label="Aliased Prefixes",
+        label="Prefixes",
     )
     ipranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
-        label="Aliased IP Ranges",
+        label="IP Ranges",
     )
     ipaddresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
-        label="Aliased IP Addresses",
+        label="IP Addresses",
     )
     devices = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label="Aliased Devices",
+        label="Devices",
         help_text="Any IP addresses of the device",
     )
     virtual_machines = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label="Aliased Virtual Machines",
+        label="Virtual Machines",
         help_text="Any IP address of the virtual machine",
     )
 
@@ -128,39 +172,6 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
             "ipaddresses",
             "devices",
             "virtual_machines",
-            name="Targets - all targets are OR'ed together, any will match",
+            name="Aliased objects",
         ),
-    )
-
-
-#
-# Special forms
-#
-
-
-class ObjectAliasAddTargetForm(AddAliasesForm):
-    model = models.ObjectAlias
-    aliased_fields = (
-        "aliased_prefixes",
-        "aliased_ipranges",
-        "aliased_ipaddresses",
-    )
-
-    aliased_prefixes = DynamicModelMultipleChoiceField(
-        queryset=Prefix.objects.all(),
-        required=False,
-        selector=True,
-        label="Aliased Prefixes",
-    )
-    aliased_ipranges = DynamicModelMultipleChoiceField(
-        queryset=IPRange.objects.all(),
-        required=False,
-        selector=True,
-        label="Aliased IP Ranges",
-    )
-    aliased_ipaddresses = DynamicModelMultipleChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        selector=True,
-        label="Aliased IP Addresses",
     )
