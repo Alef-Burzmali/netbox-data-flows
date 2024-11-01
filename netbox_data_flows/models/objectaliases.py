@@ -75,6 +75,12 @@ class ObjectAlias(NetBoxModel):
 
     objects = ObjectAliasQuerySet.as_manager()
 
+    clone_fields = (
+        "prefixes",
+        "ip_ranges",
+        "ip_addresses",
+    )
+
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:objectalias", args=[self.pk])
 
