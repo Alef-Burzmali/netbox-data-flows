@@ -114,7 +114,7 @@ def revert_targets(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("ipam", "0070_vlangroup_vlan_id_ranges"),
+        ("ipam", "0047_squashed_0053"),
         ("netbox_data_flows", "0011_objectalias_comments"),
     ]
 

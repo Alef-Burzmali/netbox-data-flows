@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("extras", "0077_customlink_extend_text_and_url"),
-        ("ipam", "0070_vlangroup_vlan_id_ranges"),
+        ("ipam", "0047_squashed_0053"),
     ]
 
     operations = [
