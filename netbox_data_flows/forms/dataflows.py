@@ -47,18 +47,18 @@ class DataFlowForm(NetBoxModelForm):
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
         selector=True,
-        help_text=("Group of this Data Flow. " "Disabling the group will disable this data flow."),
+        help_text="Group of this Data Flow. Disabling the group will disable this data flow.",
     )
 
     comments = CommentField()
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
 
@@ -107,7 +107,7 @@ class DataFlowForm(NetBoxModelForm):
             "destinations",
         )
         help_texts = {
-            "status": ("Status of the data group. If its group is disabled, " "the data flow will also be disabled.")
+            "status": "Status of the data group. If its group is disabled, the data flow will also be disabled."
         }
 
 
@@ -143,12 +143,12 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     )
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
 
@@ -215,12 +215,12 @@ class DataFlowImportForm(NetBoxModelImportForm):
     )
     source_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
     destination_ports = NumericArrayField(
         base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text=("Comma-separated list of one or more port numbers. " "A range may be specified using a hyphen."),
+        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
 
