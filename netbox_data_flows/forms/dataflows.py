@@ -433,6 +433,6 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             "destination_ipaddresses",
             "destination_devices",
             "destination_virtual_machines",
-            name=("Destinations - all destinations are OR'ed together, " "any will match"),
+            name="Destinations - all destinations are OR'ed together, any will match",
         ),
     )

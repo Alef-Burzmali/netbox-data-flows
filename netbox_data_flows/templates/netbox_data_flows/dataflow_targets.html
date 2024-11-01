@@ -38,20 +38,62 @@
   </div>
 
   {# FIXME: include #}
-  <div class="row">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">{% trans "Sources" %}</h5>
-        {% render_table sources_table %}
+  <div>
+    <h4>Sources</h4>
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Source prefixes" %}</h5>
+          {% render_table sources_prefixes_table %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Source IP Ranges" %}</h5>
+          {% render_table sources_ip_ranges_table %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Source IP Addresses" %}</h5>
+          {% render_table sources_ip_addresses_table %}
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">{% trans "Destinations" %}</h5>
-        {% render_table destinations_table %}
+  <div>
+    <h4>Destinations</h4>
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Destination prefixes" %}</h5>
+          {% render_table destinations_prefixes_table %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Destination IP Ranges" %}</h5>
+          {% render_table destinations_ip_ranges_table %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Destination IP Addresses" %}</h5>
+          {% render_table destinations_ip_addresses_table %}
+        </div>
       </div>
     </div>
   </div>

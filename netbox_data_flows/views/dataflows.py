@@ -1,7 +1,8 @@
-import itertools
-
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
+
+from ipam.models import IPAddress, IPRange, Prefix
+from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
 from netbox_data_flows import filtersets, forms, models, tables
 
@@ -73,8 +74,6 @@ class DataFlowTargetView(generic.ObjectView):
         "application",
         "sources",
         "destinations",
-        "sources__targets",
-        "destinations__targets",
     )
 
     tab = ViewTab(
@@ -84,21 +83,38 @@ class DataFlowTargetView(generic.ObjectView):
     )
 
     def get_extra_context(self, request, instance):
-        sources_targets = itertools.chain.from_iterable(alias.targets.all() for alias in instance.sources.all())
-        destinations_targets = itertools.chain.from_iterable(
-            alias.targets.all() for alias in instance.destinations.all()
-        )
+        # Get all unique sources and destinations
+        # They could be duplicated if several ObjectAliases refer to them
+        sources_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
+        sources_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
+        sources_ip_addresses = IPAddress.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
 
-        # Remove duplicates
-        sources_targets = set(sources_targets)
-        destinations_targets = set(destinations_targets)
+        destinations_prefixes = Prefix.objects.filter(
+            data_flow_object_aliases__in=instance.destinations.all()
+        ).distinct()
+        destinations_ip_ranges = IPRange.objects.filter(
+            data_flow_object_aliases__in=instance.destinations.all()
+        ).distinct()
+        destinations_ip_addresses = IPAddress.objects.filter(
+            data_flow_object_aliases__in=instance.destinations.all()
+        ).distinct()
 
-        sources_table = tables.ObjectAliasTargetTable(sources_targets, extra_context={"objectalias": None})
-        destinations_table = tables.ObjectAliasTargetTable(destinations_targets, extra_context={"objectalias": None})
+        # Prepare tables
+        sources_prefixes_table = PrefixTable(sources_prefixes, orderable=False)
+        sources_ip_ranges_table = IPRangeTable(sources_ip_ranges, orderable=False)
+        sources_ip_addresses_table = IPAddressTable(sources_ip_addresses, orderable=False)
+
+        destinations_prefixes_table = PrefixTable(destinations_prefixes, orderable=False)
+        destinations_ip_ranges_table = IPRangeTable(destinations_ip_ranges, orderable=False)
+        destinations_ip_addresses_table = IPAddressTable(destinations_ip_addresses, orderable=False)
 
         return {
-            "sources_table": sources_table,
-            "destinations_table": destinations_table,
+            "sources_prefixes_table": sources_prefixes_table,
+            "sources_ip_ranges_table": sources_ip_ranges_table,
+            "sources_ip_addresses_table": sources_ip_addresses_table,
+            "destinations_prefixes_table": destinations_prefixes_table,
+            "destinations_ip_ranges_table": destinations_ip_ranges_table,
+            "destinations_ip_addresses_table": destinations_ip_addresses_table,
         }
 
 
