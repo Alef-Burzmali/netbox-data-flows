@@ -137,12 +137,12 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label="Prefixes",
     )
-    ipranges = DynamicModelMultipleChoiceField(
+    ip_ranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
         label="IP Ranges",
     )
-    ipaddresses = DynamicModelMultipleChoiceField(
+    ip_addresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         label="IP Addresses",
@@ -168,10 +168,10 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
         ),
         FieldSet(
             "prefixes",
-            "ipranges",
-            "ipaddresses",
+            "ip_ranges",
+            "ip_addresses",
             "devices",
             "virtual_machines",
-            name="Aliased objects",
+            name="Aliased objects - all objects are OR'ed together, any will match",
         ),
     )
