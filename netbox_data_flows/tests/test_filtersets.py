@@ -168,94 +168,6 @@ class DataFlowGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
 
-class ObjectAliasTargetTestCase(TestCase):
-    queryset = models.ObjectAliasTarget.objects.all()
-    filterset = filtersets.ObjectAliasTargetFilterSet
-
-    @classmethod
-    def setUpTestData(cls):
-        data = TestData()
-        data.get_objectaliastargets()
-
-    def test_prefixes(self):
-        prefixes = ipam.Prefix.objects.all()
-        params = {"prefixes": [prefixes[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"prefixes": [prefixes[0].pk, prefixes[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        for obj in prefixes:
-            params = {"prefixes": [obj.pk]}
-            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
-
-    def test_ranges(self):
-        ipranges = ipam.IPRange.objects.all()
-        params = {"ipranges": [ipranges[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"ipranges": [ipranges[0].pk, ipranges[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        for obj in ipranges:
-            params = {"ipranges": [obj.pk]}
-            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
-
-    def test_ipaddresses(self):
-        ipaddresses = ipam.IPAddress.objects.all()
-        params = {"ipaddresses": [ipaddresses[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        for obj in ipaddresses:
-            params = {"ipaddresses": [obj.pk]}
-            self.assertEqual(self.filterset(params, self.queryset).qs.first().target, obj)
-
-    def test_devices(self):
-        devices = dcim.Device.objects.all()
-        params = {"devices": [devices[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"devices": [devices[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"devices": [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_virtual_machines(self):
-        virtual_machines = virtualization.VirtualMachine.objects.all()
-        params = {"virtual_machines": [virtual_machines[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {
-            "virtual_machines": [
-                virtual_machines[0].pk,
-                virtual_machines[1].pk,
-            ]
-        }
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-
-    def test_multiple_targets(self):
-        params = {
-            "prefixes": [ipam.Prefix.objects.first().pk],
-            "ipranges": [ipam.IPRange.objects.first().pk],
-            "ipaddresses": [ipam.IPAddress.objects.first().pk],
-        }
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {
-            "devices": [dcim.Device.objects.first().pk],
-            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
-        }
-        # 2x 2 IP => 4 targets
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {
-            "ipaddresses": [ipam.IPAddress.objects.first().pk],
-            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
-        }
-        # 1 + 2 IP => 3
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
-        params = {
-            "ipaddresses": [ipam.IPAddress.objects.first().pk],
-            "devices": [dcim.Device.objects.first().pk],
-        }
-        # ip is assigned to first interface of device
-        # 1 + 2 IP, but with 1 duplicate => 2
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-
 class ObjectAliasTestCase(TestCase):
     queryset = models.ObjectAlias.objects.all()
     filterset = filtersets.ObjectAliasFilterSet
@@ -279,13 +191,75 @@ class ObjectAliasTestCase(TestCase):
         params = {"description": ["Device 1 and Device 2", "VM 2"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_targets(self):
-        targets = models.ObjectAliasTarget.objects.order_by("pk")
-        params = {"targets": [targets[0]]}
+    def test_prefixes(self):
+        prefixes = ipam.Prefix.objects.all()
+        params = {"prefixes": [prefixes[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"targets": [targets[1]]}
+        params = {"prefixes": [prefixes[0].pk, prefixes[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"prefixes": [prefixes[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"targets": [targets[9], targets[10], targets[12]]}
+
+    def test_ip_ranges(self):
+        ip_ranges = ipam.IPRange.objects.all()
+        params = {"ip_ranges": [ip_ranges[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"ip_ranges": [ip_ranges[0].pk, ip_ranges[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"ip_ranges": [ip_ranges[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_ip_addresses(self):
+        ip_addresses = ipam.IPAddress.objects.all()
+        params = {"ip_addresses": [ip_addresses[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"ip_addresses": [ip_addresses[0].pk, ip_addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"ip_addresses": [ip_addresses[4].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_devices(self):
+        devices = dcim.Device.objects.all()
+        params = {"devices": [devices[0].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {"devices": [devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"devices": [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_virtual_machines(self):
+        virtual_machines = virtualization.VirtualMachine.objects.all()
+        params = {"virtual_machines": [virtual_machines[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {
+            "virtual_machines": [
+                virtual_machines[0].pk,
+                virtual_machines[1].pk,
+            ]
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_multiple_targets(self):
+        params = {
+            "prefixes": [ipam.Prefix.objects.first().pk],
+            "ip_ranges": [ipam.IPRange.objects.first().pk],
+            "ip_addresses": [ipam.IPAddress.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {
+            "devices": [dcim.Device.objects.first().pk],
+            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "ip_addresses": [ipam.IPAddress.objects.first().pk],
+            "virtual_machines": [virtualization.VirtualMachine.objects.first().pk],
+        }
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {
+            "ip_addresses": [ipam.IPAddress.objects.first().pk],
+            "devices": [dcim.Device.objects.first().pk],
+        }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -470,20 +444,20 @@ class DataFlowTestCase(TestCase):
         params = {"source_prefixes": [prefixes[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_source_ipranges(self):
-        ipranges = ipam.IPRange.objects.all()
-        params = {"source_ipranges": [ipranges[0].pk]}
+    def test_source_ip_ranges(self):
+        ip_ranges = ipam.IPRange.objects.all()
+        params = {"source_ip_ranges": [ip_ranges[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"source_ipranges": [ipranges[0].pk, ipranges[1].pk]}
+        params = {"source_ip_ranges": [ip_ranges[0].pk, ip_ranges[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_source_ipaddresses(self):
-        ipaddresses = ipam.IPAddress.objects.all()
-        params = {"source_ipaddresses": [ipaddresses[0].pk]}
+    def test_source_ip_addresses(self):
+        ip_addresses = ipam.IPAddress.objects.all()
+        params = {"source_ip_addresses": [ip_addresses[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"source_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
+        params = {"source_ip_addresses": [ip_addresses[0].pk, ip_addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"source_ipaddresses": [ipaddresses[2].pk]}
+        params = {"source_ip_addresses": [ip_addresses[2].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_source_devices(self):
@@ -507,8 +481,8 @@ class DataFlowTestCase(TestCase):
     def test_OR_of_sources(self):
         aliases = models.ObjectAlias.objects.all()[:1]
         prefixes = ipam.Prefix.objects.all()[:1]
-        ipranges = ipam.IPRange.objects.all()[:1]
-        ipaddresses = ipam.IPAddress.objects.all()[:3]
+        ip_ranges = ipam.IPRange.objects.all()[:1]
+        ip_addresses = ipam.IPAddress.objects.all()[:3]
         devices = dcim.Device.objects.all()[:2]
         vms = virtualization.VirtualMachine.objects.all()[:2]
 
@@ -523,13 +497,13 @@ class DataFlowTestCase(TestCase):
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {
-            "source_ipranges": [ipranges[0].pk],
-            "source_ipaddresses": [ipaddresses[0].pk],
+            "source_ip_ranges": [ip_ranges[0].pk],
+            "source_ip_addresses": [ip_addresses[0].pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {
             "source_devices": [devices[0].pk],
-            "source_ipaddresses": [ipaddresses[0].pk],
+            "source_ip_addresses": [ip_addresses[0].pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {
@@ -567,20 +541,20 @@ class DataFlowTestCase(TestCase):
         params = {"destination_prefixes": [prefixes[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
-    def test_destination_ipranges(self):
-        ipranges = ipam.IPRange.objects.all()
-        params = {"destination_ipranges": [ipranges[0].pk]}
+    def test_destination_ip_ranges(self):
+        ip_ranges = ipam.IPRange.objects.all()
+        params = {"destination_ip_ranges": [ip_ranges[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {"destination_ipranges": [ipranges[0].pk, ipranges[1].pk]}
+        params = {"destination_ip_ranges": [ip_ranges[0].pk, ip_ranges[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_destination_ipaddresses(self):
-        ipaddresses = ipam.IPAddress.objects.all()
-        params = {"destination_ipaddresses": [ipaddresses[0].pk]}
+    def test_destination_ip_addresses(self):
+        ip_addresses = ipam.IPAddress.objects.all()
+        params = {"destination_ip_addresses": [ip_addresses[0].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"destination_ipaddresses": [ipaddresses[0].pk, ipaddresses[1].pk]}
+        params = {"destination_ip_addresses": [ip_addresses[0].pk, ip_addresses[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {"destination_ipaddresses": [ipaddresses[5].pk]}
+        params = {"destination_ip_addresses": [ip_addresses[5].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_destination_devices(self):
@@ -604,8 +578,8 @@ class DataFlowTestCase(TestCase):
     def test_OR_of_destinations(self):
         aliases = models.ObjectAlias.objects.all()[:2]
         prefixes = ipam.Prefix.objects.all()[:1]
-        ipranges = ipam.IPRange.objects.all()[:1]
-        ipaddresses = ipam.IPAddress.objects.all()[:3]
+        ip_ranges = ipam.IPRange.objects.all()[:1]
+        ip_addresses = ipam.IPAddress.objects.all()[:3]
         devices = dcim.Device.objects.all()[:2]
         vms = virtualization.VirtualMachine.objects.all()[:2]
 
@@ -620,13 +594,13 @@ class DataFlowTestCase(TestCase):
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {
-            "destination_ipranges": [ipranges[0].pk],
-            "destination_ipaddresses": [ipaddresses[0].pk],
+            "destination_ip_ranges": [ip_ranges[0].pk],
+            "destination_ip_addresses": [ip_addresses[0].pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {
             "destination_devices": [devices[0].pk],
-            "destination_ipaddresses": [ipaddresses[0].pk],
+            "destination_ip_addresses": [ip_addresses[0].pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {

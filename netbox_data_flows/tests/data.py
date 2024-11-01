@@ -1,5 +1,3 @@
-import itertools
-
 from dcim import models as dcim
 from ipam import models as ipam
 from virtualization import models as virtualization
@@ -13,7 +11,10 @@ class TestData:
     _dataflows = None
     _dataflowgroups = None
     _objectaliases = None
-    _targets = None
+
+    _prefixes = None
+    _ranges = None
+    _ips = None
 
     def get_applicationroles(self):
         if not self._applicationsroles:
@@ -158,8 +159,8 @@ class TestData:
 
         return self._dataflowgroups
 
-    def get_objectaliastargets(self):
-        if not self._targets:
+    def get_targetobjects(self):
+        if not self._prefixes:
             vlans = [
                 ipam.VLAN(
                     vid=100,
@@ -303,28 +304,9 @@ class TestData:
             for obj in ips:
                 obj.save()
 
-            # Targets
-            # 0-2: Prefix
-            # 3-4: Prefix with VLAN
-            # 5-6: IP Ranges
-            # 7-8: IP of device 1
-            # 9-10: IP of vm 1
-            # 11-11: IP of device 2
-            # 12-12: IP of vm 2
-            # 13-14: IPs
-            self._targets = []
-            for obj in itertools.chain(prefixes, ranges, ips):
-                t = models.ObjectAliasTarget.get_or_create(obj)
-                t.save()
-                self._targets += [t]
-
-            self._targets = tuple(self._targets)
-
-        return self._targets
-
     def get_objectaliases(self):
         if not self._objectaliases:
-            self.get_objectaliastargets()
+            self.get_targetobjects()
 
             prefixes = self._prefixes
             ip_ranges = self._ranges
@@ -370,15 +352,6 @@ class TestData:
             self._objectaliases[4].ip_addresses.set(ip_addresses[0:2] + [ip_addresses[4]])
             self._objectaliases[5].ip_addresses.set([ip_addresses[5]])
             self._objectaliases[6].ip_addresses.set(ip_addresses[6:8])
-
-            targets = models.ObjectAliasTarget.objects.order_by("pk")
-            self._objectaliases[0].targets.set(targets[0:2])
-            self._objectaliases[1].targets.set([])
-            self._objectaliases[2].targets.set([targets[0], targets[5]])
-            self._objectaliases[3].targets.set(targets[7:11])
-            self._objectaliases[4].targets.set([targets[7], targets[8], targets[11]])
-            self._objectaliases[5].targets.set([targets[12]])
-            self._objectaliases[6].targets.set(targets[13:15])
 
         return self._objectaliases
 
