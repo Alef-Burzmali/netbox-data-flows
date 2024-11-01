@@ -416,7 +416,7 @@ class TestData:
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 3",
-                    description=("TCP/80 from Object Alias 1 to Object Alias 2, " "inherit disabled"),
+                    description="TCP/80 from Object Alias 1 to Object Alias 2, inherit disabled",
                     application=apps[0],
                     group=groups[2],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -431,7 +431,7 @@ class TestData:
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 4",
-                    description=("TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, " "inherit enabled"),
+                    description="TCP/81 and TCP/82 from Object Alias 1 to Object Alias 2, inherit enabled",
                     application=apps[1],
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -464,7 +464,7 @@ class TestData:
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 6",
-                    description=("TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, " "inherit enabled"),
+                    description="TCP+UDP/100 from Any to Object Alias 4 and Object Alias 5, inherit enabled",
                     application=apps[1],
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
@@ -478,7 +478,7 @@ class TestData:
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 7",
-                    description=("SCTP/200 from SCTP/200 from Object Alias 5 to Any, " "inherit enabled"),
+                    description="SCTP/200 from SCTP/200 from Object Alias 5 to Any, inherit enabled",
                     application=None,
                     group=groups[6],
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,

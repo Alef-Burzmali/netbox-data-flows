@@ -110,6 +110,6 @@ class DataFlowGroup(NestedGroupModel):
                 application=self.application,
                 parent__isnull=True,
             ).exists():
-                raise ValidationError({"name": ("A data flow with this name already exists for " "this application.")})
+                raise ValidationError({"name": "A data flow group with this name already exists for this application."})
 
         super().validate_unique(exclude=exclude)
