@@ -1,27 +1,15 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 
 from core.models import ObjectType
-from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
-from utilities.testing import ViewTestCases, create_tags, disable_warnings, post_data
+from utilities.testing import ViewTestCases, create_tags, post_data
 
 from ipam import models as ipam
 
 from netbox_data_flows import choices, models
 
 from .data import TestData
-
-
-try:
-    # NetBox 4.1.0+
-    from core.choices import ObjectChangeActionChoices
-    from core.models import ObjectChange
-except ImportError:
-    # COMPAT NetBox 4.0.0
-    from extras.choices import ObjectChangeActionChoices
-    from extras.models import ObjectChange
 
 
 class PluginUrlBase:
@@ -329,12 +317,17 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
-        # parent must be a group with no parent
-        # to avoid circular dependencies
+        prefixes = [o["pk"] for o in ipam.Prefix.objects.values("pk")[:2]]
+        ip_ranges = [o["pk"] for o in ipam.IPRange.objects.values("pk")[:2]]
+        ip_addresses = [o["pk"] for o in ipam.IPAddress.objects.values("pk")[:2]]
+
         cls.form_data = {
             "name": "Object Alias X",
             "description": "A new object alias",
             "comments": "Some comments",
+            "prefixes": prefixes,
+            "ip_ranges": ip_ranges,
+            "ip_addresses": ip_addresses,
             "tags": [t.pk for t in tags],
         }
 
@@ -355,242 +348,7 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
         cls.bulk_edit_data = {
             "description": "New description",
             "comments": "New comments",
+            "prefixes": [prefixes[0]],
+            "ip_ranges": ip_ranges,
+            "ip_addresses": [ip_addresses[1]],
         }
-
-        prefixes = ipam.Prefix.objects.all()[:2]
-        ipranges = ipam.IPRange.objects.all()[:2]
-        ipaddresses = ipam.IPAddress.objects.all()[:2]
-        cls.addtarget_form_data = {
-            "aliased_prefixes": [o.pk for o in prefixes],
-            "aliased_ipranges": [o.pk for o in ipranges],
-            "aliased_ipaddresses": [o.pk for o in ipaddresses],
-        }
-
-        cls.removetarget_form_data = {
-            "confirm": "true",
-        }
-
-    def assertTargetsEqual(self, instance, data):
-        forms_targets = []
-        if data:
-            forms_targets += list(ipam.Prefix.objects.filter(pk__in=data["aliased_prefixes"]))
-            forms_targets += list(ipam.IPRange.objects.filter(pk__in=data["aliased_ipranges"]))
-            forms_targets += list(ipam.IPAddress.objects.filter(pk__in=data["aliased_ipaddresses"]))
-
-        expected_targets = []
-        for expected_target_obj in forms_targets:
-            expected_target = models.ObjectAliasTarget.get_or_create(expected_target_obj)
-            self.assertTrue(
-                expected_target.pk is not None,
-                msg=f"Target {expected_target} ({expected_target_obj}) has not been saved by the creation form",
-            )
-            expected_targets += [expected_target.pk]
-
-        expected_targets = sorted(expected_targets)
-        saved_targets = sorted([obj.pk for obj in instance.targets.all()])
-
-        self.assertListEqual(expected_targets, saved_targets)
-
-    def test_addtarget_without_permission(self):
-        instance = self._get_queryset().first()
-
-        # Try GET without permission
-        with disable_warnings("django.request"):
-            self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance)), 403)
-
-        # Try POST without permission
-        request = {
-            "path": self._get_url("addtarget", instance),
-            "data": post_data(self.addtarget_form_data),
-        }
-        with disable_warnings("django.request"):
-            self.assertHttpStatus(self.client.post(**request), 403)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
-    def test_addtarget_with_permission(self):
-        instance = models.ObjectAlias(
-            name="Object Alias Addtarget A",
-        )
-        instance.save()
-
-        # Assign model-level permission
-        obj_perm = ObjectPermission(name="Test permission", actions=["change"])
-        obj_perm.save()
-        obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
-
-        # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance)), 200)
-
-        # Try POST with model-level permission
-        request = {
-            "path": self._get_url("addtarget", instance),
-            "data": post_data(self.addtarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 302)
-        instance = self._get_queryset().get(pk=instance.pk)
-        self.assertTargetsEqual(instance, self.addtarget_form_data)
-
-        # Verify ObjectChange creation
-        if issubclass(instance.__class__, ChangeLoggingMixin):
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(
-                objectchanges[0].action,
-                ObjectChangeActionChoices.ACTION_UPDATE,
-            )
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
-    def test_addtarget_with_constrained_permission(self):
-        instance1 = models.ObjectAlias(
-            name="Object Alias Addtarget B",
-        )
-        instance1.save()
-        instance2 = models.ObjectAlias(
-            name="Object Alias Addtarget C",
-        )
-        instance2.save()
-
-        # Assign constrained permission
-        obj_perm = ObjectPermission(
-            name="Test permission",
-            constraints={"pk": instance1.pk},
-            actions=["change"],
-        )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
-
-        # Try GET with a permitted object
-        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance1)), 200)
-
-        # Try GET with a non-permitted object
-        self.assertHttpStatus(self.client.get(self._get_url("addtarget", instance2)), 404)
-
-        # Try to edit a permitted object
-        request = {
-            "path": self._get_url("addtarget", instance1),
-            "data": post_data(self.addtarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 302)
-        instance = self._get_queryset().get(pk=instance1.pk)
-        self.assertTargetsEqual(instance, self.addtarget_form_data)
-
-        # Try to edit a non-permitted object
-        request = {
-            "path": self._get_url("addtarget", instance2),
-            "data": post_data(self.addtarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 404)
-
-    def test_removetarget_without_permission(self):
-        instance = self._get_queryset().first()
-        target = models.ObjectAliasTarget.objects.first()
-        url = self._get_url("removetarget", instance, alias_pk=target.pk)
-
-        # Try GET without permission
-        with disable_warnings("django.request"):
-            self.assertHttpStatus(self.client.get(url), 403)
-
-        # Try POST without permission
-        request = {
-            "path": url,
-            "data": post_data(self.removetarget_form_data),
-        }
-        with disable_warnings("django.request"):
-            self.assertHttpStatus(self.client.post(**request), 403)
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
-    def test_removetarget_with_permission(self):
-        instance = models.ObjectAlias(
-            name="Object Alias Addtarget A",
-        )
-        instance.save()
-        target = models.ObjectAliasTarget.objects.first()
-        instance.targets.set([target])
-
-        url = self._get_url("removetarget", instance, alias_pk=target.pk)
-
-        # Assign model-level permission
-        obj_perm = ObjectPermission(name="Test permission", actions=["change"])
-        obj_perm.save()
-        obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
-
-        # Try GET with model-level permission
-        self.assertHttpStatus(self.client.get(url), 200)
-
-        # Try POST with model-level permission
-        request = {
-            "path": url,
-            "data": post_data(self.removetarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 302)
-        instance = self._get_queryset().get(pk=instance.pk)
-        self.assertTargetsEqual(instance, [])
-
-        # Verify ObjectChange creation
-        if issubclass(instance.__class__, ChangeLoggingMixin):
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(
-                objectchanges[0].action,
-                ObjectChangeActionChoices.ACTION_UPDATE,
-            )
-
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
-    def test_removetarget_with_constrained_permission(self):
-        instance1 = models.ObjectAlias(
-            name="Object Alias Addtarget B",
-        )
-        instance1.save()
-        instance2 = models.ObjectAlias(
-            name="Object Alias Addtarget C",
-        )
-        instance2.save()
-
-        target = models.ObjectAliasTarget.objects.first()
-        instance1.targets.set([target])
-        target = models.ObjectAliasTarget.objects.first()
-        instance2.targets.set([target])
-
-        url1 = self._get_url("removetarget", instance1, alias_pk=target.pk)
-        url2 = self._get_url("removetarget", instance2, alias_pk=target.pk)
-
-        # Assign constrained permission
-        obj_perm = ObjectPermission(
-            name="Test permission",
-            constraints={"pk": instance1.pk},
-            actions=["change"],
-        )
-        obj_perm.save()
-        obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
-
-        # Try GET with a permitted object
-        self.assertHttpStatus(self.client.get(url1), 200)
-
-        # Try GET with a non-permitted object
-        self.assertHttpStatus(self.client.get(url2), 404)
-
-        # Try to edit a permitted object
-        request = {
-            "path": url1,
-            "data": post_data(self.removetarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 302)
-        instance = self._get_queryset().get(pk=instance1.pk)
-        self.assertTargetsEqual(instance, [])
-
-        # Try to edit a non-permitted object
-        request = {
-            "path": url2,
-            "data": post_data(self.removetarget_form_data),
-        }
-        self.assertHttpStatus(self.client.post(**request), 404)

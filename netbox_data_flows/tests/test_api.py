@@ -154,86 +154,6 @@ class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGra
         }
 
 
-class ObjectAliasTargetTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
-    model = models.ObjectAliasTarget
-    brief_fields = [
-        "display",
-        "id",
-        "url",
-    ]
-
-    def assertInstanceEqual(self, instance, data, exclude=None, api=True):
-        if exclude is None:
-            exclude = []
-        exclude += ["target"]
-
-        super().assertInstanceEqual(instance, data, exclude=exclude, api=api)
-
-        if "target" in data:
-            self.assertEqual(
-                data["target"]["object_type"],
-                f"{instance.target._meta.app_label}.{instance.target._meta.model_name}",
-            )
-            self.assertEqual(data["target"]["object_id"], instance.target.pk)
-
-    @classmethod
-    def setUpTestData(cls):
-        data = TestData()
-        data.get_objectaliastargets()
-
-        ipaddresses = [
-            ipam.IPAddress(address="192.168.0.1/24"),
-            ipam.IPAddress(address="192.168.0.2/24"),
-        ]
-        ipam.IPAddress.objects.bulk_create(ipaddresses)
-        ipranges = [
-            ipam.IPRange(
-                start_address="192.168.0.5/24",
-                end_address="192.168.0.10/24",
-                size=5,
-            ),
-        ]
-        ipam.IPRange.objects.bulk_create(ipranges)
-        prefixes = [
-            ipam.Prefix(prefix="192.168.0.0/24"),
-        ]
-        ipam.Prefix.objects.bulk_create(prefixes)
-
-        def get_type(model):
-            return f"{model._meta.app_label}.{model._meta.model_name}"
-
-        cls.create_data = [
-            {
-                "target": {
-                    "object_type": get_type(ipam.IPAddress),
-                    "object_id": ipaddresses[0].pk,
-                }
-            },
-            {
-                "target": {
-                    "object_type": get_type(ipam.IPAddress),
-                    "object_id": ipaddresses[1].pk,
-                }
-            },
-            {
-                "target": {
-                    "object_type": get_type(ipam.IPRange),
-                    "object_id": ipranges[0].pk,
-                }
-            },
-            {
-                "target": {
-                    "object_type": get_type(ipam.Prefix),
-                    "object_id": prefixes[0].pk,
-                }
-            },
-        ]
-
-    def test_bulk_update_objects(self):
-        # skip
-        pass
-
-
 class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ObjectAlias
     brief_fields = [
@@ -247,8 +167,25 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        targets = data.get_objectaliastargets()
         data.get_objectaliases()
+
+        ip_addresses = [
+            ipam.IPAddress(address="192.168.0.1/24"),
+            ipam.IPAddress(address="192.168.0.2/24"),
+        ]
+        ipam.IPAddress.objects.bulk_create(ip_addresses)
+        ip_ranges = [
+            ipam.IPRange(
+                start_address="192.168.0.5/24",
+                end_address="192.168.0.10/24",
+                size=5,
+            ),
+        ]
+        ipam.IPRange.objects.bulk_create(ip_ranges)
+        prefixes = [
+            ipam.Prefix(prefix="192.168.0.0/24"),
+        ]
+        ipam.Prefix.objects.bulk_create(prefixes)
 
         cls.create_data = [
             {
@@ -257,17 +194,20 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
             },
             {
                 "name": "Object Alias 21",
-                "targets": [o.pk for o in targets[0:5]],
+                "prefixes": [o.pk for o in prefixes],
+                "ip_ranges": [o.pk for o in ip_ranges],
+                "ip_addresses": [o.pk for o in ip_addresses],
             },
             {
                 "name": "Object Alias 22",
                 "comments": "New comments",
+                "ip_addresses": [ip_addresses[0].pk],
             },
         ]
         cls.bulk_update_data = {
             "description": "New description",
             "comments": "New comments",
-            "targets": [o.pk for o in targets[0:5]],
+            "prefixes": [o.pk for o in prefixes],
         }
 
 
