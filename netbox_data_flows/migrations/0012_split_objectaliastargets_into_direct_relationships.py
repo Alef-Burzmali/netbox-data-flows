@@ -135,4 +135,11 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(related_name="data_flow_object_aliases", to="ipam.prefix"),
         ),
         migrations.RunPython(convert_targets, revert_targets),
+        migrations.RemoveField(
+            model_name="objectalias",
+            name="targets",
+        ),
+        migrations.DeleteModel(
+            name="ObjectAliasTarget",
+        ),
     ]
