@@ -331,12 +331,12 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label="Source Prefixes",
     )
-    source_ipranges = DynamicModelMultipleChoiceField(
+    source_ip_ranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
         label="Source IP Ranges",
     )
-    source_ipaddresses = DynamicModelMultipleChoiceField(
+    source_ip_addresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         label="Source IP Addresses",
@@ -369,12 +369,12 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label="Destination Prefixes",
     )
-    destination_ipranges = DynamicModelMultipleChoiceField(
+    destination_ip_ranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
         label="Destination IP Ranges",
     )
-    destination_ipaddresses = DynamicModelMultipleChoiceField(
+    destination_ip_addresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         label="Destination IP Addresses",
@@ -419,8 +419,8 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             "source_is_null",
             "source_aliases",
             "source_prefixes",
-            "source_ipranges",
-            "source_ipaddresses",
+            "source_ip_ranges",
+            "source_ip_addresses",
             "source_devices",
             "source_virtual_machines",
             name="Sources - all sources are OR'ed together, any will match",
@@ -429,8 +429,8 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             "destination_is_null",
             "destination_aliases",
             "destination_prefixes",
-            "destination_ipranges",
-            "destination_ipaddresses",
+            "destination_ip_ranges",
+            "destination_ip_addresses",
             "destination_devices",
             "destination_virtual_machines",
             name="Destinations - all destinations are OR'ed together, any will match",

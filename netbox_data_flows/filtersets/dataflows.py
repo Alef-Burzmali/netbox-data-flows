@@ -72,12 +72,12 @@ class DataFlowFilterSet(
         label="Source Prefix (ID)",
         method="filter_sources",
     )
-    source_ipranges = ModelMultipleChoiceFilter(
+    source_ip_ranges = ModelMultipleChoiceFilter(
         queryset=IPRange.objects.all(),
         label="Source IP Ranges (ID)",
         method="filter_sources",
     )
-    source_ipaddresses = ModelMultipleChoiceFilter(
+    source_ip_addresses = ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
         label="Source IP Addresses (ID)",
         method="filter_sources",
@@ -107,12 +107,12 @@ class DataFlowFilterSet(
         label="Destination Prefix (ID)",
         method="filter_destinations",
     )
-    destination_ipranges = ModelMultipleChoiceFilter(
+    destination_ip_ranges = ModelMultipleChoiceFilter(
         queryset=IPRange.objects.all(),
         label="Destination IP Ranges (ID)",
         method="filter_destinations",
     )
-    destination_ipaddresses = ModelMultipleChoiceFilter(
+    destination_ip_addresses = ModelMultipleChoiceFilter(
         queryset=IPAddress.objects.all(),
         label="Destination IP Addresses (ID)",
         method="filter_destinations",
