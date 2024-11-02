@@ -1,7 +1,7 @@
 ---
 name: 🐛 Bug Report
 description: Report a bug in the latest release of NetBox Data Flows.
-labels: ["type: bug", "status: needs triage"]
+labels: ["type: bug", "status: pending triage"]
 body:
   - type: markdown
     attributes:
