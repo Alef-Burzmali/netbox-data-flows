@@ -1,0 +1,50 @@
+---
+name: ✨ Feature Request
+description: Propose a new feature or enhancement to NetBox Data Flows.
+labels: ["type: feature", "status: pending triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **NOTE:** This form is only for submitting requests to extend or modify the latest version
+        of NetBox Data Flows. Before making a request, please take the time to articulate what you
+        want to achieve and what would be a good way to achieve it.
+        If your idea still need some maturing, please start a
+        [discussion](https://github.com/Alef-Burzmali/netbox-data-flows/discussions) instead.
+  - type: input
+    attributes:
+      label: NetBox version
+      description: What version of NetBox are you currently running?
+      placeholder: v4.1.6
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: NetBox Data Flows version
+      description: What version of NetBox Data Flows are you currently running?
+      placeholder: v1.1.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: volonteering
+    attributes:
+      label: Volonteering      
+      options:
+        - label: I am willing to propose a pull request for that feature.
+  - type: textarea
+    attributes:
+      label: Proposed functionality
+      description: >
+        Describe in detail the new feature or behavior you are proposing. Include any specific changes
+        to work flows, data models, and/or the user interface. The more detail you provide here, the
+        greater chance your proposal has of being discussed. Feature requests which don't include an
+        actionable implementation plan will be rejected.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Use case
+      description: >
+        Explain how adding this functionality would benefit the plugin's users. What need does it address?
+    validations:
+      required: true
