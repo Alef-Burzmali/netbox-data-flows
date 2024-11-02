@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: ❓ Discussion
+    url: https://github.com/Alef-Burzmali/netbox-data-flows/discussions
+    about: "If you're just looking for help, try starting a discussion instead."
+  - name: 🚨 Security issues
+    url: https://github.com/Alef-Burzmali/netbox-data-flows/security
+    about: "Use the Security Advisories to report security issues. You will be credited."
