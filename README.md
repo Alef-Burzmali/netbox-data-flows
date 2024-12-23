@@ -45,6 +45,7 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 
 | netbox version | netbox-data-flows version     |
 | -------------- | ----------------------------- |
+| >= 4.2.0       | >= v1.1.0                     |
 | >= 4.1.0       | >= v1.0.4                     |
 | >= 4.0.0       | >= v0.9.0                     |
 | >= 3.7.0       | >= v0.8.0, < v0.9.0           |
@@ -53,7 +54,7 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 
 ### Dependencies
 
-* NetBox (>=4.0.0)
+* NetBox
 * Python 3.10 or higher
 
 

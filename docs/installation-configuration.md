@@ -10,6 +10,7 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 
 | netbox version | netbox-data-flows version     |
 | -------------- | ----------------------------- |
+| >= 4.2.0       | >= v1.1.0                     |
 | >= 4.1.0       | >= v1.0.4                     |
 | >= 4.0.0       | >= v0.9.0                     |
 | >= 3.7.0       | >= v0.8.0, < v0.9.0           |
@@ -25,7 +26,7 @@ NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is ther
 
 ### Dependencies
 
-* NetBox (>=4.0.0)
+* NetBox
 * Python 3.10 or higher
 
 ### Installation
