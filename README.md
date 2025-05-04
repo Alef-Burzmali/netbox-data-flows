@@ -53,6 +53,7 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 | >= 3.6.0       | >= v0.7.3, < v0.8.0           |
 |  < 3.6.0       | Not supported                 |
 
+
 ### Dependencies
 
 * NetBox
