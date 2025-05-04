@@ -4,7 +4,8 @@ description = "NetBox plugin to document data flows between systems and applicat
 authors = [
   { name="Thomas Fargeix" },
 ]
-license = {text = "Apache 2.0"}
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 readme = {file = "README.md", content-type = "text/markdown"}
 keywords = ["netbox", "netbox-plugins"]
 classifiers = [
@@ -14,7 +15,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: Apache Software License",
     "Topic :: System :: Networking",
 ]
 requires-python = ">=3.10"
