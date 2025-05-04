@@ -3,7 +3,12 @@ from django.db.models import Count
 from netbox.views import generic
 from utilities.views import register_model_view
 
-from tenancy.views import ObjectContactsView
+
+try:
+    from netbox.views.generic import ObjectContactsView
+except ImportError:
+    # FIXME: Compat NetBox <=4.2
+    from tenancy.views import ObjectContactsView
 
 from netbox_data_flows import filtersets, forms, models, tables
 
