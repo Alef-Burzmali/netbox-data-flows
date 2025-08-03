@@ -22,7 +22,7 @@ urlpatterns += (
     path(
         "application-roles/import/",
         views.ApplicationRoleBulkImportView.as_view(),
-        name="applicationrole_import",
+        name="applicationrole_bulk_import",
     ),
     path(
         "application-roles/edit/",
@@ -55,7 +55,7 @@ urlpatterns += (
     path(
         "applications/import/",
         views.ApplicationBulkImportView.as_view(),
-        name="application_import",
+        name="application_bulk_import",
     ),
     path(
         "applications/edit/",
@@ -88,7 +88,7 @@ urlpatterns += (
     path(
         "dataflow-groups/import/",
         views.DataFlowGroupBulkImportView.as_view(),
-        name="dataflowgroup_import",
+        name="dataflowgroup_bulk_import",
     ),
     path(
         "dataflow-groups/edit/",
@@ -121,7 +121,7 @@ urlpatterns += (
     path(
         "dataflows/import/",
         views.DataFlowBulkImportView.as_view(),
-        name="dataflow_import",
+        name="dataflow_bulk_import",
     ),
     path(
         "dataflows/edit/",
@@ -159,7 +159,7 @@ urlpatterns += (
     path(
         "aliases/import/",
         views.ObjectAliasBulkImportView.as_view(),
-        name="objectalias_import",
+        name="objectalias_bulk_import",
     ),
     path(
         "aliases/edit/",
