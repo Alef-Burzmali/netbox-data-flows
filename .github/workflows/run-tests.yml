@@ -3,6 +3,9 @@ name: Run tests on push and pull request
 on:
   push:
     paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/RELEASE-TEMPLATE.md'
       - 'docs/**'
     branches-ignore:
       - 'gh-pages'
@@ -22,7 +25,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
-        node-version: ['18.x']
+        node-version: ["20.x"]
     services:
       redis:
         image: redis
@@ -52,12 +55,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Checkout lastest NetBox release
+      - name: Checkout latest NetBox release
         uses: actions/checkout@main
         with:
           repository: "netbox-community/netbox"
           path: netbox
-          ref: master
+          ref: main
 
       - name: Install NetBox
         working-directory: netbox
@@ -87,4 +90,3 @@ jobs:
         working-directory: netbox
         run: |
           python netbox/manage.py test --parallel auto netbox_data_flows
-
