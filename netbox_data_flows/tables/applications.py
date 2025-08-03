@@ -2,7 +2,7 @@ import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
 
-from tenancy.tables import ContactsColumnMixin
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 from netbox_data_flows.models import Application, ApplicationRole
 
@@ -45,7 +45,7 @@ class ApplicationRoleTable(NetBoxTable):
         )
 
 
-class ApplicationTable(ContactsColumnMixin, NetBoxTable):
+class ApplicationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
         linkify=True,
     )
@@ -71,6 +71,8 @@ class ApplicationTable(ContactsColumnMixin, NetBoxTable):
             "comments",
             "dataflow_count",
             "contacts",
+            "tenant",
+            "tenant_group",
             "tags",
             "created",
             "last_updated",
@@ -79,5 +81,6 @@ class ApplicationTable(ContactsColumnMixin, NetBoxTable):
         default_columns = (
             "name",
             "role",
+            "tenant",
             "dataflow_count",
         )

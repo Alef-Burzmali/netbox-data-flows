@@ -2,6 +2,8 @@ from rest_framework import serializers
 
 from netbox.api.serializers import NetBoxModelSerializer
 
+from tenancy.api.serializers import TenantSerializer
+
 from netbox_data_flows import models
 
 
@@ -44,6 +46,7 @@ class ApplicationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:application-detail")
     dataflow_count = serializers.IntegerField(read_only=True)
     role = ApplicationRoleSerializer(nested=True, required=False, allow_null=True, default=None)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = models.Application
@@ -58,6 +61,7 @@ class ApplicationSerializer(NetBoxModelSerializer):
             "last_updated",
             "name",
             "role",
+            "tenant",
             "tags",
             "url",
         )

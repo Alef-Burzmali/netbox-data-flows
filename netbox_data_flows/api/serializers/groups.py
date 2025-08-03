@@ -3,6 +3,8 @@ from rest_framework import serializers
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 
+from tenancy.api.serializers import TenantSerializer
+
 from netbox_data_flows import choices, models
 
 from .applications import ApplicationSerializer
@@ -56,6 +58,7 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
     application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
     parent = NestedDataFlowGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     _depth = serializers.IntegerField(source="level", read_only=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = models.DataFlowGroup
@@ -72,6 +75,7 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
             "last_updated",
             "name",
             "parent",
+            "tenant",
             "slug",
             "status",
             "tags",

@@ -13,6 +13,9 @@ from utilities.forms.fields import (
 )
 from utilities.forms.rendering import FieldSet
 
+from tenancy.forms import TenancyFilterForm, TenancyForm
+from tenancy.models import Tenant
+
 from netbox_data_flows import choices, models
 
 
@@ -28,7 +31,7 @@ __all__ = (
 #
 
 
-class DataFlowGroupForm(NetBoxModelForm):
+class DataFlowGroupForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
@@ -54,6 +57,11 @@ class DataFlowGroupForm(NetBoxModelForm):
             "status",
             "tags",
         ),
+        FieldSet(
+            "tenant_group",
+            "tenant",
+            name="Tenancy",
+        ),
     )
 
     class Meta:
@@ -63,6 +71,7 @@ class DataFlowGroupForm(NetBoxModelForm):
             "parent",
             "name",
             "slug",
+            "tenant",
             "description",
             "status",
             "comments",
@@ -95,6 +104,7 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         selector=True,
     )
+    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
     comments = CommentField()
 
     status = forms.ChoiceField(
@@ -106,13 +116,15 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
         FieldSet(
             "application",
             "parent",
+            "tenant",
             "description",
             "status",
         ),
     )
     nullable_fields = (
-        "parent",
         "application",
+        "parent",
+        "tenant",
         "comments",
     )
 
@@ -130,6 +142,12 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
         to_field_name="slug",
         help_text="Parent group of the data flow group",
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name="name",
+        help_text="Assigned tenant",
+    )
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
         required=False,
@@ -144,6 +162,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
             "description",
             "application",
             "parent",
+            "tenant",
             "status",
             "comments",
         )
@@ -154,7 +173,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
 #
 
 
-class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
+class DataFlowGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = models.DataFlowGroup
 
     tag = TagFilterField(model)
@@ -194,6 +213,11 @@ class DataFlowGroupFilterForm(NetBoxModelFilterSetForm):
             "application_role",
             "parent_id",
             "ancestor_id",
+        ),
+        FieldSet(
+            "tenant_group_id",
+            "tenant_id",
+            name="Tenancy",
         ),
         FieldSet(
             "status",

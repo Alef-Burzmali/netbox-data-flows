@@ -2,6 +2,8 @@ import django_tables2 as tables
 
 from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
+from tenancy.tables import TenancyColumnsMixin
+
 from netbox_data_flows.models import DataFlow
 
 from .columns import ObjectAliasListColumn, PortListColumn
@@ -13,7 +15,7 @@ __all__ = (
 )
 
 
-class DataFlowTable(NetBoxTable):
+class DataFlowTable(TenancyColumnsMixin, NetBoxTable):
     application = tables.Column(
         linkify=True,
     )
@@ -59,6 +61,8 @@ class DataFlowTable(NetBoxTable):
             "destination_ports",
             "parent",
             "depth",
+            "tenant",
+            "tenant_group",
             "comments",
             "tags",
             "created",

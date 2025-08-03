@@ -2,6 +2,8 @@ from django.db.models import Q
 
 from netbox.filtersets import NetBoxModelFilterSet
 
+from tenancy.filtersets import TenancyFilterSet
+
 from netbox_data_flows import models
 
 from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
@@ -14,6 +16,7 @@ __all__ = ("DataFlowGroupFilterSet",)
 class DataFlowGroupFilterSet(
     ApplicationFilterSetAddin,
     InheritedStatusFilterSetAddin,
+    TenancyFilterSet,
     NetBoxModelFilterSet,
 ):
     parent_id = ModelMultipleChoiceFilter(

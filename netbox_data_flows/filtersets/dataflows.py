@@ -4,6 +4,7 @@ from netbox.filtersets import NetBoxModelFilterSet
 
 from dcim.models import Device
 from ipam.models import IPAddress, IPRange, Prefix
+from tenancy.filtersets import TenancyFilterSet
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
@@ -24,6 +25,7 @@ __all__ = ("DataFlowFilterSet",)
 class DataFlowFilterSet(
     ApplicationFilterSetAddin,
     InheritedStatusFilterSetAddin,
+    TenancyFilterSet,
     NetBoxModelFilterSet,
 ):
     group_id = ModelMultipleChoiceFilter(
