@@ -1,4 +1,4 @@
-name: Build the project
+name: Get supported NetBox versions
 
 on:
   workflow_call:
@@ -28,12 +28,16 @@ jobs:
           repository: "netbox-community/netbox"
           path: netbox
           ref: main
+          fetch-depth: 0
 
       - id: netbox-versions
         name: Extract supported NetBox versions
+        shell: bash
         run: |
           MIN_VERSION=v$(grep -F "min_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
           MAX_VERSION=v$(grep -F "max_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
+
+          echo "[*] Found supported versions: ${MIN_VERSION} - ${MAX_VERSION}"
 
           cd ./netbox
 
@@ -85,12 +89,17 @@ jobs:
           declare -a supported_versions=()
           loop_minor=""
 
-          for tag in $(git tag | \grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr); do
+          declare -a all_versions=($(git tag | \grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr))
+          echo "[*] NetBox has ${#all_versions[@]} tags, the highest is ${all_versions[0]}."
+
+          for tag in "${all_versions[@]}"; do
+            set +e
             supported_range "$tag"
             case $? in
               1) continue ;;
               2) break ;;
             esac
+            set -e
 
             # get the highest version within the supported range
             if [ -z "$latest_version" ]; then
@@ -119,7 +128,9 @@ jobs:
             exit 1
           fi
 
+          echo "[*] Identified ${#supported_versions[@]} versions to test. The highest is ${latest_version}."
+
           supported_versions_str='"'$(join_by '", "' ${supported_versions[@]})'"'
 
-          echo 'latest_version="'${latest_version}'"' >> "$GITHUB_OUTPUT"
-          echo 'supported_versions=['${supported_versions_str}']' >> "$GITHUB_OUTPUT"
+          echo 'latest_version="'${latest_version}'"' | tee -a "$GITHUB_OUTPUT"
+          echo 'supported_versions=['${supported_versions_str}']' | tee -a "$GITHUB_OUTPUT"
