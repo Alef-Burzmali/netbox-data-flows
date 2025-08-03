@@ -2,13 +2,15 @@
 
 ## Supported Versions
 
-Only the latest released minor version is supported and will receive security patches.
+Only the latest released version of the plugin is supported and will receive security patches.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| 0.9.x   | :x:                |
-| < 0.9   | :x:                |
+| Version | Supported           |
+| ------- | ------------------- |
+| 1.2.x   | :white_check_mark:  |
+| 1.1.x   | :x:                 |
+| 1.0.x   | :x:                 |
+| 0.9.x   | :x:                 |
+| < 0.9   | :x:                 |
 
 
 ## Reporting a Vulnerability
