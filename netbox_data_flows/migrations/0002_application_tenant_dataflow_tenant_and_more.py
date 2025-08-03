@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("netbox_data_flows", "0001_initial_squashed_new_installations"),
-        ("tenancy", "0020_remove_contactgroupmembership"),
+        ("tenancy", "0017_natural_ordering"),
     ]
 
     operations = [

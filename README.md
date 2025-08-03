@@ -47,18 +47,16 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 | -------------- | ----------------------------- |
 | >= 4.3.0       | >= v1.1.1                     |
 | >= 4.2.0       | >= v1.1.0                     |
-| >= 4.1.0       | >= v1.0.4                     |
-| >= 4.0.0       | >= v0.9.0                     |
-| >= 3.7.0       | >= v0.8.0, < v0.9.0           |
-| >= 3.6.0       | >= v0.7.3, < v0.8.0           |
-|  < 3.6.0       | Not supported                 |
+| >= 4.1.0       | >= v1.0.4, < v1.2.0           |
+| >= 4.0.0       | >= v1.0.0, < v1.2.0           |
+|  < 4.0.0       | Not supported                 |
 
+The test suite is run on all patch versions of the current minor version of NetBox, but only on the latest patch versions of older minors.
 
 ### Dependencies
 
 * NetBox
 * Python 3.10 or higher
-
 
 ## Contributions
 

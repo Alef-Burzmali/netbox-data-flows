@@ -1,7 +1,7 @@
 from netbox.plugins import PluginConfig
 
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
 
 
 class DataFlowsConfig(PluginConfig):
@@ -15,7 +15,7 @@ class DataFlowsConfig(PluginConfig):
     default_settings = {
         "top_level_menu": True,
     }
-    min_version = "4.0.0"
+    min_version = "4.2.0"
     max_version = "4.3.99"
 
 
