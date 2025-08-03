@@ -21,6 +21,7 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 > [!CAUTION]
 > The test suite is run on all patch versions of the current minor version of NetBox, but only on the latest patch versions of older minors.
 
+
 > [!WARNING]
 > The plugin uses some classes that are not explicitely exported in
 NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is therefore not fully guaranteed.
