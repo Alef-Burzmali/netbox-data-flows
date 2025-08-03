@@ -47,6 +47,7 @@ class ObjectAliasSerializer(NetBoxModelSerializer):
             "prefixes",
             "ip_ranges",
             "ip_addresses",
+            "tags",
             "url",
         )
         brief_fields = (
