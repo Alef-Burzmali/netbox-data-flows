@@ -36,7 +36,7 @@ def get_model_buttons(model_name, actions=("add", "import")):
     if "import" in actions:
         buttons.append(
             PluginMenuButton(
-                link=f"plugins:{APP_LABEL}:{model_name}_import",
+                link=f"plugins:{APP_LABEL}:{model_name}_bulk_import",
                 title="Import",
                 icon_class="mdi mdi-upload",
                 permissions=[f"{APP_LABEL}.add_{model_name}"],
