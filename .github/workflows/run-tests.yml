@@ -17,15 +17,28 @@ permissions:
   contents: read
 
 jobs:
+  get-netbox-versions:
+    uses: ./.github/workflows/get-netbox-versions.yml
+
   run-test-matrix:
     name: Run tests
+    needs: get-netbox-versions
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.supported_versions) }}
+        python-version: ["3.12"]
         node-version: ["20.x"]
+        include:
+          - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
+            python-version: "3.11"
+            node-version: "20.x"
+          - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
+            python-version: "3.10"
+            node-version: "20.x"
+    continue-on-error: ${{ matrix.netbox-version != fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
     services:
       redis:
         image: redis
@@ -55,12 +68,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Checkout latest NetBox release
-        uses: actions/checkout@main
+      - name: Checkout NetBox release ${{ matrix.netbox-version }}
+        uses: actions/checkout@v4
         with:
           repository: "netbox-community/netbox"
           path: netbox
-          ref: main
+          ref: ${{ matrix.netbox-version }}
 
       - name: Install NetBox
         working-directory: netbox
@@ -95,6 +108,5 @@ jobs:
     name: All tests finished
     needs: run-test-matrix
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() }}
     steps:
       - run: echo ok
