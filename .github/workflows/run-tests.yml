@@ -92,9 +92,9 @@ jobs:
           python netbox/manage.py test --parallel auto netbox_data_flows
 
   run-tests:
-    name: All test finished
+    name: All tests finished
     needs: run-test-matrix
-    runs-on:  ubuntu-latest
+    runs-on: ubuntu-latest
     if: ${{ !cancelled() }}
     steps:
       - run: echo ok
