@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
+  run-test-matrix:
     name: Run tests
     runs-on: ubuntu-latest
     env:
@@ -90,3 +90,11 @@ jobs:
         working-directory: netbox
         run: |
           python netbox/manage.py test --parallel auto netbox_data_flows
+
+  run-tests:
+    name: All test finished
+    needs: run-test-matrix
+    runs-on:  ubuntu-latest
+    if: ${{ !cancelled() }}
+    steps:
+      - run: echo ok

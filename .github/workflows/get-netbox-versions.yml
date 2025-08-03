@@ -1,0 +1,125 @@
+name: Build the project
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  get-netbox-versions:
+    name: Get the NetBox versions supported by the plugin
+    runs-on: "ubuntu-latest"
+
+    outputs:
+      latest_version: ${{ steps.netbox-versions.outputs.latest_version }}
+      supported_version: ${{ steps.netbox-versions.outputs.supported_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: netbox-data-flows
+
+      - name: Checkout latest NetBox release
+        uses: actions/checkout@v4
+        with:
+          repository: "netbox-community/netbox"
+          path: netbox
+          ref: main
+
+      - id: netbox-versions
+        name: Extract supported NetBox versions
+        run: |
+          MIN_VERSION=v$(grep -F "min_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
+          MAX_VERSION=v$(grep -F "max_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
+
+          cd ./netbox
+
+          # join_by "', '"" a b c => a', 'b', 'c"
+          function join_by {
+            local d=${1-} f=${2-}
+            if shift 2; then
+              printf %s "$f" "${@/#/$d}"
+            fi
+          }
+
+          # get vMajor.Minor from vMajor.Minor.Patch
+          function get_minor() {
+            local version=${1}
+
+            echo "$version" | cut -d. -f1-2
+          }
+
+          # return true if both versions are the same minor level
+          function same_minor {
+            local v1=${1} v2=${2}
+
+            [ $(get_minor "$v1") == $(get_minor "$v2") ]
+          }
+
+          # check if a version is within [MIN_VERSION:MAX_VERSION]
+          function supported_range() {
+            local version=${1}
+
+            if [ "$version" == "$MIN_VERSION" ] || [ "$version" == "$MAX_VERSION" ]; then
+              return 0
+            fi
+
+            greater=$(echo -e "${version}\n${MAX_VERSION}" | sort -Vr | head -n 1)
+            smaller=$(echo -e "${version}\n${MIN_VERSION}" | sort -V | head -n 1)
+
+            if [ "$greater" == "$version" ]; then
+              return 1
+            fi
+
+            if [ "$smaller" == "$version" ]; then
+              return 2
+            fi
+
+            return 0
+          }
+
+          latest_version=""
+          declare -a supported_versions=()
+          loop_minor=""
+
+          for tag in $(git tag | \grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr); do
+            supported_range "$tag"
+            case $? in
+              1) continue ;;
+              2) break ;;
+            esac
+
+            # get the highest version within the supported range
+            if [ -z "$latest_version" ]; then
+              latest_version="$tag"
+              loop_minor="$tag"
+              supported_versions+=("$tag")
+              continue
+            fi
+
+            # get all the patch versions of the latest supported minor
+            if same_minor "$latest_version" "$tag"; then
+              supported_versions+=("$tag")
+              continue
+            fi
+
+            # get the highest patch of each supported minor
+            if ! same_minor "$loop_minor" "$tag"; then
+              loop_minor="$tag"
+              supported_versions+=("$tag")
+              continue
+            fi
+          done
+
+          if [ -z "$latest_version" ]; then
+            echo "No supported NetBox version within range ${MIN_VERSION} - ${MAX_VERSION}" >&1
+            exit 1
+          fi
+
+          supported_versions_str='"'$(join_by '", "' ${supported_versions[@]})'"'
+
+          echo 'latest_version="'${latest_version}'"' >> "$GITHUB_OUTPUT"
+          echo 'supported_versions=['${supported_versions_str}']' >> "$GITHUB_OUTPUT"
