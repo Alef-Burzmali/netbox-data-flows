@@ -16,6 +16,8 @@ from utilities.forms.rendering import FieldSet
 from dcim.models import Device
 from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, IPRange, Prefix
+from tenancy.forms import TenancyFilterForm, TenancyForm
+from tenancy.models import Tenant
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
@@ -36,7 +38,7 @@ __all__ = (
 #
 
 
-class DataFlowForm(NetBoxModelForm):
+class DataFlowForm(TenancyForm, NetBoxModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -81,6 +83,11 @@ class DataFlowForm(NetBoxModelForm):
             "tags",
         ),
         FieldSet(
+            "tenant_group",
+            "tenant",
+            name="Tenancy",
+        ),
+        FieldSet(
             "protocol",
             "source_ports",
             "destination_ports",
@@ -98,6 +105,7 @@ class DataFlowForm(NetBoxModelForm):
             "name",
             "description",
             "status",
+            "tenant",
             "comments",
             "tags",
             "protocol",
@@ -131,6 +139,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             "application_id": "$application",
         },
     )
+    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
     comments = CommentField()
 
     status = forms.ChoiceField(
@@ -167,6 +176,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
             "group",
             "description",
             "status",
+            "tenant",
         ),
         FieldSet(
             "protocol",
@@ -180,6 +190,7 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         "application",
         "group",
+        "tenant",
         "description",
         "comments",
         "protocol",
@@ -202,6 +213,12 @@ class DataFlowImportForm(NetBoxModelImportForm):
         required=False,
         help_text="Data flow group",
         to_field_name="slug",
+    )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+        to_field_name="name",
+        help_text="Assigned tenant",
     )
     status = CSVChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -243,6 +260,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
             "application",
             "group",
             "name",
+            "tenant",
             "description",
             "status",
             "protocol",
@@ -259,7 +277,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
 #
 
 
-class DataFlowFilterForm(NetBoxModelFilterSetForm):
+class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = models.DataFlow
 
     application_id = DynamicModelMultipleChoiceField(
@@ -403,6 +421,11 @@ class DataFlowFilterForm(NetBoxModelFilterSetForm):
             "application_role_id",
             "group_id",
             "recursive_group_id",
+        ),
+        FieldSet(
+            "tenant_group_id",
+            "tenant_id",
+            name="Tenancy",
         ),
         FieldSet(
             "status",

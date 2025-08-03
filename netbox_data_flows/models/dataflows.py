@@ -75,6 +75,9 @@ class DataFlow(NetBoxModel):
         blank=True,
         null=True,
     )
+    tenant = models.ForeignKey(
+        to="tenancy.Tenant", on_delete=models.PROTECT, related_name="dataflows", blank=True, null=True
+    )
     comments = models.TextField(blank=True)
 
     #
@@ -170,14 +173,15 @@ class DataFlow(NetBoxModel):
 
     clone_fields = (
         "application",
-        "group",
         "description",
-        "status",
+        "destination_ports",
+        "destinations",
+        "group",
         "protocol",
         "source_ports",
-        "destination_ports",
         "sources",
-        "destinations",
+        "status",
+        "tenant",
     )
 
     def __str__(self):

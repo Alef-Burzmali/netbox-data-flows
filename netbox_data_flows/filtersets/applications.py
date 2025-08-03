@@ -2,7 +2,7 @@ from django.db.models import Q
 
 from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 
-from tenancy.filtersets import ContactModelFilterSet
+from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 
 from netbox_data_flows import models
 
@@ -26,7 +26,7 @@ class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
         )
 
 
-class ApplicationFilterSet(ContactModelFilterSet, NetBoxModelFilterSet):
+class ApplicationFilterSet(ContactModelFilterSet, TenancyFilterSet, NetBoxModelFilterSet):
     role_id = ModelMultipleChoiceFilter(
         queryset=models.ApplicationRole.objects.all(),
         label="Application Role (ID)",

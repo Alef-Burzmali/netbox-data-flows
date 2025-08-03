@@ -43,6 +43,9 @@ class DataFlowGroup(NestedGroupModel):
         null=True,
         db_index=True,
     )
+    tenant = models.ForeignKey(
+        to="tenancy.Tenant", on_delete=models.PROTECT, related_name="dataflowgroups", blank=True, null=True
+    )
     comments = models.TextField(blank=True)
 
     #
@@ -97,6 +100,7 @@ class DataFlowGroup(NestedGroupModel):
         "application",
         "parent",
         "status",
+        "tenant",
     )
 
     def get_absolute_url(self):

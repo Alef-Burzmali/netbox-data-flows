@@ -49,12 +49,15 @@ class Application(ContactsMixin, NetBoxModel):
         null=True,
         help_text="The role of this application",
     )
+    tenant = models.ForeignKey(
+        to="tenancy.Tenant", on_delete=models.PROTECT, related_name="applications", blank=True, null=True
+    )
     comments = models.TextField(blank=True)
 
     class Meta:
         ordering = ("name",)
 
-    clone_fields = ("role",)
+    clone_fields = ("role", "tenant")
 
     def __str__(self):
         return self.name

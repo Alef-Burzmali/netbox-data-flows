@@ -2,13 +2,15 @@ import django_tables2 as tables
 
 from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
 
+from tenancy.tables import TenancyColumnsMixin
+
 from netbox_data_flows.models import DataFlowGroup
 
 
 __all__ = ("DataFlowGroupTable",)
 
 
-class DataFlowGroupTable(NetBoxTable):
+class DataFlowGroupTable(TenancyColumnsMixin, NetBoxTable):
     application = tables.Column(
         linkify=True,
     )
@@ -49,6 +51,8 @@ class DataFlowGroupTable(NetBoxTable):
             "application_role",
             "parent",
             "dataflow_count",
+            "tenant",
+            "tenant_group",
             "comments",
             "tags",
             "created",

@@ -3,6 +3,8 @@ from rest_framework import serializers
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 
+from tenancy.api.serializers import TenantSerializer
+
 from netbox_data_flows import choices, models
 
 from .applications import ApplicationSerializer
@@ -18,6 +20,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
 
     application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
     group = DataFlowGroupSerializer(nested=True, required=False, allow_null=True, default=None)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
     inherited_status = ChoiceField(
@@ -54,6 +57,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "destinations",
             "display",
             "group",
+            "tenant",
             "id",
             "inherited_status",
             "last_updated",
