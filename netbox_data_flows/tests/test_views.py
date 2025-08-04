@@ -1,3 +1,5 @@
+import urllib.parse
+
 from django.test import override_settings
 from django.urls import reverse
 
@@ -17,15 +19,20 @@ class PluginUrlBase:
         base = super()._get_base_url()
         return "plugins:" + base
 
-    def _get_url(self, action, instance=None, **kwargs):
+    def _get_url(self, action, instance=None, query=None, **kwargs):
         url_format = self._get_base_url()
 
-        # If no instance was provided, assume we don't need a unique identifier
-        if instance is None:
-            return reverse(url_format.format(action), **kwargs)
+        # FIXME: compatiblity with Django <5.2 (NetBox 4.2.x)
+        query_str = ""
+        if query:
+            query_str = "?" + urllib.parse.urlencode(query)
 
-        kwargs["pk"] = instance.pk
-        return reverse(url_format.format(action), kwargs=kwargs)
+        # If no instance was provided, assume we don't need a unique identifier
+        if instance is not None:
+            kwargs["pk"] = instance.pk
+
+        # FIXME: return reverse(url_format.format(action), query=query, kwargs=kwargs)
+        return reverse(url_format.format(action), kwargs=kwargs) + query_str
 
 
 class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase):
@@ -275,6 +282,37 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.post(**request), 302)
         instance = self._get_queryset().get(pk=instance.pk)
         self.assertInstanceEqual(instance, changelog_data)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
+    def test_clone_hyphen_ports(self):
+
+        # Assign unconstrained permission
+        obj_perm = ObjectPermission(name="Test permission", actions=["add"])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Try GET with model-level permission
+        # URL-encoded as destination_ports=1&destination_ports=2&...&source_ports=120&source_ports=121
+        url = self._get_url(
+            "add",
+            query=[
+                ("destination_ports", "1"),
+                ("destination_ports", "2"),
+                ("destination_ports", "3"),
+                ("destination_ports", "10"),
+                ("destination_ports", "20"),
+                ("destination_ports", "21"),
+                ("source_ports", "101"),
+                ("source_ports", "102"),
+                ("source_ports", "103"),
+                ("source_ports", "110"),
+                ("source_ports", "120"),
+                ("source_ports", "121"),
+            ],
+        )
+        self.assertHttpStatus(self.client.get(url), 200)
+        # POST is the same as edit
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
     def test_bulk_edit_hyphen_ports(self):
