@@ -19,10 +19,12 @@ permissions:
 jobs:
   get-netbox-versions:
     uses: ./.github/workflows/get-netbox-versions.yml
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
   run-test-matrix:
     name: Run tests
     needs: get-netbox-versions
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
@@ -107,6 +109,7 @@ jobs:
   run-tests:
     name: All tests finished
     needs: run-test-matrix
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     steps:
       - run: echo ok
