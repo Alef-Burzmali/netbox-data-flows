@@ -116,12 +116,6 @@ jobs:
               continue
             fi
 
-            # get all the patch versions of the latest supported minor
-            if same_minor "$latest_version" "$tag"; then
-              supported_versions+=("$tag")
-              continue
-            fi
-
             # get the highest patch of each supported minor
             if ! same_minor "$loop_minor" "$tag"; then
               loop_minor="$tag"
