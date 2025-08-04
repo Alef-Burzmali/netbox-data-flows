@@ -15,4 +15,9 @@ class NumericArrayField(NumericArrayField_):
         if isinstance(value, str):
             return value
 
+        try:
+            value = [int(v) for v in value]
+        except TypeError:
+            return ""
+
         return array_to_string(value)
