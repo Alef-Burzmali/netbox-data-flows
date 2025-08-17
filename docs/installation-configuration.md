@@ -18,9 +18,7 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 | >= 3.6.0       | >= v0.7.3, < v0.8.0           |
 |  < 3.6.0       | Not supported                 |
 
-> [!CAUTION]
-> The test suite is run on all patch versions of the current minor version of NetBox, but only on the latest patch versions of older minors.
-
+Only the latest version of the plugin is officially supported. The test suite is run on the latest patch version of the current version of NetBox, and the previous minor one (if no breaking compatibility change).
 
 > [!WARNING]
 > The plugin uses some classes that are not explicitely exported in
