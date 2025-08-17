@@ -13,6 +13,10 @@ In this tutorial, we want to document the data flows of two applications:
 * Acme Inc, a business application composed of a frontend, a backend and a database.
 * Zabbix, a support application that monitors our servers, our routers and our Acme Inc application.
 
+Here is what the dataflows of the Acme Inc. application look like.
+
+![Menu of the plugin](media/tuto-acme-dataflow-diagram.png)
+
 ## Basic example
 
 Let's start by documenting the two data flow below:
