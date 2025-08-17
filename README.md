@@ -51,7 +51,7 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 | >= 4.0.0       | >= v1.0.0, < v1.2.0           |
 |  < 4.0.0       | Not supported                 |
 
-The test suite is run on all patch versions of the current minor version of NetBox, but only on the latest patch versions of older minors.
+Only the latest version of the plugin is officially supported. The test suite is run on the latest patch version of the current version of NetBox, and the previous one (if no breaking compatibility change).
 
 ### Dependencies
 
