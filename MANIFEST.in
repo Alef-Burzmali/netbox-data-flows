@@ -1,6 +1,6 @@
 include *.md
 recursive-include netbox_data_flows/templates *.html
-recursive-include docs *.md *.png
+recursive-include docs *.md *.png *.drawio
 
 exclude .editorconfig .pre-commit-config.yaml
 exclude mkdocs.yml
