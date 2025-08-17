@@ -78,6 +78,7 @@ class DataFlowGroupTestCase(TestCase):
     def setUpTestData(cls):
         data = TestData()
         data.get_dataflowgroups()
+        cls.tags = data.get_tags()
 
     def test_q(self):
         params = {"q": "FOObar2"}
@@ -110,6 +111,17 @@ class DataFlowGroupTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+
+    def test_inherited_tags(self):
+        tags = self.tags
+        params = {"inherited_tag": [tags[1]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {"inherited_tag": [tags[2]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"inherited_tag": [tags[0], tags[3]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"inherited_tag": [tags[0], tags[5]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
     def test_parent(self):
         groups = self.queryset.all()[:3]
@@ -271,6 +283,7 @@ class DataFlowTestCase(TestCase):
     def setUpTestData(cls):
         data = TestData()
         data.get_dataflows()
+        cls.tags = data.get_tags()
 
     def test_q(self):
         params = {"q": "DATA FLOW 1"}
@@ -297,6 +310,19 @@ class DataFlowTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
         params = {"inherited_status": choices.DataFlowStatusChoices.STATUS_DISABLED}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_inherited_tags(self):
+        tags = self.tags
+        params = {"inherited_tag": [tags[1]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {"inherited_tag": [tags[2]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+        params = {"inherited_tag": [tags[0], tags[3]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"inherited_tag": [tags[0], tags[5]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {"inherited_tag": [tags[6]]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_application(self):
         applications = models.Application.objects.all()[:2]
