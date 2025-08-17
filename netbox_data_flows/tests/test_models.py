@@ -48,6 +48,7 @@ class DataFlowTestCase(TestCase):
     def setUpTestData(cls):
         data = TestData()
         cls.dataflows = data.get_dataflows()
+        cls.tags = data.get_tags()
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()
@@ -194,6 +195,21 @@ class DataFlowTestCase(TestCase):
             choices.DataFlowInheritedStatusChoices.STATUS_DISABLED,
         )
 
+    def test_inherited_tags(self):
+        dataflows = self.dataflows
+        tags = self.tags
+
+        self.assertEqual(set(dataflows[0].inherited_tags), set())
+        self.assertEqual(set(dataflows[1].inherited_tags), set(tags[6:7]))
+
+        self.assertEqual(len(dataflows[2].inherited_tags), 5)
+        self.assertEqual(set(dataflows[2].inherited_tags), set(tags[0:2]) | set(tags[3:6]))
+
+        for i in [3, 4, 5, 6]:
+            self.assertEqual(set(dataflows[i].inherited_tags), set(tags[0:2]))
+
+        self.assertEqual(set(dataflows[7].inherited_tags), set())
+
 
 class DataFlowGroupTestCase(TestCase):
     model = models.DataFlowGroup
@@ -201,7 +217,8 @@ class DataFlowGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_dataflowgroups()
+        cls.groups = data.get_dataflowgroups()
+        cls.tags = data.get_tags()
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()
@@ -214,7 +231,8 @@ class DataFlowGroupTestCase(TestCase):
         self.assertEqual(qs.count(), 5)
 
     def test_inherited_status(self):
-        groups = self.model.objects.all()
+        groups = self.groups
+
         self.assertEqual(
             groups[1].inherited_status,
             choices.DataFlowInheritedStatusChoices.STATUS_DISABLED,
@@ -235,3 +253,21 @@ class DataFlowGroupTestCase(TestCase):
             groups[7].inherited_status,
             choices.DataFlowInheritedStatusChoices.STATUS_DISABLED,
         )
+
+    def test_inherited_tags(self):
+        groups = self.groups
+        tags = self.tags
+
+        self.assertEqual(set(groups[0].inherited_tags), set(tags[0:2]))
+        self.assertEqual(set(groups[1].inherited_tags), set(tags[0:2]))
+
+        self.assertEqual(len(groups[2].inherited_tags), 3)
+        self.assertEqual(set(groups[2].inherited_tags), set(tags[0:2]) | set(tags[3:4]))
+
+        self.assertEqual(set(groups[3].inherited_tags), set(tags[0:3]))
+
+        for i in [4, 5, 6, 7]:
+            self.assertEqual(set(groups[i].inherited_tags), set(tags[0:2]))
+
+        self.assertEqual(set(groups[8].inherited_tags), set())
+        self.assertEqual(set(groups[9].inherited_tags), set())

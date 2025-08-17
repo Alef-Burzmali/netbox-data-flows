@@ -1,3 +1,5 @@
+from utilities.testing import create_tags
+
 from dcim import models as dcim
 from ipam import models as ipam
 from virtualization import models as virtualization
@@ -15,6 +17,14 @@ class TestData:
     _prefixes = None
     _ranges = None
     _ips = None
+
+    _tags = None
+
+    def get_tags(self):
+        if not self._tags:
+            self._tags = tuple(create_tags("tag0", "tag1", "tag2", "tag3", "tag4", "tag5", "tag6"))
+
+        return self._tags
 
     def get_applicationroles(self):
         if not self._applicationsroles:
@@ -60,102 +70,148 @@ class TestData:
     def get_dataflowgroups(self):
         if not self._dataflowgroups:
             apps = self.get_applications()
+            tags = self.get_tags()
 
             group1 = models.DataFlowGroup(
+                # pk = 0
                 application=None,
                 parent=None,
                 name="Group 1",
                 slug="group-1",
                 description="foobar1",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = enabled
+                # tags = [0,1]
+                # inherited tags = [0,1]
             )
             group11 = models.DataFlowGroup(
+                # pk = 1
                 application=apps[0],
                 parent=group1,
                 name="Group 1.1",
                 slug="group-1-1",
                 description="foobar11",
                 status=choices.DataFlowStatusChoices.STATUS_DISABLED,
+                # inherited status = disabled
+                # tags = [1]
+                # inherited tags = [0,1]
             )
             group111 = models.DataFlowGroup(
+                # pk = 2
                 application=apps[0],
                 parent=group11,
                 name="Group 1.1.1",
                 slug="group-1-1-1",
                 description="foobar111",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = disabled
+                # tags = [3]
+                # inherited tags = [0,1,3]
             )
             group112 = models.DataFlowGroup(
+                # pk = 3
                 application=apps[1],
                 parent=group11,
                 name="Group 1.1.2",
                 slug="group-1-1-2",
                 description="foobar112",
                 status=choices.DataFlowStatusChoices.STATUS_DISABLED,
+                # inherited status = disabled
+                # tags = [2]
+                # inherited tags = [0,1,2]
             )
             group113 = models.DataFlowGroup(
+                # pk = 4
                 application=apps[0],
                 parent=group11,
                 name="Group 1.1.3",
                 slug="group-1-1-3",
                 description="foobar113",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = disabled
+                # tags = []
+                # inherited tags = [0,1]
             )
             group12 = models.DataFlowGroup(
+                # pk = 5
                 application=apps[2],
                 parent=group1,
                 name="Group 1.2",
                 slug="group-1-2",
                 description="foobar12",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = enabled
+                # tags = []
+                # inherited tags = [0,1]
             )
             group121 = models.DataFlowGroup(
+                # pk = 6
                 application=None,
                 parent=group12,
                 name="Group 1.2.1",
                 slug="group-1-2-1",
                 description="foobar121",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = enabled
+                # tags = []
+                # inherited tags = [0,1]
             )
             group122 = models.DataFlowGroup(
+                # pk = 7
                 application=apps[3],
                 parent=group12,
                 name="Group 1.2.2",
                 slug="group-1-2-2",
                 description="foobar122",
                 status=choices.DataFlowStatusChoices.STATUS_DISABLED,
+                # inherited status = disabled
+                # tags = []
+                # inherited tags = [0,1]
             )
             group2 = models.DataFlowGroup(
+                # pk = 8
                 application=apps[4],
                 parent=None,
                 name="Group 2",
                 slug="group-2",
                 description="foobar2",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = enabled
+                # tags = []
+                # inherited tags = []
             )
             group3 = models.DataFlowGroup(
+                # pk = 9
                 application=None,
                 parent=None,
                 name="Group 3",
                 slug="group-3",
                 description="foobar3",
                 status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                # inherited status = enabled
+                # tags = []
+                # inherited tags = []
             )
 
             self._dataflowgroups = (
-                group1,
-                group11,
-                group111,
-                group112,
-                group113,
-                group12,
-                group121,
-                group122,
-                group2,
-                group3,
+                group1,  # pk = 0
+                group11,  # pk = 1
+                group111,  # pk = 2
+                group112,  # pk = 3
+                group113,  # pk = 4
+                group12,  # pk = 5
+                group121,  # pk = 6
+                group122,  # pk = 7
+                group2,  # pk = 8
+                group3,  # pk = 9
             )
             for obj in self._dataflowgroups:
                 obj.save()
+
+            group1.tags.set(tags[0:2])
+            group11.tags.set(tags[1:2])
+            group111.tags.set(tags[3:4])
+            group112.tags.set(tags[2:3])
 
         return self._dataflowgroups
 
@@ -360,6 +416,7 @@ class TestData:
             apps = self.get_applications()
             groups = self.get_dataflowgroups()
             aliases = self.get_objectaliases()
+            tags = self.get_tags()
 
             self._dataflows = []
             self._dataflows += [
@@ -372,8 +429,11 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
                     source_ports=None,
                     destination_ports=None,
+                    # inherited status = disabled
+                    # inherited tags = []
                 )
             ]
+
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 2",
@@ -384,8 +444,12 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
                     source_ports=None,
                     destination_ports=None,
+                    # inherited status = enabled
+                    # inherited tags = [6]
                 )
             ]
+            self._dataflows[-1].tags.set(tags[6:7])
+
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 3",
@@ -396,8 +460,11 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
                     source_ports=None,
                     destination_ports=[80],
+                    # inherited status = disabled
+                    # inherited tags = [0,1,3,4,5]
                 )
             ]
+            self._dataflows[-1].tags.set(tags[4:6])
             self._dataflows[-1].sources.set([aliases[0]])
             self._dataflows[-1].destinations.set([aliases[1]])
 
@@ -411,6 +478,8 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
                     source_ports=None,
                     destination_ports=[81, 82],
+                    # inherited status = enabled
+                    # inherited tags = [0,1]
                 )
             ]
             self._dataflows[-1].sources.set([aliases[0]])
@@ -429,6 +498,8 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_UDP,
                     source_ports=[55, 57],
                     destination_ports=[81, 82],
+                    # inherited status = disabled
+                    # inherited tags = [0,1]
                 )
             ]
             self._dataflows[-1].sources.set([aliases[1], aliases[2]])
@@ -444,6 +515,8 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP_UDP,
                     source_ports=None,
                     destination_ports=[100],
+                    # inherited status = enabled
+                    # inherited tags = [0,1]
                 )
             ]
             self._dataflows[-1].destinations.set([aliases[3], aliases[4]])
@@ -458,6 +531,8 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_SCTP,
                     source_ports=[200],
                     destination_ports=[200],
+                    # inherited status = enabled
+                    # inherited tags = [0,1]
                 )
             ]
             self._dataflows[-1].sources.set([aliases[4]])
@@ -472,6 +547,8 @@ class TestData:
                     protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
                     source_ports=[400],
                     destination_ports=[400],
+                    # inherited status = enabled
+                    # inherited tags = []
                 )
             ]
             self._dataflows[-1].sources.set([aliases[5]])

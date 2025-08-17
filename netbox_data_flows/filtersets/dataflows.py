@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
 from dcim.models import Device
@@ -16,6 +17,7 @@ from .filters import (
     MultipleChoiceFilter,
     MultiValueNumberFilter,
     MultiValueNumericArrayFilter,
+    TagIDFilter,
 )
 
 
@@ -130,6 +132,9 @@ class DataFlowFilterSet(
         method="filter_destinations",
     )
 
+    inherited_tag = TagFilter(method="filter_inherited_tags")
+    inherited_tag_id = TagIDFilter(method="filter_inherited_tags")
+
     class Meta:
         model = models.DataFlow
         fields = (
@@ -151,6 +156,16 @@ class DataFlowFilterSet(
             return queryset
 
         return queryset.part_of_group_recursive(*value)
+
+    def filter_inherited_tags(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        for tag in value:
+            groups = models.DataFlowGroup.objects.filter(tags=tag).get_descendants(include_self=True)
+            queryset = queryset.filter(Q(tags=tag) | Q(group__in=groups))
+
+        return queryset
 
     # OR(source_ports) AND OR(destination_ports)
     def filter_ports(self, queryset, field_name, value):

@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from extras.filters import TagFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
 from tenancy.filtersets import TenancyFilterSet
@@ -7,7 +8,7 @@ from tenancy.filtersets import TenancyFilterSet
 from netbox_data_flows import models
 
 from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
-from .filters import ModelMultipleChoiceFilter
+from .filters import ModelMultipleChoiceFilter, TagIDFilter
 
 
 __all__ = ("DataFlowGroupFilterSet",)
@@ -41,6 +42,9 @@ class DataFlowGroupFilterSet(
         method="filter_ancestors",
     )
 
+    inherited_tag = TagFilter(method="filter_inherited_tags")
+    inherited_tag_id = TagIDFilter(method="filter_inherited_tags")
+
     class Meta:
         model = models.DataFlowGroup
         fields = (
@@ -67,3 +71,14 @@ class DataFlowGroupFilterSet(
             models.DataFlowGroup.objects.filter(pk__in=ancestors).get_descendants(include_self=True).only("pk")
         )
         return queryset.filter(pk__in=descendants)
+
+    def filter_inherited_tags(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        # Perform a AND search - like regular tags
+        # based on conjoined queries
+        for tag in value:
+            queryset = queryset.filter(tags=tag).get_descendants(include_self=True)
+
+        return queryset

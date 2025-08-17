@@ -3,6 +3,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from extras.models import Tag
 from netbox.models import NestedGroupModel
 from utilities.mptt import TreeManager, TreeQuerySet
 
@@ -76,6 +77,13 @@ class DataFlowGroup(NestedGroupModel):
 
     def get_status_color(self):
         return DataFlowInheritedStatusChoices.colors.get(self.inherited_status)
+
+    @property
+    def inherited_tags(self):
+        if not self.pk:
+            return []
+
+        return Tag.objects.filter(dataflowgroup__in=self.get_ancestors(include_self=True)).distinct()
 
     class Meta:
         ordering = (

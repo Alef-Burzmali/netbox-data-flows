@@ -4,6 +4,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 
+from extras.models import Tag
 from netbox.models import NetBoxModel
 from utilities.data import array_to_string
 from utilities.querysets import RestrictedQuerySet
@@ -108,6 +109,18 @@ class DataFlow(NetBoxModel):
 
     def get_status_color(self):
         return DataFlowInheritedStatusChoices.colors.get(self.inherited_status)
+
+    @property
+    def inherited_tags(self):
+        if not self.pk:
+            return []
+
+        if not self.group:
+            return self.tags.all()
+
+        return Tag.objects.filter(
+            models.Q(dataflow=self.pk) | models.Q(dataflowgroup__in=self.group.get_ancestors(include_self=True))
+        ).distinct()
 
     #
     # Specification

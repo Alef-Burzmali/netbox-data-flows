@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
-from netbox.api.serializers import NetBoxModelSerializer
+from netbox.api.serializers import NestedTagSerializer, NetBoxModelSerializer
 
 from tenancy.api.serializers import TenantSerializer
 
@@ -45,6 +45,8 @@ class DataFlowSerializer(NetBoxModelSerializer):
         many=True,
     )
 
+    inherited_tags = NestedTagSerializer(many=True, required=False, read_only=True)
+
     class Meta:
         model = models.DataFlow
         fields = (
@@ -67,6 +69,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "sources",
             "status",
             "tags",
+            "inherited_tags",
             "url",
         )
         brief_fields = (
