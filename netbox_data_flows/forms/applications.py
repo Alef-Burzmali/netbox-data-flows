@@ -26,7 +26,7 @@ class ApplicationForm(TenancyForm, NetBoxModelForm):
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
-        selector=True,
+        quick_add=True,
     )
     comments = CommentField()
 
@@ -68,7 +68,6 @@ class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
-        selector=True,
     )
     tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
     comments = CommentField()
@@ -124,6 +123,11 @@ class ApplicationFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxMod
 
     role = forms.ModelMultipleChoiceField(queryset=ApplicationRole.objects.all(), required=False)
 
+    selector_fields = (
+        "filter_id",
+        "q",
+        "role",
+    )
     fieldsets = (
         FieldSet(
             "filter_id",  # Saved Filter

@@ -67,10 +67,12 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
     sources = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
+        selector=True,
     )
     destinations = DynamicModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
+        selector=True,
     )
 
     fieldsets = (
@@ -410,6 +412,7 @@ class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         help_text="Any IP address of the virtual machine",
     )
 
+    selector_fields = ("filter_id", "q", "application", "recursive_group_id")
     fieldsets = (
         FieldSet(
             "filter_id",  # Saved Filter
