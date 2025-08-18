@@ -81,19 +81,16 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
     prefixes = DynamicModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         required=False,
-        selector=True,
         label="Prefixes",
     )
     ip_ranges = DynamicModelMultipleChoiceField(
         queryset=IPRange.objects.all(),
         required=False,
-        selector=True,
         label="IP Ranges",
     )
     ip_addresses = DynamicModelMultipleChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
-        selector=True,
         label="IP Addresses",
     )
 

@@ -97,12 +97,10 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
-        selector=True,
     )
     parent = DynamicModelChoiceField(
         queryset=models.DataFlowGroup.objects.all(),
         required=False,
-        selector=True,
     )
     tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
     comments = CommentField()
@@ -202,6 +200,7 @@ class DataFlowGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
     )
 
+    selector_fields = ("filter_id", "q", "application", "ancestor_id")
     fieldsets = (
         FieldSet(
             "filter_id",  # Saved Filter
