@@ -160,15 +160,16 @@ class DataFlowGroupTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectVie
         }
 
     def test_delete_object_with_constrained_permission(self):
-        # Remove all parents to avoid deletion cascade that would
-        # fail the test
-
-        groups = models.DataFlowGroup.objects.all()
-        for obj in groups:
-            obj.parent = None
-            obj.save()
+        # Remove all parents to avoid deletion cascade that would fail the test
+        models.DataFlowGroup.objects.all().update(parent=None)
 
         super().test_delete_object_with_constrained_permission()
+
+    def test_bulk_delete_objects_with_permission(self):
+        # Remove all parents to avoid deletion cascade that would fail the test
+        models.DataFlowGroup.objects.all().update(parent=None)
+
+        super().test_bulk_delete_objects_with_permission()
 
 
 class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
