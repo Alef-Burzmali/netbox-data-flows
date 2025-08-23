@@ -17,6 +17,7 @@ __all__ = (
 )
 
 
+@register_model_view(models.DataFlowGroup, "list", path="", detail=False)
 class DataFlowGroupListView(generic.ObjectListView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
         "application",
@@ -75,6 +76,7 @@ class DataFlowGroupView(generic.ObjectView):
         }
 
 
+@register_model_view(models.DataFlowGroup, "add", detail=False)
 @register_model_view(models.DataFlowGroup, "edit")
 class DataFlowGroupEditView(generic.ObjectEditView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
@@ -90,12 +92,14 @@ class DataFlowGroupDeleteView(generic.ObjectDeleteView):
     queryset = models.DataFlowGroup.objects.all()
 
 
+@register_model_view(models.DataFlowGroup, "bulk_import", path="import", detail=False)
 class DataFlowGroupBulkImportView(generic.BulkImportView):
     queryset = models.DataFlowGroup.objects.all()
     model_form = forms.DataFlowGroupImportForm
     table = tables.DataFlowGroupTable
 
 
+@register_model_view(models.DataFlowGroup, "bulk_edit", path="edit", detail=False)
 class DataFlowGroupBulkEditView(generic.BulkEditView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
         "application",
@@ -109,6 +113,7 @@ class DataFlowGroupBulkEditView(generic.BulkEditView):
     form = forms.DataFlowGroupBulkEditForm
 
 
+@register_model_view(models.DataFlowGroup, "bulk_delete", path="delete", detail=False)
 class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = models.DataFlowGroup.objects.prefetch_related(
         "application",

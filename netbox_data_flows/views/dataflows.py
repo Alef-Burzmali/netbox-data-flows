@@ -18,6 +18,7 @@ __all__ = (
 )
 
 
+@register_model_view(models.DataFlow, "list", path="", detail=False)
 class DataFlowListView(generic.ObjectListView):
     queryset = models.DataFlow.objects.prefetch_related(
         "application",
@@ -99,6 +100,7 @@ class DataFlowTargetView(generic.ObjectView):
         }
 
 
+@register_model_view(models.DataFlow, "add", detail=False)
 @register_model_view(models.DataFlow, "edit")
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
@@ -110,12 +112,14 @@ class DataFlowDeleteView(generic.ObjectDeleteView):
     queryset = models.DataFlow.objects.all()
 
 
+@register_model_view(models.DataFlow, "bulk_import", path="import", detail=False)
 class DataFlowBulkImportView(generic.BulkImportView):
     queryset = models.DataFlow.objects.all()
     model_form = forms.DataFlowImportForm
     table = tables.DataFlowTable
 
 
+@register_model_view(models.DataFlow, "bulk_edit", path="edit", detail=False)
 class DataFlowBulkEditView(generic.BulkEditView):
     queryset = models.DataFlow.objects.all()
     filterset = filtersets.DataFlowFilterSet
@@ -123,6 +127,7 @@ class DataFlowBulkEditView(generic.BulkEditView):
     form = forms.DataFlowBulkEditForm
 
 
+@register_model_view(models.DataFlow, "bulk_delete", path="delete", detail=False)
 class DataFlowBulkDeleteView(generic.BulkDeleteView):
     queryset = models.DataFlow.objects.all()
     filterset = filtersets.DataFlowFilterSet
