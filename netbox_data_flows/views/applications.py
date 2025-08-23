@@ -24,6 +24,7 @@ __all__ = (
 )
 
 
+@register_model_view(models.Application, "list", path="", detail=False)
 class ApplicationListView(generic.ObjectListView):
     queryset = (
         models.Application.objects.prefetch_related("role")
@@ -70,6 +71,7 @@ class ApplicationView(generic.ObjectView):
         }
 
 
+@register_model_view(models.Application, "add", detail=False)
 @register_model_view(models.Application, "edit")
 class ApplicationEditView(generic.ObjectEditView):
     queryset = models.Application.objects.prefetch_related("role")
@@ -81,12 +83,14 @@ class ApplicationDeleteView(generic.ObjectDeleteView):
     queryset = models.Application.objects.all()
 
 
+@register_model_view(models.Application, "bulk_import", path="import", detail=False)
 class ApplicationBulkImportView(generic.BulkImportView):
     queryset = models.Application.objects.all()
     model_form = forms.ApplicationImportForm
     table = tables.ApplicationTable
 
 
+@register_model_view(models.Application, "bulk_edit", path="edit", detail=False)
 class ApplicationBulkEditView(generic.BulkEditView):
     queryset = models.Application.objects.prefetch_related("role").annotate(
         dataflow_count=Count("dataflows", distinct=True),
@@ -96,6 +100,7 @@ class ApplicationBulkEditView(generic.BulkEditView):
     form = forms.ApplicationBulkEditForm
 
 
+@register_model_view(models.Application, "bulk_delete", path="delete", detail=False)
 class ApplicationBulkDeleteView(generic.BulkDeleteView):
     queryset = models.Application.objects.prefetch_related("role").annotate(
         dataflow_count=Count("dataflows", distinct=True),

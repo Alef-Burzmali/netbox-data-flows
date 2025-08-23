@@ -17,6 +17,7 @@ __all__ = (
 )
 
 
+@register_model_view(models.ApplicationRole, "list", path="", detail=False)
 class ApplicationRoleListView(generic.ObjectListView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),
@@ -42,6 +43,7 @@ class ApplicationRoleView(generic.ObjectView):
         }
 
 
+@register_model_view(models.ApplicationRole, "add", detail=False)
 @register_model_view(models.ApplicationRole, "edit")
 class ApplicationRoleEditView(generic.ObjectEditView):
     queryset = models.ApplicationRole.objects.all()
@@ -53,12 +55,14 @@ class ApplicationRoleDeleteView(generic.ObjectDeleteView):
     queryset = models.ApplicationRole.objects.all()
 
 
+@register_model_view(models.ApplicationRole, "bulk_import", path="import", detail=False)
 class ApplicationRoleBulkImportView(generic.BulkImportView):
     queryset = models.ApplicationRole.objects.all()
     model_form = forms.ApplicationRoleImportForm
     table = tables.ApplicationRoleTable
 
 
+@register_model_view(models.ApplicationRole, "bulk_edit", path="edit", detail=False)
 class ApplicationRoleBulkEditView(generic.BulkEditView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),
@@ -68,6 +72,7 @@ class ApplicationRoleBulkEditView(generic.BulkEditView):
     form = forms.ApplicationRoleBulkEditForm
 
 
+@register_model_view(models.ApplicationRole, "bulk_delete", path="delete", detail=False)
 class ApplicationRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = models.ApplicationRole.objects.annotate(
         application_count=Count("applications", distinct=True),

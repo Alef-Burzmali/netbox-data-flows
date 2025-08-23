@@ -19,6 +19,7 @@ __all__ = (
 )
 
 
+@register_model_view(models.ObjectAlias, "list", path="", detail=False)
 class ObjectAliasListView(generic.ObjectListView):
     queryset = models.ObjectAlias.objects.annotate(
         prefix_count=Count("prefixes", distinct=True),
@@ -59,6 +60,7 @@ class ObjectAliasView(generic.ObjectView):
         }
 
 
+@register_model_view(models.ObjectAlias, "add", detail=False)
 @register_model_view(models.ObjectAlias, "edit")
 class ObjectAliasEditView(generic.ObjectEditView):
     queryset = models.ObjectAlias.objects.all()
@@ -70,12 +72,14 @@ class ObjectAliasDeleteView(generic.ObjectDeleteView):
     queryset = models.ObjectAlias.objects.all()
 
 
+@register_model_view(models.ObjectAlias, "bulk_import", path="import", detail=False)
 class ObjectAliasBulkImportView(generic.BulkImportView):
     queryset = models.ObjectAlias.objects.all()
     model_form = forms.ObjectAliasImportForm
     table = tables.ObjectAliasTable
 
 
+@register_model_view(models.ObjectAlias, "bulk_edit", path="edit", detail=False)
 class ObjectAliasBulkEditView(generic.BulkEditView):
     queryset = models.ObjectAlias.objects.annotate(
         prefix_count=Count("prefixes", distinct=True),
@@ -87,6 +91,7 @@ class ObjectAliasBulkEditView(generic.BulkEditView):
     form = forms.ObjectAliasBulkEditForm
 
 
+@register_model_view(models.ObjectAlias, "bulk_delete", path="delete", detail=False)
 class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
     queryset = models.ObjectAlias.objects.annotate(
         prefix_count=Count("prefixes", distinct=True),
