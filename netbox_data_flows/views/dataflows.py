@@ -105,6 +105,7 @@ class DataFlowTargetView(generic.ObjectView):
 class DataFlowEditView(generic.ObjectEditView):
     queryset = models.DataFlow.objects.all()
     form = forms.DataFlowForm
+    template_name = "netbox_data_flows/dataflow_edit.html"
 
 
 @register_model_view(models.DataFlow, "delete")

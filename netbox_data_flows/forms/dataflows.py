@@ -11,18 +11,18 @@ from utilities.forms.fields import (
     DynamicModelMultipleChoiceField,
     TagFilterField,
 )
-from utilities.forms.rendering import FieldSet
+from utilities.forms.rendering import FieldSet, TabbedGroups
 
 from dcim.models import Device
-from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
 from ipam.models import IPAddress, IPRange, Prefix
 from tenancy.forms import TenancyFilterForm, TenancyForm
 from tenancy.models import Tenant
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
+from netbox_data_flows.constants import DATAFLOW_PORT_MAX, DATAFLOW_PORT_MIN
 
-from .fields import NumericArrayField
+from .fields import IcmpTypeChoiceField, NumericArrayField, PlaceholderModelMultipleChoiceField
 
 
 __all__ = (
@@ -36,6 +36,17 @@ __all__ = (
 #
 # Object forms
 #
+
+
+def _port_selection():
+    """Hack to force a deterministic ID for the tabs."""
+    group = TabbedGroups(
+        FieldSet("source_ports", "destination_ports", name="Ports"),
+        FieldSet("icmpv4_types", name="ICMPv4 types"),
+        FieldSet("icmpv6_types", name="ICMPv6 types"),
+    )
+    group.id = "port_selection"
+    return group
 
 
 class DataFlowForm(TenancyForm, NetBoxModelForm):
@@ -53,26 +64,49 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
     )
 
     comments = CommentField()
+
+    sources = PlaceholderModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        placeholder="Any",
+    )
+    destinations = PlaceholderModelMultipleChoiceField(
+        queryset=models.ObjectAlias.objects.all(),
+        required=False,
+        placeholder="Any",
+    )
+
+    protocol = forms.ChoiceField(
+        choices=choices.DataFlowProtocolChoices,
+        label="Protocol",
+        required=True,
+    )
+
     source_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
     destination_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
         help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
         required=False,
     )
 
-    sources = DynamicModelMultipleChoiceField(
-        queryset=models.ObjectAlias.objects.all(),
+    # replaces the destination ports
+    icmpv4_types = IcmpTypeChoiceField(
+        choices=choices.ICMPv4TypeChoices,
+        label="ICMPv4 Types",
+        help_text="One or more ICMPv4 types. Leave empty for any.",
         required=False,
-        selector=True,
+        placeholder="Any",
     )
-    destinations = DynamicModelMultipleChoiceField(
-        queryset=models.ObjectAlias.objects.all(),
+    icmpv6_types = IcmpTypeChoiceField(
+        choices=choices.ICMPv6TypeChoices,
+        label="ICMPv6 Types",
+        help_text="One or more ICMPv6 types. Leave empty for any.",
         required=False,
-        selector=True,
+        placeholder="Any",
     )
 
     fieldsets = (
@@ -90,11 +124,10 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
             name="Tenancy",
         ),
         FieldSet(
-            "protocol",
-            "source_ports",
-            "destination_ports",
             "sources",
             "destinations",
+            "protocol",
+            _port_selection(),
             name="Specifications",
         ),
     )
@@ -113,12 +146,50 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
             "protocol",
             "source_ports",
             "destination_ports",
+            "icmpv4_types",
+            "icmpv6_types",
             "sources",
             "destinations",
         )
         help_texts = {
             "status": "Status of the data group. If its group is disabled, the data flow will also be disabled."
         }
+
+    def __init__(self, instance=None, initial=None, *args, **kwargs):
+        if instance:
+            if not initial:
+                initial = dict()
+
+            if instance.protocol == choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4:
+                initial["icmpv4_types"] = instance.destination_ports or []
+            elif instance.protocol == choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6:
+                initial["icmpv6_types"] = instance.destination_ports or []
+
+        super().__init__(instance=instance, initial=initial, *args, **kwargs)
+
+    def clean(self):
+        # Save ICMPv4 and ICMPv6 types as destination ports
+
+        cleaned_data = super().clean()
+        if not cleaned_data:
+            cleaned_data = self.cleaned_data
+
+        protocol = cleaned_data.get("protocol")
+        cleaned_data = cleaned_data.copy()
+
+        if protocol == choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4:
+            source_ports = []
+            destination_ports = cleaned_data.get("icmpv4_types")
+        elif protocol == choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6:
+            source_ports = []
+            destination_ports = cleaned_data.get("icmpv6_types")
+        else:
+            source_ports = cleaned_data.get("source_ports")
+            destination_ports = cleaned_data.get("destination_ports")
+
+        cleaned_data["source_ports"] = source_ports
+        cleaned_data["destination_ports"] = destination_ports
+        return cleaned_data
 
 
 #
@@ -153,13 +224,19 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
     )
     source_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
+        help_text=(
+            "Comma-separated list of one or more port numbers (leave empty for ICMP types). "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
     destination_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
+        help_text=(
+            "Comma-separated list of one or more port numbers or ICMP type numerical values. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
 
@@ -233,13 +310,19 @@ class DataFlowImportForm(NetBoxModelImportForm):
         help_text="Protocol",
     )
     source_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
+        help_text=(
+            "Comma-separated list of one or more port numbers (leave empty for ICMP types). "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
     destination_ports = NumericArrayField(
-        base_field=forms.IntegerField(min_value=SERVICE_PORT_MIN, max_value=SERVICE_PORT_MAX),
-        help_text="Comma-separated list of one or more port numbers. A range may be specified using a hyphen.",
+        base_field=forms.IntegerField(min_value=DATAFLOW_PORT_MIN, max_value=DATAFLOW_PORT_MAX),
+        help_text=(
+            "Comma-separated list of one or more port numbers or ICMP type numerical values. "
+            "A range may be specified using a hyphen."
+        ),
         required=False,
     )
 
@@ -324,14 +407,14 @@ class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
     )
     source_ports = forms.IntegerField(
-        min_value=SERVICE_PORT_MIN,
-        max_value=SERVICE_PORT_MAX,
+        min_value=DATAFLOW_PORT_MIN,
+        max_value=DATAFLOW_PORT_MAX,
         required=False,
         help_text="Use the API or repeat the URL parameter to select several",
     )
     destination_ports = forms.IntegerField(
-        min_value=SERVICE_PORT_MIN,
-        max_value=SERVICE_PORT_MAX,
+        min_value=DATAFLOW_PORT_MIN,
+        max_value=DATAFLOW_PORT_MAX,
         required=False,
         help_text="Use the API or repeat the URL parameter to select several",
     )
