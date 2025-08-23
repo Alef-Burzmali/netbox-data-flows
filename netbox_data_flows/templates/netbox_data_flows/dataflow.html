@@ -61,6 +61,12 @@
             <th scope="row">{% trans "Protocol" %}</th>
             <td>{{ object.get_protocol_display|placeholder }}</td>
           </tr>
+          {% if object.is_icmp %}
+          <tr>
+            <th scope="row">{% trans "ICMP types" %}</th>
+            <td>{{ object.destination_port_list|placeholder }}</td>
+          </tr>
+          {% else %}
           <tr>
             <th scope="row">{% trans "Source ports" %}</th>
             <td>{{ object.source_port_list|placeholder }}</td>
@@ -69,6 +75,7 @@
             <th scope="row">{% trans "Destination ports" %}</th>
             <td>{{ object.destination_port_list|placeholder }}</td>
           </tr>
+          {% endif %}
           {% for o in sources %}
             <tr>
               {% if forloop.first %}

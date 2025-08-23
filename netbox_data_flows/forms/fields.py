@@ -1,3 +1,5 @@
+from django import forms
+
 from utilities.data import array_to_string
 from utilities.forms.fields import NumericArrayField as NumericArrayField_
 
@@ -21,3 +23,15 @@ class NumericArrayField(NumericArrayField_):
             return ""
 
         return array_to_string(value)
+
+
+class IcmpTypeChoiceField(forms.TypedMultipleChoiceField):
+    """MultipleChoiceField with coercion to int and "Any" as placeholder."""
+
+    def __init__(self, *args, placeholder=None, **kwargs):
+        kwargs["coerce"] = int
+
+        super().__init__(*args, **kwargs)
+
+        if placeholder is not None:
+            self.widget.attrs["placeholder"] = placeholder
