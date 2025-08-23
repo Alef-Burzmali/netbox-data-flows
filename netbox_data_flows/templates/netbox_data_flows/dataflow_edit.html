@@ -1,0 +1,48 @@
+{% extends 'generic/object_edit.html' %}
+
+{% block javascript %}
+<script type="module">
+  // toggle port selection tabs based on selected protocol
+  document.addEventListener("DOMContentLoaded", function (event) {
+      const protocol = document.querySelector("#id_protocol")
+      const icmpv4_btn = document.querySelector('#port_selection_2_tab');
+      const icmpv4_tab = document.querySelector('#port_selection_2');
+      const icmpv6_btn = document.querySelector('#port_selection_3_tab');
+      const icmpv6_tab = document.querySelector('#port_selection_3');
+      const other_btn = document.querySelector('#port_selection_1_tab');
+      const other_tab = document.querySelector('#port_selection_1');
+
+      function enable(btn, tab) {
+        btn.setAttribute("aria-selected", "true");
+        btn.setAttribute("class", "nav-link active");
+        tab.setAttribute("class", "tab-pane active show");
+      }
+
+      function disable(btn, tab) {
+        btn.setAttribute("aria-selected", "false");
+        btn.setAttribute("class", "nav-link");
+        tab.setAttribute("class", "tab-pane");
+      }
+
+      function updateTab(event) {
+          const newValue = protocol.value;
+          if (newValue == "icmp") {
+            enable(icmpv4_btn, icmpv4_tab);
+            disable(icmpv6_btn, icmpv6_tab);
+            disable(other_btn, other_tab);
+          } else if (newValue == "icmpv6") {
+            disable(icmpv4_btn, icmpv4_tab);
+            enable(icmpv6_btn, icmpv6_tab);
+            disable(other_btn, other_tab);
+          } else {
+            disable(icmpv4_btn, icmpv4_tab);
+            disable(icmpv6_btn, icmpv6_tab);
+            enable(other_btn, other_tab);
+          }
+      }
+
+      protocol.addEventListener('change', updateTab);
+      updateTab(null);
+  })
+</script>
+{% endblock %}

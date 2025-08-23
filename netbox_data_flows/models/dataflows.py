@@ -9,9 +9,8 @@ from netbox.models import NetBoxModel
 from utilities.data import array_to_string
 from utilities.querysets import RestrictedQuerySet
 
-from ipam.constants import SERVICE_PORT_MAX, SERVICE_PORT_MIN
-
-from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowProtocolChoices, DataFlowStatusChoices
+from netbox_data_flows import choices
+from netbox_data_flows.constants import DATAFLOW_PORT_MAX, DATAFLOW_PORT_MIN
 
 from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
@@ -24,12 +23,12 @@ class DataFlowQuerySet(RestrictedQuerySet):
     def only_disabled(self):
         disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
         return self.filter(
-            models.Q(status=DataFlowStatusChoices.STATUS_DISABLED) | models.Q(group_id__in=disabled_groups)
+            models.Q(status=choices.DataFlowStatusChoices.STATUS_DISABLED) | models.Q(group_id__in=disabled_groups)
         )
 
     def only_enabled(self):
         disabled_groups = DataFlowGroup.objects.only_disabled().only("pk")
-        return self.filter(status=DataFlowStatusChoices.STATUS_ENABLED).exclude(group_id__in=disabled_groups)
+        return self.filter(status=choices.DataFlowStatusChoices.STATUS_ENABLED).exclude(group_id__in=disabled_groups)
 
     def part_of_group_recursive(self, *dataflowgroups, include_direct_children=True):
         group_ids = [getattr(dfg, "pk", dfg) for dfg in dataflowgroups]
@@ -87,28 +86,28 @@ class DataFlow(NetBoxModel):
 
     status = models.CharField(
         max_length=10,
-        choices=DataFlowStatusChoices,
-        default=DataFlowStatusChoices.STATUS_ENABLED,
+        choices=choices.DataFlowStatusChoices,
+        default=choices.DataFlowStatusChoices.STATUS_ENABLED,
     )
 
     @cached_property
     def inherited_status(self):
-        if self.status == DataFlowStatusChoices.STATUS_DISABLED:
+        if self.status == choices.DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
-        elif self.group and self.group.inherited_status != DataFlowInheritedStatusChoices.STATUS_ENABLED:
-            return DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
+        elif self.group and self.group.inherited_status != choices.DataFlowInheritedStatusChoices.STATUS_ENABLED:
+            return choices.DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
         else:
             return self.status
 
     @property
     def inherited_status_display(self):
-        if self.inherited_status == DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED:
-            return DataFlowInheritedStatusChoices.CHOICES[2][1]
+        if self.inherited_status == choices.DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED:
+            return choices.DataFlowInheritedStatusChoices.CHOICES[2][1]
 
         return self.get_status_display()
 
     def get_status_color(self):
-        return DataFlowInheritedStatusChoices.colors.get(self.inherited_status)
+        return choices.DataFlowInheritedStatusChoices.colors.get(self.inherited_status)
 
     @property
     def inherited_tags(self):
@@ -128,7 +127,7 @@ class DataFlow(NetBoxModel):
 
     protocol = models.CharField(
         max_length=10,
-        choices=DataFlowProtocolChoices,
+        choices=choices.DataFlowProtocolChoices,
     )
     sources = models.ManyToManyField(
         to="ObjectAlias",
@@ -143,8 +142,8 @@ class DataFlow(NetBoxModel):
     source_ports = ArrayField(
         base_field=models.PositiveIntegerField(
             validators=[
-                MinValueValidator(SERVICE_PORT_MIN),
-                MaxValueValidator(SERVICE_PORT_MAX),
+                MinValueValidator(DATAFLOW_PORT_MIN),
+                MaxValueValidator(DATAFLOW_PORT_MAX),
             ]
         ),
         blank=True,
@@ -153,13 +152,20 @@ class DataFlow(NetBoxModel):
     destination_ports = ArrayField(
         base_field=models.PositiveIntegerField(
             validators=[
-                MinValueValidator(SERVICE_PORT_MIN),
-                MaxValueValidator(SERVICE_PORT_MAX),
+                MinValueValidator(DATAFLOW_PORT_MIN),
+                MaxValueValidator(DATAFLOW_PORT_MAX),
             ]
         ),
         blank=True,
         null=True,
     )
+
+    @property
+    def is_icmp(self):
+        return self.protocol in (
+            choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
+            choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6,
+        )
 
     @property
     def source_port_list(self):
@@ -173,7 +179,29 @@ class DataFlow(NetBoxModel):
         if not self.destination_ports:
             return "Any"
 
+        if self.is_icmp:
+            return self.icmp_type_list
+
         return array_to_string(self.destination_ports)
+
+    @property
+    def icmp_type_list(self):
+        if not self.destination_ports:
+            return "Any"
+
+        if self.protocol == choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4:
+            verbose_names = dict(choices.ICMPv4TypeChoices.CHOICES)
+        else:
+            verbose_names = dict(choices.ICMPv6TypeChoices.CHOICES)
+
+        ret = []
+        for icmp_type in self.destination_ports:
+            try:
+                ret += [verbose_names[icmp_type]]
+            except KeyError:
+                ret += f"Type {icmp_type}"
+
+        return ", ".join(ret)
 
     class Meta:
         ordering = (
@@ -202,3 +230,12 @@ class DataFlow(NetBoxModel):
 
     def get_absolute_url(self):
         return reverse("plugins:netbox_data_flows:dataflow", args=[self.pk])
+
+    def clean(self, *args, **kwargs):
+        if self.protocol in (
+            choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
+            choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6,
+        ):
+            self.source_ports = []
+
+        return super().clean(*args, **kwargs)
