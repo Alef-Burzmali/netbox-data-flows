@@ -22,7 +22,7 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
 
-from .fields import IcmpTypeChoiceField, NumericArrayField
+from .fields import IcmpTypeChoiceField, NumericArrayField, PlaceholderModelMultipleChoiceField
 
 
 __all__ = (
@@ -65,13 +65,15 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
 
     comments = CommentField()
 
-    sources = DynamicModelMultipleChoiceField(
+    sources = PlaceholderModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
+        placeholder="Any",
     )
-    destinations = DynamicModelMultipleChoiceField(
+    destinations = PlaceholderModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
         required=False,
+        placeholder="Any",
     )
 
     protocol = forms.ChoiceField(
