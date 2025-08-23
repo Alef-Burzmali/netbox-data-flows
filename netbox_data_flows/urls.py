@@ -137,11 +137,6 @@ urlpatterns += (
         "dataflows/<int:pk>/",
         include(get_model_urls("netbox_data_flows", "dataflow")),
     ),
-    path(
-        "dataflows/rules/",
-        views.DataFlowRuleListView.as_view(),
-        name="dataflow_rules",
-    ),
 )
 
 # Object Aliases
