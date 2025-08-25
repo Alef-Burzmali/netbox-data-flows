@@ -412,7 +412,7 @@ class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         help_text="Any IP address of the virtual machine",
     )
 
-    selector_fields = ("filter_id", "q", "application", "recursive_group_id")
+    selector_fields = ("filter_id", "q", "application_id", "recursive_group_id")
     fieldsets = (
         FieldSet(
             "filter_id",  # Saved Filter
