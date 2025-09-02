@@ -11,6 +11,7 @@ except ImportError:
     from tenancy.views import ObjectContactsView
 
 from netbox_data_flows import filtersets, forms, models, tables
+from netbox_data_flows.utils.views import GetRelatedCustomFieldModelsMixin
 
 
 __all__ = (
@@ -39,10 +40,13 @@ class ApplicationListView(generic.ObjectListView):
 
 
 @register_model_view(models.Application)
-class ApplicationView(generic.ObjectView):
+class ApplicationView(GetRelatedCustomFieldModelsMixin, generic.ObjectView):
     queryset = models.Application.objects.prefetch_related("role", "contacts", "dataflows", "dataflow_groups")
+    custom_field_setting = "application_custom_field"
 
     def get_extra_context(self, request, instance):
+        related_models = self.get_related_models(request, instance)
+
         dataflowgroups_table = tables.DataFlowGroupTable(
             instance.dataflow_groups.prefetch_related(
                 "application",
@@ -66,6 +70,7 @@ class ApplicationView(generic.ObjectView):
         dataflows_table.configure(request)
 
         return {
+            "related_models": related_models,
             "dataflowgroups_table": dataflowgroups_table,
             "dataflows_table": dataflows_table,
         }

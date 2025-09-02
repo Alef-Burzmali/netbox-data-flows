@@ -14,6 +14,7 @@ class DataFlowsConfig(PluginConfig):
     required_settings = []
     default_settings = {
         "top_level_menu": True,
+        "application_custom_field": None,
     }
     min_version = "4.2.0"
     max_version = "4.4.99"
