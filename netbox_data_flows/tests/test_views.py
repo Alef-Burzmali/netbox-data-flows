@@ -191,7 +191,7 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
             "application": apps[0].pk,
             "group": groups[0].pk,
             "status": choices.DataFlowStatusChoices.STATUS_ENABLED,
-            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
+            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_TCP,
             "source_ports": "81,82,83",
             "destination_ports": "181,182,183",
             "sources": [a.pk for a in aliases[0:2]],
@@ -204,7 +204,8 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
         disabled = choices.DataFlowStatusChoices.STATUS_ENABLED
 
         proto_any = choices.DataFlowProtocolChoices.PROTOCOL_ANY
-        proto_icmp = choices.DataFlowProtocolChoices.PROTOCOL_ICMP
+        proto_icmp4 = choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4
+        proto_icmp6 = choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6
         proto_tcp = choices.DataFlowProtocolChoices.PROTOCOL_TCP
         proto_udp = choices.DataFlowProtocolChoices.PROTOCOL_UDP
         proto_tcp_udp = choices.DataFlowProtocolChoices.PROTOCOL_TCP_UDP
@@ -215,17 +216,12 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
                 "name,description,application,group,status,protocol,"
                 "source_ports,destination_ports,sources,destinations,comments"
             ),
-            (f"DF 7,Desc 7,{apps[0].name},{groups[0].slug},{enabled},{proto_any},,,,,Comments 7"),
-            (f"DF 8,Desc 8,{apps[1].name},,{disabled},{proto_icmp},,,,,Comments 8"),
-            (
-                f"DF 9,Desc 9,,{groups[2].slug},{enabled},{proto_tcp},"
-                f'"10,20","50-60",{aliases[0].name},{aliases[1].name},'
-            ),
-            (
-                f"DF 11,Desc 10,{apps[1].name},,{disabled},{proto_udp},"
-                f',443,"{aliases[0].name},{aliases[1].name}",,Comments'
-            ),
-            (f'DF 11,Desc 11,,,{enabled},{proto_tcp_udp},,443,,"{aliases[2].name},{aliases[3].name}",Comments'),
+            f"DF 7,Desc 7,{apps[0].name},{groups[0].slug},{enabled},{proto_any},,,,,Comments 7",
+            f"DF 8,Desc 8,{apps[1].name},,{disabled},{proto_icmp4},,,,,Comments 8",
+            f'DF 9,,,{groups[2].slug},{enabled},{proto_tcp},"10,20","50-60",{aliases[0].name},{aliases[1].name},',
+            f'DF 11,Yes,{apps[1].name},,{disabled},{proto_udp},,443,"{aliases[0].name},{aliases[1].name}",,Com',
+            f'DF 11,Desc 11,,,{enabled},{proto_tcp_udp},,443,,"{aliases[2].name},{aliases[3].name}",Comments',
+            f'DF 12,ICMPv6,,,{enabled},{proto_icmp6},,129,,"{aliases[2].name}",Comments',
         )
 
         cls.csv_update_data = (
@@ -250,7 +246,7 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
             "application": apps[0].pk,
             "group": groups[0].pk,
             "status": choices.DataFlowStatusChoices.STATUS_DISABLED,
-            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_TCP,
+            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_TCP_UDP,
             "source_ports": "66,666,1666",
             "destination_ports": "33,333,334,335,1333",
             "sources": [a.pk for a in aliases[5:7]],
@@ -344,6 +340,139 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
         self.assertHttpStatus(self.client.post(self._get_url("bulk_edit"), data), 302)
         for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
             self.assertInstanceEqual(instance, changelog_data)
+
+
+class ICMPDataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
+    model = models.DataFlow
+
+    def assertInstanceEqual(self, instance, data, *args, **kwargs):
+        """Transform ports for ICMP dataflows."""
+        if "source_ports" in data:
+            data["source_ports"] = ""
+        if "icmpv4_types" in data:
+            data["destination_ports"] = ",".join(str(t) for t in data["icmpv4_types"])
+            data["icmpv4_types"] = ""
+        if "icmpv6_types" in data:
+            data["destination_ports"] = ",".join(str(t) for t in data["icmpv6_types"])
+            data["icmpv6_types"] = ""
+        return super().assertInstanceEqual(instance, data, *args, **kwargs)
+
+    @classmethod
+    def setUpTestData(cls):
+        data = TestData()
+        apps = data.get_applications()
+        groups = data.get_dataflowgroups()
+        aliases = data.get_objectaliases()
+        dataflows = data.get_dataflows()
+
+        tags = create_tags("Alpha", "Bravo", "Charlie")
+
+        cls.form_data = {
+            "name": "Data Flow ICMP",
+            "description": "A new data flow",
+            "application": apps[0].pk,
+            "group": groups[0].pk,
+            "status": choices.DataFlowStatusChoices.STATUS_ENABLED,
+            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
+            "source_ports": "81,82,83",
+            "destination_ports": "181,182,183",
+            "icmpv4_types": [t for t, _ in choices.ICMPv4TypeChoices],
+            "sources": [a.pk for a in aliases[0:2]],
+            "destinations": [a.pk for a in aliases[3:5]],
+            "comments": "Some comments",
+            "tags": [t.pk for t in tags],
+        }
+
+        cls.form_data_v6 = {
+            "name": "Data Flow ICMP",
+            "description": "A new data flow",
+            "application": apps[0].pk,
+            "group": groups[0].pk,
+            "status": choices.DataFlowStatusChoices.STATUS_ENABLED,
+            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6,
+            "source_ports": "81,82,83",
+            "destination_ports": "181,182,183",
+            "icmpv6_types": [t for t, _ in choices.ICMPv6TypeChoices],
+            "sources": [a.pk for a in aliases[0:2]],
+            "destinations": [a.pk for a in aliases[3:5]],
+            "comments": "Some comments",
+            "tags": [t.pk for t in tags],
+        }
+
+        enabled = choices.DataFlowStatusChoices.STATUS_ENABLED
+        disabled = choices.DataFlowStatusChoices.STATUS_ENABLED
+
+        proto_icmp4 = choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4
+        proto_icmp6 = choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6
+
+        cls.csv_data = (
+            (
+                "name,description,application,group,status,protocol,"
+                "source_ports,destination_ports,sources,destinations,comments"
+            ),
+            f"DF 7,Desc 7,{apps[0].name},{groups[0].slug},{enabled},{proto_icmp4},,,,,Comments 7",
+            f"DF 8,Desc 8,{apps[1].name},,{disabled},{proto_icmp4},,,,,Comments 8",
+            f'DF 9,,,{groups[2].slug},{enabled},{proto_icmp6},"10,20","50-60",{aliases[0].name},{aliases[1].name},',
+            f'DF 11,Yes,{apps[1].name},,{disabled},{proto_icmp6},,0,"{aliases[0].name},{aliases[1].name}",,Com',
+            f'DF 11,Desc 11,,,{enabled},{proto_icmp4},,8,,"{aliases[2].name},{aliases[3].name}",Comments',
+            f'DF 12,ICMPv6,,,{enabled},{proto_icmp6},,120,,"{aliases[2].name}",Comments',
+        )
+
+        cls.csv_update_data = (
+            "id,name,description,application,group,status,protocol,"
+            "source_ports,destination_ports,sources,destinations,comments",
+            (
+                f"{dataflows[0].pk},DF 12,Desc 12,{apps[0].name},,{enabled},"
+                f'{proto_icmp4},"50-60","10,11",'
+                f"{aliases[0].name},{aliases[0].name},Some comments"
+            ),
+            (
+                f"{dataflows[1].pk},DF 13,Desc 13,,{groups[0].slug},{disabled},"
+                f"{proto_icmp6},443,443,"
+                f'"{aliases[0].name},{aliases[0].name}","{aliases[1].name}",'
+                "Some comments"
+            ),
+        )
+
+        cls.bulk_edit_data = {
+            "description": "New description",
+            "comments": "New comments",
+            "application": apps[0].pk,
+            "group": groups[0].pk,
+            "status": choices.DataFlowStatusChoices.STATUS_DISABLED,
+            "protocol": choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6,
+            "source_ports": "555",
+            "destination_ports": ",".join(str(t) for t, _ in choices.ICMPv6TypeChoices),
+            "sources": [a.pk for a in aliases[5:7]],
+            "destinations": [a.pk for a in aliases[0:3]],
+        }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
+    def test_create_icmpv6_with_permission(self):
+        # Skip custom fields and changelog checks to focus on ICMPv6 transformation
+
+        # Assign unconstrained permission
+        obj_perm = ObjectPermission(name="Test permission", actions=["add"])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Try GET with model-level permission
+        self.assertHttpStatus(self.client.get(self._get_url("add")), 200)
+
+        # Try POST with model-level permission
+        initial_count = self._get_queryset().count()
+        request = {
+            "path": self._get_url("add"),
+            "data": post_data(self.form_data_v6),
+        }
+        self.assertHttpStatus(self.client.post(**request), 302)
+        self.assertEqual(initial_count + 1, self._get_queryset().count())
+        instance = self._get_queryset().order_by("pk").last()
+        self.assertInstanceEqual(instance, self.form_data_v6, exclude=self.validation_excluded_fields)
+
+        # Try GET the detailed page
+        self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 200)
 
 
 class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):

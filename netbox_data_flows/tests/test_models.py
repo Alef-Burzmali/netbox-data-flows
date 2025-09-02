@@ -1,3 +1,5 @@
+import random
+
 from django.db.models import QuerySet
 from django.test import TestCase
 
@@ -209,6 +211,34 @@ class DataFlowTestCase(TestCase):
             self.assertEqual(set(dataflows[i].inherited_tags), set(tags[0:2]))
 
         self.assertEqual(set(dataflows[7].inherited_tags), set())
+
+    def test_icmp_clean_remove_source_ports(self):
+        def rand_source_ports():
+            return [random.randrange(0, 255) for i in range(0, random.randrange(0, 12))]
+
+        for type_code, description in choices.ICMPv4TypeChoices:
+            d = self.model(
+                name=f"ICMPv4 {description}",
+                status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
+                source_ports=rand_source_ports(),
+                destination_ports=[type_code],
+            )
+            d.clean()
+            self.assertEqual(d.source_ports, [], "Cleaning ICMPv4 should clear source_ports")
+            self.assertEqual(d.destination_ports, [type_code], "Cleaning ICMPv4 should keep destination_ports")
+
+        for type_code, description in choices.ICMPv6TypeChoices:
+            d = self.model(
+                name=f"ICMPv6 {description}",
+                status=choices.DataFlowStatusChoices.STATUS_ENABLED,
+                protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMPv6,
+                source_ports=rand_source_ports(),
+                destination_ports=[type_code],
+            )
+            d.clean()
+            self.assertEqual(d.source_ports, [], "Cleaning ICMPv4 should clear source_ports")
+            self.assertEqual(d.destination_ports, [type_code], "Cleaning ICMPv4 should keep destination_ports")
 
 
 class DataFlowGroupTestCase(TestCase):
