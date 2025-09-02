@@ -296,7 +296,7 @@ class DataFlowTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {"description": ["ICMP from any to any"]}
+        params = {"description": ["ICMPv4 Echo Request and Echo Reply from any to any"]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_status(self):
@@ -405,7 +405,7 @@ class DataFlowTestCase(TestCase):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {
             "protocol": [
-                choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
+                choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
                 choices.DataFlowProtocolChoices.PROTOCOL_SCTP,
             ]
         }

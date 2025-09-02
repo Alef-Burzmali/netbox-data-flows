@@ -437,13 +437,13 @@ class TestData:
             self._dataflows += [
                 models.DataFlow.objects.create(
                     name="Data Flow 2",
-                    description="ICMP from any to any",
+                    description="ICMPv4 Echo Request and Echo Reply from any to any",
                     application=None,
                     group=None,
                     status=choices.DataFlowStatusChoices.STATUS_ENABLED,
-                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMP,
+                    protocol=choices.DataFlowProtocolChoices.PROTOCOL_ICMPv4,
                     source_ports=None,
-                    destination_ports=None,
+                    destination_ports=[choices.ICMPv4TypeChoices.TYPE_ECHO_REPLY, choices.ICMPv4TypeChoices.TYPE_ECHO],
                     # inherited status = enabled
                     # inherited tags = [6]
                 )
