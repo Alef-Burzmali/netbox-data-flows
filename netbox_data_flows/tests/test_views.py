@@ -1,5 +1,6 @@
 import urllib.parse
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
 from django.urls import reverse
 
@@ -70,7 +71,18 @@ class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectV
             "description": "New description",
         }
 
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"top_level_menu": True}})
+    def test_top_menu_on(self):
+        """Test the general display with plugin top menu."""
+        self.test_get_object_with_permission()
 
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"top_level_menu": False}})
+    def test_top_menu_off(self):
+        """Test the general display without plugin top menu."""
+        self.test_get_object_with_permission()
+
+
+@override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": None}})
 class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
     model = models.Application
 
@@ -79,6 +91,7 @@ class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
         data = TestData()
         roles = data.get_applicationroles()
         applications = data.get_applications()
+        data.get_customfields()
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -109,6 +122,39 @@ class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
             "role": roles[2].pk,
             "comments": "New comments",
         }
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": ""}})
+    def test_related_display_no_custom_field(self):
+        """No custom field, should display normally."""
+        self.test_get_object_with_permission()
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": "application_single"}})
+    def test_related_display_custom_field_single_application(self):
+        """Custom field with one application, should display normally."""
+        self.test_get_object_with_permission()
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": "application_multi"}})
+    def test_related_display_custom_field_multiple_applications(self):
+        """Custom field with multiple application, should display normallys."""
+        self.test_get_object_with_permission()
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": "not_existing"}})
+    def test_related_display_inexisting_custom_field(self):
+        """Custom Field badly configured: the custom field does not exist."""
+        with self.assertRaises(ImproperlyConfigured):
+            self.test_get_object_with_permission()
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": "not_application"}})
+    def test_related_display_custom_field_not_an_application(self):
+        """Custom Field badly configured: the custom field does not contain applications."""
+        with self.assertRaises(ImproperlyConfigured):
+            self.test_get_object_with_permission()
+
+    @override_settings(PLUGINS_CONFIG={"netbox_data_flows": {"application_custom_field": "not_object"}})
+    def test_related_display_custom_field_not_an_object_field(self):
+        """Custom Field badly configured: the custom field does not contain applications."""
+        with self.assertRaises(ImproperlyConfigured):
+            self.test_get_object_with_permission()
 
 
 class DataFlowGroupTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase):
