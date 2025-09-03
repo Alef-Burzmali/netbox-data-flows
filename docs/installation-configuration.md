@@ -167,4 +167,9 @@ FIELD_CHOICES = {
 
 This syntax will add IGMP as a possible protocol in the drop list.
 
+You can also extend the list of:
+
+* ICMPv4 types: `netbox_data_flows.DataFlow.icmpv4types+`
+* ICMPv6 types: `netbox_data_flows.DataFlow.icmpv6types+`
+
 Full reference: [FIELD_CHOICES - NetBox Documentation](https://docs.netbox.dev/en/stable/configuration/data-validation/#field_choices)
