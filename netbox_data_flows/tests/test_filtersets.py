@@ -16,7 +16,7 @@ class ApplicationRoleTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_applicationroles()
+        data.applicationroles
 
     def test_q(self):
         params = {"q": "FOObar 2"}
@@ -46,7 +46,7 @@ class ApplicationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_applications()
+        data.applications
 
     def test_q(self):
         params = {"q": "application 2"}
@@ -77,8 +77,8 @@ class DataFlowGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_dataflowgroups()
-        cls.tags = data.get_tags()
+        data.dataflowgroups
+        cls.tags = data.tags
 
     def test_q(self):
         params = {"q": "FOObar2"}
@@ -187,7 +187,7 @@ class ObjectAliasTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_objectaliases()
+        data.objectaliases
 
     def test_q(self):
         params = {"q": "OBJECT ALIAS 1"}
@@ -282,8 +282,8 @@ class DataFlowTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_dataflows()
-        cls.tags = data.get_tags()
+        data.dataflows
+        cls.tags = data.tags
 
     def test_q(self):
         params = {"q": "DATA FLOW 1"}

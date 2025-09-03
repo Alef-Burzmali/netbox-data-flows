@@ -48,7 +48,7 @@ class ApplicationRoleTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoG
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_applicationroles()
+        data.applicationroles
 
         cls.create_data = [
             {
@@ -82,8 +82,8 @@ class ApplicationTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        roles = data.get_applicationroles()
-        data.get_applications()
+        roles = data.applicationroles
+        data.applications
 
         cls.create_data = [
             {
@@ -121,8 +121,8 @@ class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGra
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        apps = data.get_applications()
-        groups = data.get_dataflowgroups()
+        apps = data.applications
+        groups = data.dataflowgroups
 
         cls.create_data = [
             {
@@ -167,7 +167,7 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_objectaliases()
+        data.objectaliases
 
         ip_addresses = [
             ipam.IPAddress(address="192.168.0.1/24"),
@@ -224,10 +224,10 @@ class DataFlowTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL)
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        apps = data.get_applications()
-        groups = data.get_dataflowgroups()
-        aliases = data.get_objectaliases()
-        data.get_dataflows()
+        apps = data.applications
+        groups = data.dataflowgroups
+        aliases = data.objectaliases
+        data.dataflows
 
         cls.create_data = [
             {
