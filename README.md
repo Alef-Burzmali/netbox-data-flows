@@ -22,7 +22,7 @@ Details of the data flow specifications, displaying all the IP addresses, IP ran
 ### Application
 
 ![All the data flows mapped to one application](docs/media/tuto-application-details.png)
-The application allows you to group all the related data flows.
+The application allows you to group all the related data flows. Optionally, you can assign devices or other NetBox objects to an application, using a custom field.
 
 ### Device tab views
 

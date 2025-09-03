@@ -107,6 +107,8 @@ PLUGINS_CONFIG = {
     'netbox_data_flows': {
         # Create a menu section for the plugin
         'top_level_menu': True,
+        # Use a Custom Field to identify objects linked to an application
+        'application_custom_field': "application",
     }
 }
 ```
@@ -114,6 +116,9 @@ PLUGINS_CONFIG = {
 Supported options:
 
 * `top_level_menu`: if set to `True` (default), the plugin will create its own menu section in the left navigation panel. If set to `False`, the plugin will be in a subsection under the `Plugins` section.
+* `application_custom_field` (disabled by default): when set to the name of a custom field, will display a list of related objects in the application page. The custom field must exist, be of type Object or Multiple Object and be related to `Data Flows > Application`.
+
+![Custom Field configuration](media/application-custom-field.png)
 
 ### Nomenclature
 
