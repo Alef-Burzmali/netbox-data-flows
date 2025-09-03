@@ -219,7 +219,7 @@ The "Targets" tab in the data flow's detailed view can be used to resolve the ob
 
 ### Tab views
 
-Finally, the plugin adds tab views in the native objects that are the source or the destination of a data flow.
+The plugin adds tab views in the native objects that are the source or the destination of a data flow.
 
 In the example below, the device is part of one object alias and in the destination of our data flows related to Zabbix.
 
@@ -239,3 +239,32 @@ This tab is automatically displayed when an object is member of at least one obj
 
 > [!WARNING]
 > The tab lists all the object aliases and dataflows where the object is explicitly listed. It does not detect when a prefix or range would implicitly include an IP address, a smaller range or a child prefix.
+
+## Application-related Objects
+
+If you want, you can use a custom field to document which application other assets belong to. First, create a custom field (in the Customization section of NetBox) and link it to any object types you want (devices and virtual machines in this example).
+
+The custom field must have the following settings:
+
+* Name: any internal name you want (lowercase letters and underscores only), you will use it to configure the plugin in the next step.
+* Label: the field name that will be displayed when editing a device or virtual machine.
+* Type: it must be `Object` (if assets can belong to at most one application) or `Multiple objects` (if you allow an asset to have multiple applications).
+* Related object type: select `Data Flows > Application`.
+
+![Custom Field configuration](media/application-custom-field.png)
+
+Then, edit NetBox's `configuration.py` and add a `PLUGIN_CONFIG`:
+
+```python
+# Add in: /opt/netbox/netbox/netbox/configuration.py
+
+PLUGINS_CONFIG = {
+    'netbox_data_flows': {
+        # Use a Custom Field to identify objects linked to an application
+        'application_custom_field': "application",
+    }
+}
+```
+After restarting NetBox, you can now link assets to your applications. In the application page, you will see the number of related objects, and clicking on each line will list the objects:
+
+![Related objects of an application](media/application-related-objects.png)

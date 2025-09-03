@@ -60,6 +60,9 @@ Examples of applications:
 * Network management
 * ...
 
+You can optionally use a custom field to assign your devices and other object to specific applications.
+See the Options section of [the configuration guide](installation-configuration.md#options)
+
 **Application Role** is a label to help you categorize your applications.
 Each Application may have one Application Role.
 
