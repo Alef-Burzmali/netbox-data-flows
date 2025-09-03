@@ -42,7 +42,7 @@ class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectV
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        roles = data.get_applicationroles()
+        roles = data.applicationroles
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -89,9 +89,9 @@ class ApplicationTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        roles = data.get_applicationroles()
-        applications = data.get_applications()
-        data.get_customfields()
+        roles = data.applicationroles
+        applications = data.applications
+        data.customfields
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -163,8 +163,8 @@ class DataFlowGroupTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectVie
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        apps = data.get_applications()
-        groups = data.get_dataflowgroups()
+        apps = data.applications
+        groups = data.dataflowgroups
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -224,10 +224,10 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        apps = data.get_applications()
-        groups = data.get_dataflowgroups()
-        aliases = data.get_objectaliases()
-        dataflows = data.get_dataflows()
+        apps = data.applications
+        groups = data.dataflowgroups
+        aliases = data.objectaliases
+        dataflows = data.dataflows
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -406,10 +406,10 @@ class ICMPDataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCas
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        apps = data.get_applications()
-        groups = data.get_dataflowgroups()
-        aliases = data.get_objectaliases()
-        dataflows = data.get_dataflows()
+        apps = data.applications
+        groups = data.dataflowgroups
+        aliases = data.objectaliases
+        dataflows = data.dataflows
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 
@@ -527,7 +527,7 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        aliases = data.get_objectaliases()
+        aliases = data.objectaliases
 
         tags = create_tags("Alpha", "Bravo", "Charlie")
 

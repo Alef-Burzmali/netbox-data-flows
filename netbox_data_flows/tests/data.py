@@ -24,13 +24,15 @@ class TestData:
     _custom_fields = None
     _tags = None
 
-    def get_tags(self):
+    @property
+    def tags(self):
         if not self._tags:
             self._tags = tuple(create_tags("tag0", "tag1", "tag2", "tag3", "tag4", "tag5", "tag6"))
 
         return self._tags
 
-    def get_applicationroles(self):
+    @property
+    def applicationroles(self):
         if not self._applicationsroles:
             self._applicationsroles = (
                 models.ApplicationRole(
@@ -54,9 +56,10 @@ class TestData:
 
         return self._applicationsroles
 
-    def get_applications(self):
+    @property
+    def applications(self):
         if not self._applications:
-            roles = self.get_applicationroles()
+            roles = self.applicationroles
 
             self._applications = (
                 models.Application(name="Application 1", description="barfoo 1", role=roles[0]),
@@ -71,10 +74,11 @@ class TestData:
 
         return self._applications
 
-    def get_dataflowgroups(self):
+    @property
+    def dataflowgroups(self):
         if not self._dataflowgroups:
-            apps = self.get_applications()
-            tags = self.get_tags()
+            apps = self.applications
+            tags = self.tags
 
             group1 = models.DataFlowGroup(
                 # pk = 0
@@ -219,7 +223,8 @@ class TestData:
 
         return self._dataflowgroups
 
-    def get_targetobjects(self):
+    @property
+    def targetobjects(self):
         if not self._prefixes:
             vlans = [
                 ipam.VLAN(
@@ -364,9 +369,10 @@ class TestData:
             for obj in ips:
                 obj.save()
 
-    def get_objectaliases(self):
+    @property
+    def objectaliases(self):
         if not self._objectaliases:
-            self.get_targetobjects()
+            self.targetobjects
 
             prefixes = self._prefixes
             ip_ranges = self._ranges
@@ -415,12 +421,13 @@ class TestData:
 
         return self._objectaliases
 
-    def get_dataflows(self):
+    @property
+    def dataflows(self):
         if not self._dataflows:
-            apps = self.get_applications()
-            groups = self.get_dataflowgroups()
-            aliases = self.get_objectaliases()
-            tags = self.get_tags()
+            apps = self.applications
+            groups = self.dataflowgroups
+            aliases = self.objectaliases
+            tags = self.tags
 
             self._dataflows = []
             self._dataflows += [
@@ -562,10 +569,11 @@ class TestData:
 
         return self._dataflows
 
-    def get_customfields(self):
+    @property
+    def customfields(self):
         if not self._custom_fields:
-            apps = self.get_applications()
-            self.get_targetobjects()
+            apps = self.applications
+            self.targetobjects
 
             def _set_cf(cf, qs, value):
                 for instance in qs:

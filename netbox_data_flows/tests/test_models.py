@@ -18,7 +18,7 @@ class ObjectAliasTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        data.get_objectaliases()
+        data.objectaliases
 
     def test_qs_contains(self):
         ips = ipam.IPAddress.objects.all()[:3]
@@ -49,8 +49,8 @@ class DataFlowTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        cls.dataflows = data.get_dataflows()
-        cls.tags = data.get_tags()
+        cls.dataflows = data.dataflows
+        cls.tags = data.tags
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()
@@ -247,8 +247,8 @@ class DataFlowGroupTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         data = TestData()
-        cls.groups = data.get_dataflowgroups()
-        cls.tags = data.get_tags()
+        cls.groups = data.dataflowgroups
+        cls.tags = data.tags
 
     def test_qs_only_disabled(self):
         qs = self.model.objects.only_disabled()
