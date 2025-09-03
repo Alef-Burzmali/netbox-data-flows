@@ -1,3 +1,6 @@
+from core.models import ObjectType
+from extras.choices import CustomFieldTypeChoices
+from extras.models import CustomField
 from utilities.testing import create_tags
 
 from dcim import models as dcim
@@ -18,6 +21,7 @@ class TestData:
     _ranges = None
     _ips = None
 
+    _custom_fields = None
     _tags = None
 
     def get_tags(self):
@@ -557,3 +561,62 @@ class TestData:
             self._dataflows = tuple(self._dataflows)
 
         return self._dataflows
+
+    def get_customfields(self):
+        if not self._custom_fields:
+            apps = self.get_applications()
+            self.get_targetobjects()
+
+            def _set_cf(cf, qs, value):
+                for instance in qs:
+                    instance.custom_field_data[cf] = value
+                    instance.save()
+
+            application_type = ObjectType.objects.get_for_model(models.Application)
+            cf1 = CustomField.objects.create(
+                name="application_single",
+                type=CustomFieldTypeChoices.TYPE_OBJECT,
+                related_object_type=application_type,
+            )
+            cf1.object_types.set(
+                ObjectType.objects.get_for_models(dcim.Device, virtualization.VirtualMachine, ipam.IPAddress).values()
+            )
+            # app1 has 7 related objects in 3 models
+            _set_cf("application_single", dcim.Device.objects.order_by("?")[0:1], apps[0].pk)
+            _set_cf("application_single", virtualization.VirtualMachine.objects.order_by("?")[0:1], apps[0].pk)
+            _set_cf("application_single", ipam.IPAddress.objects.order_by("?")[0:5], apps[0].pk)
+            # app2 has 3 related objects in 1 models
+            _set_cf("application_single", ipam.IPAddress.objects.order_by("?")[0:3], apps[1].pk)
+
+            cf2 = CustomField.objects.create(
+                name="application_multi",
+                type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
+                related_object_type=application_type,
+            )
+            cf2.object_types.set(
+                ObjectType.objects.get_for_models(dcim.Device, dcim.Site, ipam.VLAN, ipam.Prefix).values()
+            )
+            # app1 has 5 related objects in 3 models
+            # app3 has 2 related objects in 1 models
+            # app4 has 7 related objects in 2 models
+            _set_cf("application_multi", dcim.Device.objects.all()[0:2], [apps[0].pk, apps[2].pk])
+            _set_cf("application_multi", dcim.Site.objects.all()[0:1], [apps[0].pk])
+            _set_cf("application_multi", ipam.VLAN.objects.all()[0:2], [apps[0].pk, apps[3].pk])
+            _set_cf("application_multi", ipam.Prefix.objects.all()[0:5], [apps[3].pk])
+
+            cf3 = CustomField.objects.create(
+                name="not_application",
+                type=CustomFieldTypeChoices.TYPE_OBJECT,
+                related_object_type=ObjectType.objects.get_for_model(dcim.Device),
+            )
+            cf3.object_types.set(ObjectType.objects.get_for_models(dcim.Site, ipam.VLAN, ipam.Prefix).values())
+
+            cf4 = CustomField.objects.create(
+                name="not_object",
+                type=CustomFieldTypeChoices.TYPE_TEXT,
+            )
+            cf4.object_types.set(ObjectType.objects.get_for_models(dcim.Site).values())
+
+            self._custom_fields = (cf1, cf2, cf3, cf4)
+
+        return self._custom_fields
