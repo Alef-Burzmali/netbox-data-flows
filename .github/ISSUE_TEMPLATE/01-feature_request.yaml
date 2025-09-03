@@ -15,20 +15,20 @@ body:
     attributes:
       label: NetBox version
       description: What version of NetBox are you currently running?
-      placeholder: v4.1.6
+      placeholder: v4.4.0
     validations:
       required: true
   - type: input
     attributes:
       label: NetBox Data Flows version
       description: What version of NetBox Data Flows are you currently running?
-      placeholder: v1.1.0
+      placeholder: v1.3.0
     validations:
       required: true
   - type: checkboxes
     id: volonteering
     attributes:
-      label: Volonteering      
+      label: Volonteering
       options:
         - label: I am willing to propose a pull request for that feature.
   - type: textarea
