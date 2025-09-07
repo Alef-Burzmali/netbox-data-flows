@@ -20,13 +20,7 @@ __all__ = (
 
 @register_model_view(models.DataFlow, "list", path="", detail=False)
 class DataFlowListView(generic.ObjectListView):
-    queryset = models.DataFlow.objects.prefetch_related(
-        "application",
-        "application__role",
-        "group",
-        "sources",
-        "destinations",
-    )
+    queryset = models.DataFlow.objects.all()
     table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm
@@ -35,9 +29,6 @@ class DataFlowListView(generic.ObjectListView):
 @register_model_view(models.DataFlow)
 class DataFlowView(generic.ObjectView):
     queryset = models.DataFlow.objects.prefetch_related(
-        "application",
-        "application__role",
-        "group",
         "sources",
         "destinations",
     )
@@ -52,11 +43,7 @@ class DataFlowView(generic.ObjectView):
 @register_model_view(models.DataFlow, "targets")
 class DataFlowTargetView(generic.ObjectView):
     template_name = "netbox_data_flows/dataflow_targets.html"
-    queryset = models.DataFlow.objects.prefetch_related(
-        "application",
-        "sources",
-        "destinations",
-    )
+    queryset = models.DataFlow.objects.all()
 
     tab = ViewTab(
         label="Targets",
