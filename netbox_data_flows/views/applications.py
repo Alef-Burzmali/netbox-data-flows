@@ -3,13 +3,6 @@ from django.db.models import Count
 from netbox.views import generic
 from utilities.views import register_model_view
 
-
-try:
-    from netbox.views.generic import ObjectContactsView
-except ImportError:
-    # FIXME: Compat NetBox <=4.2
-    from tenancy.views import ObjectContactsView
-
 from netbox_data_flows import filtersets, forms, models, tables
 from netbox_data_flows.utils.views import GetRelatedCustomFieldModelsMixin
 
@@ -84,8 +77,3 @@ class ApplicationBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ApplicationFilterSet
     table = tables.ApplicationTable
-
-
-@register_model_view(models.Application, "contacts")
-class ApplicationContactsView(ObjectContactsView):
-    queryset = models.Application.objects.all()
