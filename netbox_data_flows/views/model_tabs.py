@@ -67,26 +67,10 @@ class DataFlowListTabViewBase(generic.ObjectView):
         )
         aliases_table.configure(request)
 
-        dataflow_sources_table = tables.DataFlowTable(
-            models.DataFlow.objects.sources(parent).prefetch_related(
-                "application",
-                "application__role",
-                "group",
-                "sources",
-                "destinations",
-            )
-        )
+        dataflow_sources_table = tables.DataFlowTable(models.DataFlow.objects.sources(parent).all())
         dataflow_sources_table.configure(request)
 
-        dataflow_destinations_table = tables.DataFlowTable(
-            models.DataFlow.objects.destinations(parent).prefetch_related(
-                "application",
-                "application__role",
-                "group",
-                "sources",
-                "destinations",
-            )
-        )
+        dataflow_destinations_table = tables.DataFlowTable(models.DataFlow.objects.destinations(parent).all())
         dataflow_destinations_table.configure(request)
 
         return {

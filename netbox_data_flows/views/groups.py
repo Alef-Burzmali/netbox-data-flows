@@ -19,10 +19,7 @@ __all__ = (
 
 @register_model_view(models.DataFlowGroup, "list", path="", detail=False)
 class DataFlowGroupListView(generic.ObjectListView):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "application__role",
-    ).annotate(
+    queryset = models.DataFlowGroup.objects.annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
     table = tables.DataFlowGroupTable
@@ -32,10 +29,7 @@ class DataFlowGroupListView(generic.ObjectListView):
 
 @register_model_view(models.DataFlowGroup)
 class DataFlowGroupView(generic.ObjectView):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "parent",
-    )
+    queryset = models.DataFlowGroup.objects.all()
 
     def get_extra_context(self, request, instance):
         children_table = tables.DataFlowGroupTable(
