@@ -43,20 +43,8 @@ class ApplicationView(GetRelatedCustomFieldModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = self.get_related_models(request, instance)
 
-        dataflowgroups_table = tables.DataFlowGroupTable(
-            instance.dataflow_groups.annotate(
-                dataflow_count=Count("dataflows", distinct=True),
-            )
-        )
-        dataflowgroups_table.configure(request)
-
-        dataflows_table = tables.DataFlowTable(instance.dataflows.all())
-        dataflows_table.configure(request)
-
         return {
             "related_models": related_models,
-            "dataflowgroups_table": dataflowgroups_table,
-            "dataflows_table": dataflows_table,
         }
 
 

@@ -31,53 +31,11 @@ class DataFlowGroupListView(generic.ObjectListView):
 class DataFlowGroupView(generic.ObjectView):
     queryset = models.DataFlowGroup.objects.all()
 
-    def get_extra_context(self, request, instance):
-        children_table = tables.DataFlowGroupTable(
-            instance.get_descendants(include_self=False).annotate(
-                dataflow_count=Count("dataflows", distinct=True),
-            )
-        )
-        children_table.configure(request)
-
-        # our direct dataflows
-        dataflows_table = tables.DataFlowTable(
-            instance.dataflows.prefetch_related(
-                "application",
-                "application__role",
-                "group",
-                "sources",
-                "destinations",
-            )
-        )
-        dataflows_table.configure(request)
-
-        # dataflows of our descendants
-        dataflows_recursive_table = tables.DataFlowTable(
-            models.DataFlow.objects.part_of_group_recursive(instance, include_direct_children=False).prefetch_related(
-                "application",
-                "application__role",
-                "group",
-                "sources",
-                "destinations",
-            )
-        )
-        dataflows_recursive_table.configure(request)
-
-        return {
-            "children_table": children_table,
-            "dataflows_table": dataflows_table,
-            "dataflows_recursive_table": dataflows_recursive_table,
-        }
-
 
 @register_model_view(models.DataFlowGroup, "add", detail=False)
 @register_model_view(models.DataFlowGroup, "edit")
 class DataFlowGroupEditView(generic.ObjectEditView):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "application__role",
-        "parent",
-    )
+    queryset = models.DataFlowGroup.objects.all()
     form = forms.DataFlowGroupForm
 
 
@@ -95,11 +53,7 @@ class DataFlowGroupBulkImportView(generic.BulkImportView):
 
 @register_model_view(models.DataFlowGroup, "bulk_edit", path="edit", detail=False)
 class DataFlowGroupBulkEditView(generic.BulkEditView):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "application__role",
-        "parent",
-    ).annotate(
+    queryset = models.DataFlowGroup.objects.annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
     filterset = filtersets.DataFlowGroupFilterSet
@@ -109,11 +63,7 @@ class DataFlowGroupBulkEditView(generic.BulkEditView):
 
 @register_model_view(models.DataFlowGroup, "bulk_delete", path="delete", detail=False)
 class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.DataFlowGroup.objects.prefetch_related(
-        "application",
-        "application__role",
-        "parent",
-    ).annotate(
+    queryset = models.DataFlowGroup.objects.annotate(
         dataflow_count=Count("dataflows", distinct=True),
     )
     filterset = filtersets.DataFlowGroupFilterSet

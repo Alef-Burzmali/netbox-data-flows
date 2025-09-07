@@ -4,7 +4,6 @@
 {% load i18n %}
 {% load perms %}
 {% load plugins %}
-{% load render_table from django_tables2 %}
 
 {% block content %}
   <div class="row">
@@ -43,7 +42,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Applications" %}</h5>
-        {% render_table applications_table %}
+        {% htmx_table 'plugins:netbox_data_flows:application_list' role_id=object.id %}
       </div>
     </div>
   </div>
