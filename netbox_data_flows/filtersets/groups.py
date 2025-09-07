@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from extras.filters import TagFilter
+from extras.filters import TagFilter, TagIDFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
 from tenancy.filtersets import TenancyFilterSet
@@ -8,7 +8,7 @@ from tenancy.filtersets import TenancyFilterSet
 from netbox_data_flows import models
 
 from .addins import ApplicationFilterSetAddin, InheritedStatusFilterSetAddin
-from .filters import ModelMultipleChoiceFilter, TagIDFilter
+from .filters import ModelMultipleChoiceFilter
 
 
 __all__ = ("DataFlowGroupFilterSet",)
