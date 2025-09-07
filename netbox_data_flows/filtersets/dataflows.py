@@ -1,6 +1,6 @@
 from django.db.models import Q
 
-from extras.filters import TagFilter
+from extras.filters import TagFilter, TagIDFilter
 from netbox.filtersets import NetBoxModelFilterSet
 
 from dcim.models import Device
@@ -17,7 +17,6 @@ from .filters import (
     MultipleChoiceFilter,
     MultiValueNumberFilter,
     MultiValueNumericArrayFilter,
-    TagIDFilter,
 )
 
 

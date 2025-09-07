@@ -1,5 +1,3 @@
-import urllib.parse
-
 from django.core.exceptions import ImproperlyConfigured
 from django.test import override_settings
 from django.urls import reverse
@@ -23,17 +21,11 @@ class PluginUrlBase:
     def _get_url(self, action, instance=None, query=None, **kwargs):
         url_format = self._get_base_url()
 
-        # FIXME: compatiblity with Django <5.2 (NetBox 4.2.x)
-        query_str = ""
-        if query:
-            query_str = "?" + urllib.parse.urlencode(query)
-
         # If no instance was provided, assume we don't need a unique identifier
         if instance is not None:
             kwargs["pk"] = instance.pk
 
-        # FIXME: return reverse(url_format.format(action), query=query, kwargs=kwargs)
-        return reverse(url_format.format(action), kwargs=kwargs) + query_str
+        return reverse(url_format.format(action), query=query, kwargs=kwargs)
 
 
 class ApplicationRoleTestCase(PluginUrlBase, ViewTestCases.OrganizationalObjectViewTestCase):
