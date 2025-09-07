@@ -1,4 +1,4 @@
-{% extends 'generic/object.html' %}
+g{% extends 'generic/object.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load i18n %}
@@ -15,7 +15,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col col-md-6">
+    <div class="col col-md-5">
       <div class="card">
         <h5 class="card-header">{% trans "Data Flow Group" %}</h5>
         <table class="table table-hover attr-table">
@@ -65,11 +65,11 @@
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_left_page object %}
     </div>
-    <div class="col col-md-6">
+    <div class="col col-md-7">
       <div class="card">
         <h5 class="card-header">{% trans "Child Groups" %}</h5>
         <div class="card-body table-responsive">
-          {% render_table children_table %}
+          {% htmx_table 'plugins:netbox_data_flows:dataflowgroup_list' parent_id=object.id %}
         </div>
       </div>
       {% plugin_right_page object %}
@@ -80,7 +80,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Data Flows (direct members)" %}</h5>
-        {% render_table dataflows_table %}
+        {% htmx_table 'plugins:netbox_data_flows:dataflow_list' group_id=object.id %}
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Data Flows (child groups' members)" %}</h5>
-        {% render_table dataflows_recursive_table %}
+        {% htmx_table 'plugins:netbox_data_flows:dataflow_list' ancestor_group_id=object.id %}
       </div>
     </div>
   </div>

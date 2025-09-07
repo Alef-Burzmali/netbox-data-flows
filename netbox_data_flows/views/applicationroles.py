@@ -30,18 +30,6 @@ class ApplicationRoleListView(generic.ObjectListView):
 class ApplicationRoleView(generic.ObjectView):
     queryset = models.ApplicationRole.objects.all()
 
-    def get_extra_context(self, request, instance):
-        applications_table = tables.ApplicationTable(
-            instance.applications.prefetch_related("role").annotate(
-                dataflow_count=Count("dataflows", distinct=True),
-            )
-        )
-        applications_table.configure(request)
-
-        return {
-            "applications_table": applications_table,
-        }
-
 
 @register_model_view(models.ApplicationRole, "add", detail=False)
 @register_model_view(models.ApplicationRole, "edit")

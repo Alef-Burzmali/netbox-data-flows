@@ -51,6 +51,17 @@ class DataFlowFilterSet(
         label="Group, recursive membership (slug)",
         method="filter_recursive_groups",
     )
+    ancestor_group_id = ModelMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        label="Group, recursive membership excluding direct parent (ID)",
+        method="filter_recursive_groups",
+    )
+    ancestor_recursive_group = ModelMultipleChoiceFilter(
+        queryset=models.DataFlowGroup.objects.all(),
+        to_field_name="slug",
+        label="Group, recursive membership excluding direct parent (slug)",
+        method="filter_recursive_groups",
+    )
 
     protocol = MultipleChoiceFilter(
         choices=choices.DataFlowProtocolChoices,
@@ -155,7 +166,8 @@ class DataFlowFilterSet(
         if not value:
             return queryset
 
-        return queryset.part_of_group_recursive(*value)
+        include_self = field_name.startswith("recursive")
+        return queryset.part_of_group_recursive(*value, include_direct_children=include_self)
 
     def filter_inherited_tags(self, queryset, name, value):
         if not value:
