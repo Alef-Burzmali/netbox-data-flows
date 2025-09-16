@@ -46,7 +46,6 @@ class DataFlowListTabViewBase(generic.ObjectView):
 
     queryset = None
     template_name = "netbox_data_flows/dataflow_tab.html"
-    # Todo: actions = unlink
 
     tab = ViewTab(
         label="Data Flows",
