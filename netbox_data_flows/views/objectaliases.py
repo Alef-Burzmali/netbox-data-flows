@@ -1,7 +1,7 @@
 from django.db.models import Count
 
 from netbox.views import generic
-from utilities.views import GetRelatedModelsMixin, register_model_view
+from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 
 from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
@@ -69,20 +69,25 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
         ip_address_table = IPAddressTable(instance.ip_addresses.all())
         ip_address_table.configure(request)
 
-        dataflow_sources_table = tables.DataFlowTable(instance.dataflow_sources.all())
-        dataflow_sources_table.configure(request)
-
-        dataflow_destinations_table = tables.DataFlowTable(instance.dataflow_destinations.all())
-        dataflow_destinations_table.configure(request)
-
         return {
             "related_models": related_models,
             "prefix_table": prefix_table,
             "ip_range_table": ip_range_table,
             "ip_address_table": ip_address_table,
-            "dataflow_sources_table": dataflow_sources_table,
-            "dataflow_destinations_table": dataflow_destinations_table,
         }
+
+
+@register_model_view(models.ObjectAlias, name="objectalias-dataflows-tab", path="dataflows")
+class ObjectAliasDataFlowView(generic.ObjectView):
+    queryset = models.ObjectAlias.objects.all()
+    template_name = "netbox_data_flows/objectalias_dataflows.html"
+
+    tab = ViewTab(
+        label="Data Flows",
+        permission="netbox_data_flows.view_dataflow",
+        badge=lambda o: o.dataflow_sources.count() + o.dataflow_destinations.count(),
+        hide_if_empty=False,
+    )
 
 
 @register_model_view(models.ObjectAlias, "add", detail=False)
