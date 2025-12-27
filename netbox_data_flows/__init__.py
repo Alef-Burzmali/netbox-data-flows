@@ -17,7 +17,7 @@ class DataFlowsConfig(PluginConfig):
         "application_custom_field": None,
     }
     min_version = "4.3.0"
-    max_version = "4.4.99"
+    max_version = "4.5.99"
 
 
 config = DataFlowsConfig
