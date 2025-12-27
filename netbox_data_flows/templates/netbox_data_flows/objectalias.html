@@ -73,24 +73,6 @@
     </div>
   </div>
 
-  <div class="row mb-3">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">{% trans "Source in Data Flows" %}</h5>
-        {% htmx_table 'plugins:netbox_data_flows:dataflow_list' source_aliases=object.id %}
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">{% trans "Destination in Data Flows" %}</h5>
-        {% htmx_table 'plugins:netbox_data_flows:dataflow_list' destination_aliases=object.id %}
-      </div>
-    </div>
-  </div>
-
   <div class="row">
     <div class="col col-md-12">
       {% plugin_full_width_page object %}
