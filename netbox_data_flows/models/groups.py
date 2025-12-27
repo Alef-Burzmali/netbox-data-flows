@@ -48,6 +48,7 @@ class DataFlowGroup(NestedGroupModel):
         to="tenancy.Tenant", on_delete=models.PROTECT, related_name="dataflowgroups", blank=True, null=True
     )
     comments = models.TextField(blank=True)
+    owner = None  # FIXME Compat v4.5.x
 
     #
     # Status and inherited status

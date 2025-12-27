@@ -24,6 +24,7 @@ class ApplicationRole(OrganizationalModel):
     # description
 
     comments = models.TextField(blank=True)
+    owner = None  # FIXME Compat v4.5.x
 
     class Meta:
         ordering = ("name",)
