@@ -60,6 +60,8 @@ class DataFlowListTabViewBase(generic.ObjectView):
                 prefix_count=Count("prefixes", distinct=True),
                 ip_range_count=Count("ip_ranges", distinct=True),
                 ip_address_count=Count("ip_addresses", distinct=True),
+                dataflow_source_count=Count("dataflow_sources", distinct=True),
+                dataflow_destination_count=Count("dataflow_destinations", distinct=True),
             )
             .order_by(*models.ObjectAlias._meta.ordering)
             .contains(parent)
