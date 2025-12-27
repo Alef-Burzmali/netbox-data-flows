@@ -26,6 +26,9 @@
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+      {% if related_models %}
+        {% include 'inc/panels/related_objects.html' %}
+      {% endif %}
       {% include 'inc/panels/comments.html' %}
       {% include 'inc/panels/custom_fields.html' %}
       {% plugin_right_page object %}
