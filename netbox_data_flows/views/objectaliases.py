@@ -1,7 +1,7 @@
 from django.db.models import Count
 
 from netbox.views import generic
-from utilities.views import register_model_view
+from utilities.views import GetRelatedModelsMixin, register_model_view
 
 from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
@@ -19,6 +19,28 @@ __all__ = (
 )
 
 
+class GetRelatedDataFlowsMixin(GetRelatedModelsMixin):
+    def get_related_models(self, request, instance, omit=tuple(), extra=tuple()):
+        """
+        Get related dataflows of an object alias based on their direction.
+
+        Args:
+            request: Current request being processed.
+            instance: The instance related models should be looked up for.
+            omit: Remove relationships to these models from the result. Needs to be passed, if related models don't
+                provide a `_list` view.
+            extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
+                relationships.
+        """
+        df = models.DataFlow.objects.restrict(request.user, "view")
+        related_models = [
+            (df.filter(sources__pk=instance.pk), "source_aliases", "Data Flows as Source"),
+            (df.filter(destinations__pk=instance.pk), "destination_aliases", "Data Flows as Destination"),
+        ]
+
+        return super().get_related_models(request, instance, omit=omit, extra=related_models)
+
+
 @register_model_view(models.ObjectAlias, "list", path="", detail=False)
 class ObjectAliasListView(generic.ObjectListView):
     queryset = models.ObjectAlias.objects.annotate(
@@ -32,10 +54,12 @@ class ObjectAliasListView(generic.ObjectListView):
 
 
 @register_model_view(models.ObjectAlias)
-class ObjectAliasView(generic.ObjectView):
+class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
     queryset = models.ObjectAlias.objects.all()
 
     def get_extra_context(self, request, instance):
+        related_models = self.get_related_models(request, instance)
+
         prefix_table = PrefixTable(instance.prefixes.all())
         prefix_table.configure(request)
 
@@ -52,6 +76,7 @@ class ObjectAliasView(generic.ObjectView):
         dataflow_destinations_table.configure(request)
 
         return {
+            "related_models": related_models,
             "prefix_table": prefix_table,
             "ip_range_table": ip_range_table,
             "ip_address_table": ip_address_table,
