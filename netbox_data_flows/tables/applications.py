@@ -33,6 +33,7 @@ class ApplicationRoleTable(NetBoxTable):
             "slug",
             "application_count",
             "description",
+            "comments",
             "tags",
             "created",
             "last_updated",

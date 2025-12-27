@@ -16,6 +16,9 @@ __all__ = (
 
 
 class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
+    owner_id = None  # FIXME Compat v4.5.x
+    owner = None  # FIXME Compat v4.5.x
+
     class Meta:
         model = models.ApplicationRole
         fields = (

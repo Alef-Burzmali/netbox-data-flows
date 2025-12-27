@@ -23,6 +23,8 @@ class ApplicationRole(OrganizationalModel):
     # slug - unique
     # description
 
+    comments = models.TextField(blank=True)
+
     class Meta:
         ordering = ("name",)
 

@@ -45,6 +45,9 @@ class DataFlowGroupFilterSet(
     inherited_tag = TagFilter(method="filter_inherited_tags")
     inherited_tag_id = TagIDFilter(method="filter_inherited_tags")
 
+    owner_id = None  # FIXME Compat v4.5.x
+    owner = None  # FIXME Compat v4.5.x
+
     class Meta:
         model = models.DataFlowGroup
         fields = (
