@@ -1,7 +1,7 @@
 from django import forms
 
 from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
-from utilities.forms.fields import SlugField, TagFilterField
+from utilities.forms.fields import CommentField, SlugField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows.models import ApplicationRole
@@ -21,6 +21,7 @@ __all__ = (
 
 class ApplicationRoleForm(NetBoxModelForm):
     slug = SlugField()
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -33,7 +34,7 @@ class ApplicationRoleForm(NetBoxModelForm):
 
     class Meta:
         model = ApplicationRole
-        fields = ("name", "slug", "description", "tags")
+        fields = ("name", "slug", "description", "comments", "tags")
 
 
 #
@@ -45,13 +46,17 @@ class ApplicationRoleBulkEditForm(NetBoxModelBulkEditForm):
     model = ApplicationRole
 
     description = forms.CharField(max_length=200, required=False)
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
             "description",
         ),
     )
-    nullable_fields = ("description",)
+    nullable_fields = (
+        "description",
+        "comments",
+    )
 
 
 class ApplicationRoleImportForm(NetBoxModelImportForm):
@@ -61,6 +66,7 @@ class ApplicationRoleImportForm(NetBoxModelImportForm):
             "name",
             "slug",
             "description",
+            "comments",
         )
 
 

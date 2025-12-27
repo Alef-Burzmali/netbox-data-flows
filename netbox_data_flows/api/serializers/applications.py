@@ -21,6 +21,7 @@ class ApplicationRoleSerializer(NetBoxModelSerializer):
         model = models.ApplicationRole
         fields = (
             "application_count",
+            "comments",
             "created",
             "custom_fields",
             "description",
