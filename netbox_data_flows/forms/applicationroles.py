@@ -1,7 +1,10 @@
-from django import forms
-
-from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
-from utilities.forms.fields import CommentField, SlugField, TagFilterField
+from netbox.forms import (
+    OrganizationalModelBulkEditForm,
+    OrganizationalModelFilterSetForm,
+    OrganizationalModelForm,
+    OrganizationalModelImportForm,
+)
+from utilities.forms.fields import TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows.models import ApplicationRole
@@ -19,10 +22,7 @@ __all__ = (
 #
 
 
-class ApplicationRoleForm(NetBoxModelForm):
-    slug = SlugField()
-    comments = CommentField()
-
+class ApplicationRoleForm(OrganizationalModelForm):
     fieldsets = (
         FieldSet(
             "name",
@@ -34,7 +34,14 @@ class ApplicationRoleForm(NetBoxModelForm):
 
     class Meta:
         model = ApplicationRole
-        fields = ("name", "slug", "description", "comments", "tags")
+        fields = (
+            "comments",
+            "description",
+            "name",
+            "owner",
+            "slug",
+            "tags",
+        )
 
 
 #
@@ -42,11 +49,8 @@ class ApplicationRoleForm(NetBoxModelForm):
 #
 
 
-class ApplicationRoleBulkEditForm(NetBoxModelBulkEditForm):
+class ApplicationRoleBulkEditForm(OrganizationalModelBulkEditForm):
     model = ApplicationRole
-
-    description = forms.CharField(max_length=200, required=False)
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -54,19 +58,22 @@ class ApplicationRoleBulkEditForm(NetBoxModelBulkEditForm):
         ),
     )
     nullable_fields = (
-        "description",
         "comments",
+        "description",
+        "owner",
     )
 
 
-class ApplicationRoleImportForm(NetBoxModelImportForm):
+class ApplicationRoleImportForm(OrganizationalModelImportForm):
     class Meta:
         model = ApplicationRole
         fields = (
             "name",
             "slug",
             "description",
+            "owner",
             "comments",
+            "tags",
         )
 
 
@@ -75,6 +82,15 @@ class ApplicationRoleImportForm(NetBoxModelImportForm):
 #
 
 
-class ApplicationRoleFilterForm(NetBoxModelFilterSetForm):
+class ApplicationRoleFilterForm(OrganizationalModelFilterSetForm):
     model = ApplicationRole
     tag = TagFilterField(model)
+
+    fieldsets = (
+        FieldSet(
+            "filter_id",  # Saved Filter
+            "q",  # Search
+            "tag",
+            "owner_id",
+        ),
+    )

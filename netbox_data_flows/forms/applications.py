@@ -1,7 +1,7 @@
 from django import forms
 
-from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
-from utilities.forms.fields import CommentField, CSVModelChoiceField, DynamicModelChoiceField, TagFilterField
+from netbox.forms import PrimaryModelBulkEditForm, PrimaryModelFilterSetForm, PrimaryModelForm, PrimaryModelImportForm
+from utilities.forms.fields import CSVModelChoiceField, DynamicModelChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm, TenancyForm
@@ -22,13 +22,12 @@ __all__ = (
 #
 
 
-class ApplicationForm(TenancyForm, NetBoxModelForm):
+class ApplicationForm(TenancyForm, PrimaryModelForm):
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
         quick_add=True,
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -47,12 +46,14 @@ class ApplicationForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Application
         fields = (
-            "name",
-            "role",
-            "description",
-            "tenant",
             "comments",
+            "description",
+            "name",
+            "owner",
+            "role",
             "tags",
+            "tenant",
+            "tenant_group",
         )
 
 
@@ -61,33 +62,35 @@ class ApplicationForm(TenancyForm, NetBoxModelForm):
 #
 
 
-class ApplicationBulkEditForm(NetBoxModelBulkEditForm):
+class ApplicationBulkEditForm(PrimaryModelBulkEditForm):
     model = Application
 
-    description = forms.CharField(max_length=200, required=False)
     role = DynamicModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
     )
-    tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    comments = CommentField()
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False,
+    )
 
     fieldsets = (
         FieldSet(
             "role",
-            "tenant",
             "description",
+            "tenant",
         ),
     )
     nullable_fields = (
+        "comments",
+        "description",
+        "owner",
         "role",
         "tenant",
-        "description",
-        "comments",
     )
 
 
-class ApplicationImportForm(NetBoxModelImportForm):
+class ApplicationImportForm(PrimaryModelImportForm):
     role = CSVModelChoiceField(
         queryset=ApplicationRole.objects.all(),
         required=False,
@@ -106,9 +109,11 @@ class ApplicationImportForm(NetBoxModelImportForm):
         fields = (
             "name",
             "description",
-            "comments",
             "role",
             "tenant",
+            "owner",
+            "comments",
+            "tags",
         )
 
 
@@ -117,7 +122,7 @@ class ApplicationImportForm(NetBoxModelImportForm):
 #
 
 
-class ApplicationFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxModelFilterSetForm):
+class ApplicationFilterForm(ContactModelFilterForm, TenancyFilterForm, PrimaryModelFilterSetForm):
     model = Application
     tag = TagFilterField(model)
 
@@ -133,6 +138,7 @@ class ApplicationFilterForm(ContactModelFilterForm, TenancyFilterForm, NetBoxMod
             "filter_id",  # Saved Filter
             "q",  # Search
             "tag",
+            "owner_id",
         ),
         FieldSet(
             "role",
