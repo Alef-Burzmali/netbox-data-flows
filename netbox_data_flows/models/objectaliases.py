@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 
 from netbox_data_flows.utils.helpers import get_device_ipaddresses
@@ -34,7 +34,7 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
         return self.filter(filtering).distinct()
 
 
-class ObjectAlias(NetBoxModel):
+class ObjectAlias(PrimaryModel):
     """
     Source or Destination of a Data Flow.
 
@@ -44,16 +44,16 @@ class ObjectAlias(NetBoxModel):
     * IPRange
     """
 
+    # Inherited fields:
+    # description
+    # comments
+    # owner
+
     name = models.CharField(
         max_length=100,
         unique=True,
         help_text="The name of the ObjectAlias",
     )
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
-    comments = models.TextField(blank=True)
 
     # Our targets
     prefixes = models.ManyToManyField(
@@ -76,9 +76,10 @@ class ObjectAlias(NetBoxModel):
     objects = ObjectAliasQuerySet.as_manager()
 
     clone_fields = (
-        "prefixes",
-        "ip_ranges",
         "ip_addresses",
+        "ip_ranges",
+        "owner",
+        "prefixes",
     )
 
     def get_absolute_url(self):

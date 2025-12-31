@@ -31,10 +31,12 @@ class DataFlowGroup(NestedGroupModel):
     """Hierachical group of Data Flows."""
 
     # Inherited fields:
-    # parent
     # name
     # slug
+    # parent
+    # owner
     # description
+    # comments
 
     application = models.ForeignKey(
         to=Application,
@@ -47,8 +49,6 @@ class DataFlowGroup(NestedGroupModel):
     tenant = models.ForeignKey(
         to="tenancy.Tenant", on_delete=models.PROTECT, related_name="dataflowgroups", blank=True, null=True
     )
-    comments = models.TextField(blank=True)
-    owner = None  # FIXME Compat v4.5.x
 
     #
     # Status and inherited status
@@ -107,6 +107,7 @@ class DataFlowGroup(NestedGroupModel):
 
     clone_fields = (
         "application",
+        "owner",
         "parent",
         "status",
         "tenant",
