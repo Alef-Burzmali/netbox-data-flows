@@ -1,6 +1,7 @@
 from django.db.models import Q
 
-from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
+from netbox.filtersets import OrganizationalModelFilterSet, PrimaryModelFilterSet
+from utilities.filtersets import register_filterset
 
 from tenancy.filtersets import ContactModelFilterSet, TenancyFilterSet
 
@@ -15,10 +16,8 @@ __all__ = (
 )
 
 
+@register_filterset
 class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
-    owner_id = None  # FIXME Compat v4.5.x
-    owner = None  # FIXME Compat v4.5.x
-
     class Meta:
         model = models.ApplicationRole
         fields = (
@@ -29,7 +28,8 @@ class ApplicationRoleFilterSet(OrganizationalModelFilterSet):
         )
 
 
-class ApplicationFilterSet(ContactModelFilterSet, TenancyFilterSet, NetBoxModelFilterSet):
+@register_filterset
+class ApplicationFilterSet(ContactModelFilterSet, TenancyFilterSet, PrimaryModelFilterSet):
     role_id = ModelMultipleChoiceFilter(
         queryset=models.ApplicationRole.objects.all(),
         label="Application Role (ID)",
@@ -47,7 +47,6 @@ class ApplicationFilterSet(ContactModelFilterSet, TenancyFilterSet, NetBoxModelF
             "id",
             "name",
             "description",
-            "role",
         )
 
     def search(self, queryset, name, value):
