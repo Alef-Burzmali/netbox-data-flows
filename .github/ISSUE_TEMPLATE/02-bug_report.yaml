@@ -19,7 +19,7 @@ body:
     attributes:
       label: NetBox version
       description: What version of NetBox are you currently running?
-      placeholder: v4.4.0
+      placeholder: v4.5.0
     validations:
       required: true
   - type: input
@@ -28,7 +28,7 @@ body:
       description: >
         What version of NetBox Data Flows are you currently running?
         Note: only the latest version is supported.
-      placeholder: v1.4.0
+      placeholder: v1.5.0
     validations:
       required: true
   - type: checkboxes
