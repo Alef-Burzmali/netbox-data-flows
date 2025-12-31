@@ -1,7 +1,6 @@
-from django.db.models import Q
-
 from extras.filters import TagFilter, TagIDFilter
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import NestedGroupModelFilterSet
+from utilities.filtersets import register_filterset
 
 from tenancy.filtersets import TenancyFilterSet
 
@@ -14,11 +13,12 @@ from .filters import ModelMultipleChoiceFilter
 __all__ = ("DataFlowGroupFilterSet",)
 
 
+@register_filterset
 class DataFlowGroupFilterSet(
     ApplicationFilterSetAddin,
     InheritedStatusFilterSetAddin,
     TenancyFilterSet,
-    NetBoxModelFilterSet,
+    NestedGroupModelFilterSet,
 ):
     parent_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),
@@ -45,9 +45,6 @@ class DataFlowGroupFilterSet(
     inherited_tag = TagFilter(method="filter_inherited_tags")
     inherited_tag_id = TagIDFilter(method="filter_inherited_tags")
 
-    owner_id = None  # FIXME Compat v4.5.x
-    owner = None  # FIXME Compat v4.5.x
-
     class Meta:
         model = models.DataFlowGroup
         fields = (
@@ -57,13 +54,6 @@ class DataFlowGroupFilterSet(
             "description",
             "status",
         )
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-
-        qs_filter = Q(name__icontains=value) | Q(description__icontains=value) | Q(slug__icontains=value)
-        return queryset.filter(qs_filter)
 
     def filter_ancestors(self, queryset, name, value):
         if not value:
