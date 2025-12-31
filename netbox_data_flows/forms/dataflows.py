@@ -1,9 +1,8 @@
 from django import forms
 
-from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
+from netbox.forms import PrimaryModelBulkEditForm, PrimaryModelFilterSetForm, PrimaryModelForm, PrimaryModelImportForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    CommentField,
     CSVChoiceField,
     CSVModelChoiceField,
     CSVModelMultipleChoiceField,
@@ -49,7 +48,7 @@ def _port_selection():
     return group
 
 
-class DataFlowForm(TenancyForm, NetBoxModelForm):
+class DataFlowForm(TenancyForm, PrimaryModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -62,8 +61,6 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
         selector=True,
         help_text="Group of this Data Flow. Disabling the group will disable this data flow.",
     )
-
-    comments = CommentField()
 
     sources = PlaceholderModelMultipleChoiceField(
         queryset=models.ObjectAlias.objects.all(),
@@ -136,20 +133,21 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
         model = models.DataFlow
         fields = (
             "application",
-            "group",
-            "name",
-            "description",
-            "status",
-            "tenant",
             "comments",
-            "tags",
-            "protocol",
-            "source_ports",
+            "description",
             "destination_ports",
+            "destinations",
+            "group",
             "icmpv4_types",
             "icmpv6_types",
+            "name",
+            "owner",
+            "protocol",
+            "source_ports",
             "sources",
-            "destinations",
+            "status",
+            "tags",
+            "tenant",
         )
         help_texts = {
             "status": "Status of the data group. If its group is disabled, the data flow will also be disabled."
@@ -197,10 +195,13 @@ class DataFlowForm(TenancyForm, NetBoxModelForm):
 #
 
 
-class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
+class DataFlowBulkEditForm(PrimaryModelBulkEditForm):
     model = models.DataFlow
 
-    description = forms.CharField(max_length=200, required=False)
+    description = forms.CharField(
+        max_length=500,  # Overwritten from default 200
+        required=False,
+    )
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -213,7 +214,6 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
         },
     )
     tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    comments = CommentField()
 
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -268,19 +268,20 @@ class DataFlowBulkEditForm(NetBoxModelBulkEditForm):
     )
     nullable_fields = (
         "application",
-        "group",
-        "tenant",
         "description",
         "comments",
+        "destination_ports",
+        "destinations",
+        "group",
+        "owner",
         "protocol",
         "source_ports",
-        "destination_ports",
         "sources",
-        "destinations",
+        "tenant",
     )
 
 
-class DataFlowImportForm(NetBoxModelImportForm):
+class DataFlowImportForm(PrimaryModelImportForm):
     application = CSVModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -353,7 +354,9 @@ class DataFlowImportForm(NetBoxModelImportForm):
             "destination_ports",
             "sources",
             "destinations",
+            "owner",
             "comments",
+            "tags",
         )
 
 
@@ -362,7 +365,7 @@ class DataFlowImportForm(NetBoxModelImportForm):
 #
 
 
-class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class DataFlowFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
     model = models.DataFlow
 
     application_id = DynamicModelMultipleChoiceField(
@@ -501,6 +504,7 @@ class DataFlowFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             "filter_id",  # Saved Filter
             "q",  # Search
             "tag",
+            "owner_id",
         ),
         FieldSet(
             "application_id",

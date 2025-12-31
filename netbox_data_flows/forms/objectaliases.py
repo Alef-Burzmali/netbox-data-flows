@@ -1,7 +1,7 @@
 from django import forms
 
-from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
-from utilities.forms.fields import CommentField, DynamicModelMultipleChoiceField, TagFilterField
+from netbox.forms import PrimaryModelBulkEditForm, PrimaryModelFilterSetForm, PrimaryModelForm, PrimaryModelImportForm
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
@@ -23,9 +23,7 @@ __all__ = (
 #
 
 
-class ObjectAliasForm(NetBoxModelForm):
-    comments = CommentField()
-
+class ObjectAliasForm(PrimaryModelForm):
     prefixes = DynamicModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         required=False,
@@ -57,13 +55,14 @@ class ObjectAliasForm(NetBoxModelForm):
     class Meta:
         model = models.ObjectAlias
         fields = (
-            "name",
-            "description",
-            "tags",
             "comments",
-            "prefixes",
-            "ip_ranges",
+            "description",
             "ip_addresses",
+            "ip_ranges",
+            "name",
+            "owner",
+            "prefixes",
+            "tags",
         )
 
 
@@ -72,9 +71,8 @@ class ObjectAliasForm(NetBoxModelForm):
 #
 
 
-class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
+class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
     model = models.ObjectAlias
-    comments = CommentField()
 
     description = forms.CharField(max_length=200, required=False)
 
@@ -99,24 +97,32 @@ class ObjectAliasBulkEditForm(NetBoxModelBulkEditForm):
             "description",
             "comments",
         ),
-        FieldSet("prefixes", "ip_ranges", "ip_addresses", name="Aliased objects"),
+        FieldSet(
+            "prefixes",
+            "ip_ranges",
+            "ip_addresses",
+            name="Aliased objects",
+        ),
     )
     nullable_fields = (
-        "description",
         "comments",
+        "description",
+        "owner",
         "prefixes",
         "ip_ranges",
         "ip_addresses",
     )
 
 
-class ObjectAliasImportForm(NetBoxModelImportForm):
+class ObjectAliasImportForm(PrimaryModelImportForm):
     class Meta:
         model = models.ObjectAlias
         fields = (
             "name",
             "description",
+            "owner",
             "comments",
+            "tags",
         )
 
 
@@ -125,7 +131,7 @@ class ObjectAliasImportForm(NetBoxModelImportForm):
 #
 
 
-class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
+class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
     model = models.ObjectAlias
     tag = TagFilterField(model)
 
@@ -162,6 +168,7 @@ class ObjectAliasFilterForm(NetBoxModelFilterSetForm):
             "filter_id",  # Saved Filter
             "q",  # Search
             "tag",
+            "owner_id",
         ),
         FieldSet(
             "prefixes",

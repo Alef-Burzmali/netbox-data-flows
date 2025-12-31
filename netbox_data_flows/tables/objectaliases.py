@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import PrimaryModelTable, columns
 
 from netbox_data_flows.models import ObjectAlias
 
@@ -8,7 +8,7 @@ from netbox_data_flows.models import ObjectAlias
 __all__ = ("ObjectAliasTable",)
 
 
-class ObjectAliasTable(NetBoxTable):
+class ObjectAliasTable(PrimaryModelTable):
     name = tables.Column(
         linkify=True,
     )
@@ -33,7 +33,7 @@ class ObjectAliasTable(NetBoxTable):
     )
     tags = columns.TagColumn(url_name="plugins:netbox_data_flows:objectalias_list")
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = ObjectAlias
         fields = (
             "pk",
@@ -47,6 +47,7 @@ class ObjectAliasTable(NetBoxTable):
             "dataflow_destination_count",
             "comments",
             "tags",
+            "owner",
             "created",
             "last_updated",
             "actions",
