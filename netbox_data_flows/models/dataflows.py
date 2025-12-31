@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 
 from extras.models import Tag
-from netbox.models import NetBoxModel
+from netbox.models import PrimaryModel
 from utilities.data import array_to_string
 from utilities.querysets import RestrictedQuerySet
 
@@ -52,12 +52,17 @@ class DataFlowQuerySet(RestrictedQuerySet):
         return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains(*objects))).distinct()
 
 
-class DataFlow(NetBoxModel):
+class DataFlow(PrimaryModel):
     """Representation of a data flow for an application."""
+
+    # Inherited fields:
+    # description - overwritten
+    # comments
+    # owner
 
     name = models.CharField(max_length=200)
     description = models.CharField(
-        max_length=500,
+        max_length=500,  # increased from default 200 to 500
         blank=True,
     )
     application = models.ForeignKey(
@@ -78,7 +83,6 @@ class DataFlow(NetBoxModel):
     tenant = models.ForeignKey(
         to="tenancy.Tenant", on_delete=models.PROTECT, related_name="dataflows", blank=True, null=True
     )
-    comments = models.TextField(blank=True)
 
     #
     # Status and inherited status
@@ -218,6 +222,7 @@ class DataFlow(NetBoxModel):
         "destination_ports",
         "destinations",
         "group",
+        "owner",
         "protocol",
         "source_ports",
         "sources",
