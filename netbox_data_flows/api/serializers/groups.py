@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from netbox.api.fields import ChoiceField
-from netbox.api.serializers import NestedTagSerializer, NetBoxModelSerializer, WritableNestedSerializer
+from netbox.api.serializers import NestedGroupModelSerializer, NestedTagSerializer, WritableNestedSerializer
 
 from tenancy.api.serializers import TenantSerializer
 
@@ -45,7 +45,7 @@ class NestedDataFlowGroupSerializer(WritableNestedSerializer):
         )
 
 
-class DataFlowGroupSerializer(NetBoxModelSerializer):
+class DataFlowGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:dataflowgroup-detail")
 
     status = ChoiceField(choices=choices.DataFlowStatusChoices, required=False)
@@ -57,7 +57,6 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
 
     application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
     parent = NestedDataFlowGroupSerializer(nested=True, required=False, allow_null=True, default=None)
-    _depth = serializers.IntegerField(source="level", read_only=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
 
     inherited_tags = NestedTagSerializer(many=True, required=False, read_only=True)
@@ -82,6 +81,7 @@ class DataFlowGroupSerializer(NetBoxModelSerializer):
             "status",
             "inherited_tags",
             "tags",
+            "owner",
             "url",
         )
         brief_fields = (
