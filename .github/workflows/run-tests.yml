@@ -35,10 +35,10 @@ jobs:
         node-version: ["20.x"]
         include:
           - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
-            python-version: "3.11"
+            python-version: "3.13"
             node-version: "20.x"
           - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
-            python-version: "3.10"
+            python-version: "3.14"
             node-version: "20.x"
     continue-on-error: ${{ matrix.netbox-version != fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
     services:
