@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import OrganizationalModelTable, PrimaryModelTable, columns
 
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class ApplicationRoleTable(NetBoxTable):
+class ApplicationRoleTable(OrganizationalModelTable):
     name = tables.Column(
         linkify=True,
     )
@@ -24,7 +24,7 @@ class ApplicationRoleTable(NetBoxTable):
     )
     tags = columns.TagColumn(url_name="plugins:netbox_data_flows:applicationrole_list")
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(OrganizationalModelTable.Meta):
         model = ApplicationRole
         fields = (
             "pk",
@@ -35,6 +35,7 @@ class ApplicationRoleTable(NetBoxTable):
             "description",
             "comments",
             "tags",
+            "owner",
             "created",
             "last_updated",
             "actions",
@@ -46,7 +47,7 @@ class ApplicationRoleTable(NetBoxTable):
         )
 
 
-class ApplicationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
+class ApplicationTable(TenancyColumnsMixin, ContactsColumnMixin, PrimaryModelTable):
     name = tables.Column(
         linkify=True,
     )
@@ -60,7 +61,7 @@ class ApplicationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     tags = columns.TagColumn(url_name="plugins:netbox_data_flows:application_list")
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(PrimaryModelTable.Meta):
         model = Application
         fields = (
             "pk",
@@ -75,6 +76,7 @@ class ApplicationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             "tenant",
             "tenant_group",
             "tags",
+            "owner",
             "created",
             "last_updated",
             "actions",

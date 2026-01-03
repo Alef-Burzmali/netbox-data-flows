@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from netbox.models import NetBoxModel, OrganizationalModel
+from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 
 
@@ -22,9 +22,9 @@ class ApplicationRole(OrganizationalModel):
     # name - unique
     # slug - unique
     # description
+    # owner
 
     comments = models.TextField(blank=True)
-    owner = None  # FIXME Compat v4.5.x
 
     class Meta:
         ordering = ("name",)
@@ -36,14 +36,15 @@ class ApplicationRole(OrganizationalModel):
         return reverse("plugins:netbox_data_flows:applicationrole", args=[self.pk])
 
 
-class Application(ContactsMixin, NetBoxModel):
+class Application(ContactsMixin, PrimaryModel):
     """Representation of an application hosted on devices or VM."""
 
+    # Inherited fields:
+    # description
+    # comments
+    # owner
+
     name = models.CharField(max_length=100, unique=True, help_text="The name of this application")
-    description = models.CharField(
-        max_length=200,
-        blank=True,
-    )
     role = models.ForeignKey(
         to=ApplicationRole,
         on_delete=models.SET_NULL,
@@ -55,12 +56,11 @@ class Application(ContactsMixin, NetBoxModel):
     tenant = models.ForeignKey(
         to="tenancy.Tenant", on_delete=models.PROTECT, related_name="applications", blank=True, null=True
     )
-    comments = models.TextField(blank=True)
 
     class Meta:
         ordering = ("name",)
 
-    clone_fields = ("role", "tenant")
+    clone_fields = ("role", "tenant", "owner")
 
     def __str__(self):
         return self.name

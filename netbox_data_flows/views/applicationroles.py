@@ -24,6 +24,7 @@ class ApplicationRoleListView(generic.ObjectListView):
     ).order_by(*models.ApplicationRole._meta.ordering)
     table = tables.ApplicationRoleTable
     filterset = filtersets.ApplicationRoleFilterSet
+    filterset_form = forms.ApplicationRoleFilterForm
 
 
 @register_model_view(models.ApplicationRole)

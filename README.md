@@ -31,15 +31,15 @@ The plugin adds Tab views to Devices, Virtual Machines, IP addresses, IP ranges 
 
 ## Getting started
 
-Read the [Quick Start tutorial](docs/quick-start.md) to discover how to use the plugin.
+Read the [Quick Start tutorial](https://alef-burzmali.github.io/netbox-data-flows/quick-start/) to discover how to use the plugin.
 
 ## Data model
 
-The data model and design's decisions can be found in the [documentation](docs/data-model.md).
+The data model and design's decisions can be found in the [documentation](https://alef-burzmali.github.io/netbox-data-flows/data-model/).
 
 ## Installation and configuration
 
-Instructions to install, configure, update or uninstall the plugin can be found in the [plugin's documentation](docs/installation-configuration.md).
+Instructions to install, configure, update or uninstall the plugin can be found in the [plugin's documentation](https://alef-burzmali.github.io/netbox-data-flows/installation-configuration/).
 
 ### Supported Versions
 
@@ -48,17 +48,15 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 | >= 4.5.0       | >= v1.4.1                     |
 | >= 4.4.0       | >= v1.2.1, < v1.5.0           |
 | >= 4.3.0       | >= v1.1.1, < v1.5.0           |
-| >= 4.2.0       | >= v1.1.0, < v1.4.0           |
-| >= 4.1.0       | >= v1.0.4, < v1.2.0           |
-| >= 4.0.0       | >= v1.0.0, < v1.2.0           |
-|  < 4.0.0       | Not supported                 |
+
+[Older versions](https://alef-burzmali.github.io/netbox-data-flows/installation-configuration/#installation-and-configuration)
 
 Only the latest version of the plugin is officially supported. The test suite is run on the latest patch version of the current version of NetBox, and the previous one (if no breaking compatibility change).
 
 ### Dependencies
 
 * NetBox
-* Python 3.10 or higher
+* Python 3.12 or higher
 
 ## Contributions
 

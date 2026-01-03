@@ -1,14 +1,17 @@
 from django import forms
 
-from netbox.forms import NetBoxModelBulkEditForm, NetBoxModelFilterSetForm, NetBoxModelForm, NetBoxModelImportForm
+from netbox.forms import (
+    NestedGroupModelBulkEditForm,
+    NestedGroupModelFilterSetForm,
+    NestedGroupModelForm,
+    NestedGroupModelImportForm,
+)
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    CommentField,
     CSVChoiceField,
     CSVModelChoiceField,
     DynamicModelChoiceField,
     DynamicModelMultipleChoiceField,
-    SlugField,
     TagFilterField,
 )
 from utilities.forms.rendering import FieldSet
@@ -31,8 +34,7 @@ __all__ = (
 #
 
 
-class DataFlowGroupForm(TenancyForm, NetBoxModelForm):
-    slug = SlugField()
+class DataFlowGroupForm(TenancyForm, NestedGroupModelForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -45,7 +47,6 @@ class DataFlowGroupForm(TenancyForm, NetBoxModelForm):
         selector=True,
         help_text="Parent group of this Data Flow Group.",
     )
-    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -68,14 +69,15 @@ class DataFlowGroupForm(TenancyForm, NetBoxModelForm):
         model = models.DataFlowGroup
         fields = (
             "application",
-            "parent",
-            "name",
-            "slug",
-            "tenant",
-            "description",
-            "status",
             "comments",
+            "description",
+            "name",
+            "owner",
+            "parent",
+            "slug",
+            "status",
             "tags",
+            "tenant",
         )
         help_texts = {
             "status": (
@@ -90,7 +92,7 @@ class DataFlowGroupForm(TenancyForm, NetBoxModelForm):
 #
 
 
-class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
+class DataFlowGroupBulkEditForm(NestedGroupModelBulkEditForm):
     model = models.DataFlowGroup
 
     description = forms.CharField(max_length=200, required=False)
@@ -103,7 +105,6 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
     )
     tenant = DynamicModelChoiceField(queryset=Tenant.objects.all(), required=False)
-    comments = CommentField()
 
     status = forms.ChoiceField(
         choices=add_blank_choice(choices.DataFlowStatusChoices),
@@ -121,13 +122,14 @@ class DataFlowGroupBulkEditForm(NetBoxModelBulkEditForm):
     )
     nullable_fields = (
         "application",
+        "comments",
+        "owner",
         "parent",
         "tenant",
-        "comments",
     )
 
 
-class DataFlowGroupImportForm(NetBoxModelImportForm):
+class DataFlowGroupImportForm(NestedGroupModelImportForm):
     application = DynamicModelChoiceField(
         queryset=models.Application.objects.all(),
         required=False,
@@ -162,7 +164,9 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
             "parent",
             "tenant",
             "status",
+            "owner",
             "comments",
+            "tags",
         )
 
 
@@ -171,7 +175,7 @@ class DataFlowGroupImportForm(NetBoxModelImportForm):
 #
 
 
-class DataFlowGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
+class DataFlowGroupFilterForm(TenancyFilterForm, NestedGroupModelFilterSetForm):
     model = models.DataFlowGroup
 
     tag = TagFilterField(model)
@@ -206,6 +210,7 @@ class DataFlowGroupFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             "filter_id",  # Saved Filter
             "q",  # Search
             "tag",
+            "owner_id",
         ),
         FieldSet(
             "application",

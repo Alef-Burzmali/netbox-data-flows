@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
-from netbox.api.serializers import NestedTagSerializer, NetBoxModelSerializer
+from netbox.api.serializers import NestedTagSerializer, PrimaryModelSerializer
 
 from tenancy.api.serializers import TenantSerializer
 
@@ -15,7 +15,7 @@ from .objectaliases import ObjectAliasSerializer
 __all__ = ("DataFlowSerializer",)
 
 
-class DataFlowSerializer(NetBoxModelSerializer):
+class DataFlowSerializer(PrimaryModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="plugins-api:netbox_data_flows-api:dataflow-detail")
 
     application = ApplicationSerializer(nested=True, required=False, allow_null=True, default=None)
@@ -70,6 +70,7 @@ class DataFlowSerializer(NetBoxModelSerializer):
             "status",
             "tags",
             "inherited_tags",
+            "owner",
             "url",
         )
         brief_fields = (

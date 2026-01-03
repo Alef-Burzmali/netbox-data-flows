@@ -1,6 +1,6 @@
 import django_tables2 as tables
 
-from netbox.tables import ChoiceFieldColumn, NetBoxTable, columns
+from netbox.tables import ChoiceFieldColumn, NestedGroupModelTable, columns
 
 from tenancy.tables import TenancyColumnsMixin
 
@@ -10,7 +10,7 @@ from netbox_data_flows.models import DataFlowGroup
 __all__ = ("DataFlowGroupTable",)
 
 
-class DataFlowGroupTable(TenancyColumnsMixin, NetBoxTable):
+class DataFlowGroupTable(TenancyColumnsMixin, NestedGroupModelTable):
     application = tables.Column(
         linkify=True,
     )
@@ -18,14 +18,6 @@ class DataFlowGroupTable(TenancyColumnsMixin, NetBoxTable):
     application_role = tables.Column(
         linkify=True,
         accessor=tables.A("application__role"),
-    )
-
-    parent = tables.Column(
-        linkify=True,
-    )
-
-    name = columns.MPTTColumn(
-        linkify=True,
     )
 
     status = ChoiceFieldColumn(accessor=tables.A("inherited_status_display"))
@@ -38,7 +30,7 @@ class DataFlowGroupTable(TenancyColumnsMixin, NetBoxTable):
 
     tags = columns.TagColumn(url_name="plugins:netbox_data_flows:dataflowgroup_list")
 
-    class Meta(NetBoxTable.Meta):
+    class Meta(NestedGroupModelTable.Meta):
         model = DataFlowGroup
         fields = (
             "pk",
@@ -55,6 +47,7 @@ class DataFlowGroupTable(TenancyColumnsMixin, NetBoxTable):
             "tenant_group",
             "comments",
             "tags",
+            "owner",
             "created",
             "last_updated",
             "actions",

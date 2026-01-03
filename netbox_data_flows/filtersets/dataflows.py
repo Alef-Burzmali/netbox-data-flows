@@ -1,7 +1,8 @@
 from django.db.models import Q
 
 from extras.filters import TagFilter, TagIDFilter
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import PrimaryModelFilterSet
+from utilities.filtersets import register_filterset
 
 from dcim.models import Device
 from ipam.models import IPAddress, IPRange, Prefix
@@ -23,11 +24,12 @@ from .filters import (
 __all__ = ("DataFlowFilterSet",)
 
 
+@register_filterset
 class DataFlowFilterSet(
     ApplicationFilterSetAddin,
     InheritedStatusFilterSetAddin,
     TenancyFilterSet,
-    NetBoxModelFilterSet,
+    PrimaryModelFilterSet,
 ):
     group_id = ModelMultipleChoiceFilter(
         queryset=models.DataFlowGroup.objects.all(),

@@ -1,6 +1,7 @@
 from django.db.models import Q
 
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import PrimaryModelFilterSet
+from utilities.filtersets import register_filterset
 
 from dcim.models import Device
 from ipam.models import IPAddress, IPRange, Prefix
@@ -15,7 +16,8 @@ from .filters import ModelMultipleChoiceFilter
 __all__ = ("ObjectAliasFilterSet",)
 
 
-class ObjectAliasFilterSet(NetBoxModelFilterSet):
+@register_filterset
+class ObjectAliasFilterSet(PrimaryModelFilterSet):
     prefixes = ModelMultipleChoiceFilter(
         queryset=Prefix.objects.all(),
         label="Prefix (ID)",

@@ -29,7 +29,7 @@ NetBox's plugin API, such as MPTT Tree-based models. Upward compatiblity is ther
 ### Dependencies
 
 * NetBox
-* Python 3.10 or higher
+* Python 3.12 or higher
 
 ### Installation
 
