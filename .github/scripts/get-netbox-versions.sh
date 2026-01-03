@@ -4,6 +4,7 @@
 # - Find the most recent version within support range for additional testing.
 # - If the most recent pre-release version is within the range and more recent than the latest stable release, test it too.
 
+readonly REQUESTED_VERSION="${1:-}"
 readonly MIN_VERSION=v$(grep -F "min_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
 readonly MAX_VERSION=v$(grep -F "max_version =" netbox-data-flows/netbox_data_flows/__init__.py | cut -d\" -f2)
 
@@ -72,6 +73,28 @@ function beta_should_be_tested() {
   supported_range "$beta_no_suffix"
   return $?
 }
+
+# A specific version was requested
+if [ -n "${REQUESTED_VERSION}" ]; then
+  requested="${REQUESTED_VERSION}"
+  if ! ( echo -n "${requested}" | grep -qE "^v"); then
+    requested="v${requested}"
+  fi
+
+  declare -a all_versions=($(git tag | \grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' | sort -Vr))
+  echo "[*] NetBox has ${#all_versions[@]} stable release and pre-release tags, version ${requested} was specifically requested."
+
+  if ! [[ " ${all_versions[@]} " =~ " ${requested} " ]]; then
+    echo "Requested version ${requested} not found in NetBox's release tags." >&1
+    exit 1
+  fi
+
+  echo 'latest_version="'${requested}'"' | tee -a "$GITHUB_OUTPUT"
+  echo 'supported_versions=["'${requested}'"]' | tee -a "$GITHUB_OUTPUT"
+  exit 0
+fi
+
+# No specific version request, find versions based on supported range.
 
 latest_version=""
 declare -a supported_versions=()
