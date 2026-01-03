@@ -2,6 +2,12 @@ name: Get supported NetBox versions
 
 on:
   workflow_call:
+    inputs:
+      requested_version:
+        description: 'Test against a specific NetBox version (string, prefixed with v)'
+        required: false
+        default: ''
+        type: string
     outputs:
       latest_version:
         description: "The most recent NetBox tag within the supported version range of the plugin."
@@ -9,7 +15,6 @@ on:
       supported_versions:
         description: "All the patch versions of the highest supported minor version, and the latest patch of all subsequently supported minors."
         value: ${{ jobs.get-netbox-versions.outputs.supported_versions }}
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -40,4 +45,4 @@ jobs:
       - id: netbox-versions
         name: Extract supported NetBox versions
         shell: bash
-        run: ./netbox-data-flows/.github/scripts/get-netbox-versions.sh
+        run: ./netbox-data-flows/.github/scripts/get-netbox-versions.sh "${{ inputs.requested_version }}"

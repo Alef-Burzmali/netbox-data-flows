@@ -11,13 +11,13 @@ on:
       - 'gh-pages'
   pull_request:
   workflow_call:
+  workflow_dispatch:
     inputs:
       netbox_version:
-        description: 'Test against a specific NetBox version (string, prefix with v)'
+        description: 'Test against a specific NetBox version (string, prefixed with v)'
         required: false
         default: ''
         type: string
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,28 +25,29 @@ permissions:
 jobs:
   get-netbox-versions:
     uses: ./.github/workflows/get-netbox-versions.yml
-    if: ( ! inputs.netbox_version ) && ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name )
+    with:
+      requested_version: ${{ inputs.netbox_version }}
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
   run-test-matrix:
     name: Run tests
     needs: get-netbox-versions
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     env:
       NETBOX_CONFIGURATION: netbox.configuration_testing
     strategy:
       matrix:
-        netbox-version: ${{ inputs.netbox_version || fromJSON(needs.get-netbox-versions.outputs.supported_versions) }}
+        netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.supported_versions) }}
         python-version: ["3.12"]
         node-version: ["20.x"]
         include:
-          - netbox-version: ${{ inputs.netbox_version || fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
+          - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
             python-version: "3.13"
             node-version: "20.x"
-          - netbox-version: ${{ inputs.netbox_version || fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
+          - netbox-version: ${{ fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
             python-version: "3.14"
             node-version: "20.x"
-    continue-on-error: ${{ ( ! inputs.netbox_version ) && matrix.netbox-version != fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
+    continue-on-error: ${{ matrix.netbox-version != fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
     services:
       redis:
         image: redis
@@ -115,7 +116,6 @@ jobs:
   run-tests:
     name: All tests finished
     needs: run-test-matrix
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
     runs-on: ubuntu-latest
     steps:
       - run: echo ok
