@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/changelog/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/data-model/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/installation-configuration/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/quick-start/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+    <url>
+         <loc>https://Alef-Burzmali.github.io/netbox-data-flows/security/</loc>
+         <lastmod>2026-01-07</lastmod>
+    </url>
+</urlset>
