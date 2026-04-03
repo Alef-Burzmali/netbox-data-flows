@@ -1,0 +1,34 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load i18n %}
+{% load perms %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Object Aliases" %}</h5>
+        {% render_table related_aliases_table %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Source in Data Flows" %}</h5>
+        {% render_table related_dataflow_sources_table %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Destination in Data Flows" %}</h5>
+        {% render_table related_dataflow_destinations_table %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

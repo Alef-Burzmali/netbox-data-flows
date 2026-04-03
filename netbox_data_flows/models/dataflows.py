@@ -51,6 +51,18 @@ class DataFlowQuerySet(RestrictedQuerySet):
     def destinations(self, *objects):
         return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains(*objects))).distinct()
 
+    def related_sources_or_destinations(self, *objects):
+        return self.filter(
+            models.Q(sources__in=ObjectAlias.objects.related_to(*objects))
+            | models.Q(destinations__in=ObjectAlias.objects.related_to(*objects))
+        ).distinct()
+
+    def related_sources(self, *objects):
+        return self.filter(models.Q(sources__in=ObjectAlias.objects.related_to(*objects))).distinct()
+
+    def related_destinations(self, *objects):
+        return self.filter(models.Q(destinations__in=ObjectAlias.objects.related_to(*objects))).distinct()
+
 
 class DataFlow(AccessibleTagsMixin, PrimaryModel):
     """Representation of a data flow for an application."""

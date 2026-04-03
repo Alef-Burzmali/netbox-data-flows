@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
+from netaddr.ip import IPNetwork
 from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 
@@ -29,6 +30,48 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                     raise TypeError(f"Cannot test if {self.__class__} contains {obj}") from e
 
             filtering |= models.Q(ip_addresses__in=dev_addresses)
+
+        return self.filter(filtering).distinct()
+
+    def related_to(self, *objects):
+        """Return ObjectAlias related to any one of the objects in parameter."""
+        filtering = models.Q()
+        if prefixes := [o for o in objects if o._meta.model_name == "prefix"]:
+            for prefix in prefixes:
+                network_address = IPNetwork(f"{prefix.prefix.network}/{prefix.prefix.prefixlen}")
+                broadcast_address = IPNetwork(f"{prefix.prefix.broadcast}/{prefix.prefix.prefixlen}")
+
+                # prefixes where passed prefix is within prefix
+                filtering |= models.Q(prefixes__vrf=prefix.vrf, prefixes__prefix__net_contains=prefix.prefix)
+                # ranges where passed prefix is within or equals range
+                filtering |= models.Q(ip_ranges__vrf=prefix.vrf, ip_ranges__start_address__lte=network_address, ip_ranges__end_address__gte=broadcast_address)
+        if ip_ranges := [o for o in objects if o._meta.model_name == "iprange"]:
+            for ip_range in ip_ranges:
+                # prefixes where passed range is within or equals prefix
+                filtering |= (
+                    models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.start_address) &
+                    models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.end_address)
+                )
+        if ip_addresses := [o for o in objects if o._meta.model_name == "ipaddress"]:
+            for ip_address in ip_addresses:
+                # prefixes where passed IP is within prefix
+                filtering |= models.Q(prefixes__vrf=ip_address.vrf, prefixes__prefix__net_contains=ip_address.address)
+                # ranges where passed IP is within range
+                filtering |= models.Q(ip_ranges__vrf=ip_address.vrf, ip_ranges__start_address__lte=ip_address.address, ip_ranges__end_address__gte=ip_address.address)
+
+        if other := [o for o in objects if o._meta.model_name not in ("prefix", "iprange", "ipaddress")]:
+            dev_addresses = []
+            for obj in other:
+                try:
+                    dev_addresses += get_device_ipaddresses(obj)
+                except Exception as e:
+                    raise TypeError(f"Cannot test if {self.__class__} is related to {obj}") from e
+
+            for dev_address in dev_addresses:
+                # prefixes where passed IP is within prefix
+                filtering |= models.Q(prefixes__vrf=dev_address.vrf, prefixes__prefix__net_contains=dev_address.address)
+                # ranges where passed IP is within range
+                filtering |= models.Q(ip_ranges__vrf=dev_address.vrf, ip_ranges__start_address__lte=dev_address.address, ip_ranges__end_address__gte=dev_address.address)
 
         return self.filter(filtering).distinct()
 
