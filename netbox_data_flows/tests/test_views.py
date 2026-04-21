@@ -6,7 +6,9 @@ from core.models import ObjectType
 from users.models import ObjectPermission
 from utilities.testing import ViewTestCases, create_tags, post_data
 
+from dcim import models as dcim
 from ipam import models as ipam
+from virtualization import models as virtualization
 
 from netbox_data_flows import choices, models
 
@@ -379,6 +381,31 @@ class DataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
         for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
             self.assertInstanceEqual(instance, changelog_data)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
+    def test_targets_include_dynamic_alias_ips(self):
+        device_tag = create_tags("targets-device")[0]
+        device = dcim.Device.objects.get(name="Device 1")
+        device.tags.add(device_tag)
+
+        alias = models.ObjectAlias.objects.create(name="Object Alias Dynamic Targets", description="Dynamic")
+        alias.device_tags.set([device_tag])
+
+        instance = models.DataFlow.objects.create(
+            name="Data Flow Dynamic Targets",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_TCP,
+        )
+        instance.sources.set([alias])
+
+        obj_perm = ObjectPermission(name="Test permission", actions=["view"])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        response = self.client.get(self._get_url("targets", instance))
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "10.0.1.1/24")
+        self.assertContains(response, "10.0.1.2/24")
+
 
 class ICMPDataFlowTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase):
     model = models.DataFlow
@@ -534,7 +561,9 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
             "prefixes": prefixes,
             "ip_ranges": ip_ranges,
             "ip_addresses": ip_addresses,
+            "device_tags": [tags[0].pk],
             "tags": [t.pk for t in tags],
+            "virtual_machine_tags": [tags[1].pk],
         }
 
         cls.csv_data = (
@@ -557,4 +586,29 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
             "prefixes": [prefixes[0]],
             "ip_ranges": ip_ranges,
             "ip_addresses": [ip_addresses[1]],
+            "device_tags": [tags[0].pk],
+            "virtual_machine_tags": [tags[1].pk],
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
+    def test_detail_view_dynamic_members(self):
+        device_tag, virtual_machine_tag = create_tags("view-device", "view-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        instance = models.ObjectAlias.objects.create(name="Object Alias Dynamic View", description="Dynamic")
+        instance.device_tags.set([device_tag])
+        instance.virtual_machine_tags.set([virtual_machine_tag])
+
+        obj_perm = ObjectPermission(name="Test permission", actions=["view"])
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        response = self.client.get(instance.get_absolute_url())
+        self.assertHttpStatus(response, 200)
+        self.assertContains(response, "Resolved IP Addresses")
+        self.assertContains(response, "10.0.1.1/24")
+        self.assertContains(response, "10.100.1.1/24")
