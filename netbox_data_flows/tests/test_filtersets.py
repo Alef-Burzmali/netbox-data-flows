@@ -1,5 +1,7 @@
 from django.test import TestCase
 
+from utilities.testing import create_tags
+
 from dcim import models as dcim
 from ipam import models as ipam
 from virtualization import models as virtualization
@@ -273,6 +275,27 @@ class ObjectAliasTestCase(TestCase):
             "devices": [dcim.Device.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_dynamic_tag_members(self):
+        device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        alias = models.ObjectAlias.objects.create(name="Object Alias Dynamic Filter", description="Dynamic")
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        device_params = {"devices": [device.pk]}
+        self.assertIn(alias, self.filterset(device_params, self.queryset).qs)
+
+        virtual_machine_params = {"virtual_machines": [virtual_machine.pk]}
+        self.assertIn(alias, self.filterset(virtual_machine_params, self.queryset).qs)
+
+        device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
+        ip_params = {"ip_addresses": [device_ip.pk]}
+        self.assertIn(alias, self.filterset(ip_params, self.queryset).qs)
 
 
 class DataFlowTestCase(TestCase):
