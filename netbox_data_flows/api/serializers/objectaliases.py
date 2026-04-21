@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
+from extras.models import Tag
 from netbox.api.fields import SerializedPKRelatedField
-from netbox.api.serializers import PrimaryModelSerializer
+from netbox.api.serializers import NestedTagSerializer, PrimaryModelSerializer
 
 from ipam.api.serializers import IPAddressSerializer, IPRangeSerializer, PrefixSerializer
 from ipam.models import IPAddress, IPRange, Prefix
@@ -34,11 +35,26 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    device_tags = SerializedPKRelatedField(
+        queryset=Tag.objects.all(),
+        serializer=NestedTagSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
+    virtual_machine_tags = SerializedPKRelatedField(
+        queryset=Tag.objects.all(),
+        serializer=NestedTagSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = models.ObjectAlias
         fields = (
             "comments",
+            "device_tags",
             "description",
             "display",
             "id",
@@ -49,6 +65,7 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
             "tags",
             "owner",
             "url",
+            "virtual_machine_tags",
         )
         brief_fields = (
             "description",
