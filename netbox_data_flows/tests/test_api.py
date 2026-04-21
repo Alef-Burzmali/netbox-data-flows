@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from utilities.testing import APITestCase
+from utilities.testing import APITestCase, create_tags
 from utilities.testing import APIViewTestCases as _APIViewTestCases
 
 from ipam import models as ipam
@@ -168,6 +168,7 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
     def setUpTestData(cls):
         data = TestData()
         data.objectaliases
+        dynamic_tags = create_tags("dynamic-device-tag", "dynamic-virtual-machine-tag")
 
         ip_addresses = [
             ipam.IPAddress(address="192.168.0.1/24"),
@@ -202,12 +203,16 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
                 "name": "Object Alias 22",
                 "comments": "New comments",
                 "ip_addresses": [ip_addresses[0].pk],
+                "device_tags": [dynamic_tags[0].pk],
+                "virtual_machine_tags": [dynamic_tags[1].pk],
             },
         ]
         cls.bulk_update_data = {
             "description": "New description",
             "comments": "New comments",
             "prefixes": [o.pk for o in prefixes],
+            "device_tags": [dynamic_tags[0].pk],
+            "virtual_machine_tags": [dynamic_tags[1].pk],
         }
 
 
