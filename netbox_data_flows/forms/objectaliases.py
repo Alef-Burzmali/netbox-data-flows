@@ -1,5 +1,6 @@
 from django import forms
 
+from extras.models import Tag
 from netbox.forms import PrimaryModelBulkEditForm, PrimaryModelFilterSetForm, PrimaryModelForm, PrimaryModelImportForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
@@ -41,6 +42,18 @@ class ObjectAliasForm(PrimaryModelForm):
         selector=True,
         label="IP Addresses",
     )
+    device_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        selector=True,
+        label="Device Tags",
+    )
+    virtual_machine_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        selector=True,
+        label="Virtual Machine Tags",
+    )
 
     fieldsets = (
         FieldSet(
@@ -49,6 +62,7 @@ class ObjectAliasForm(PrimaryModelForm):
             "tags",
         ),
         FieldSet("prefixes", "ip_ranges", "ip_addresses", name="Aliased objects"),
+        FieldSet("device_tags", "virtual_machine_tags", name="Dynamic members"),
     )
 
     class Meta:
@@ -56,12 +70,14 @@ class ObjectAliasForm(PrimaryModelForm):
         fields = (
             "comments",
             "description",
+            "device_tags",
             "ip_addresses",
             "ip_ranges",
             "name",
             "owner",
             "prefixes",
             "tags",
+            "virtual_machine_tags",
         )
 
 
@@ -90,6 +106,16 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label="IP Addresses",
     )
+    device_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        label="Device Tags",
+    )
+    virtual_machine_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        label="Virtual Machine Tags",
+    )
 
     fieldsets = (
         FieldSet(
@@ -102,14 +128,21 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
             "ip_addresses",
             name="Aliased objects",
         ),
+        FieldSet(
+            "device_tags",
+            "virtual_machine_tags",
+            name="Dynamic members",
+        ),
     )
     nullable_fields = (
         "comments",
         "description",
+        "device_tags",
         "owner",
         "prefixes",
         "ip_ranges",
         "ip_addresses",
+        "virtual_machine_tags",
     )
 
 
