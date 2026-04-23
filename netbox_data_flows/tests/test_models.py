@@ -59,7 +59,7 @@ class ObjectAliasTestCase(TestCase):
         alias.virtual_machine_tags.set([virtual_machine_tag])
 
         self.assertEqual(
-            set(alias.get_resolved_ip_addresses().values_list("address", flat=True)),
+            {str(address) for address in alias.get_resolved_ip_addresses().values_list("address", flat=True)},
             {
                 "10.0.1.1/24",
                 "10.0.1.2/24",
@@ -85,7 +85,7 @@ class ObjectAliasTestCase(TestCase):
 
         self.assertIn(
             "10.0.9.9/24",
-            set(alias.get_resolved_ip_addresses().values_list("address", flat=True)),
+            {str(address) for address in alias.get_resolved_ip_addresses().values_list("address", flat=True)},
         )
 
     def test_qs_contains_dynamic_members(self):
