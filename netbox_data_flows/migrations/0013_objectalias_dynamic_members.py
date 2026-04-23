@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("netbox_data_flows", "0012_split_objectaliastargets_into_direct_relationships"),
+        ("netbox_data_flows", "0005_add_owner_fields_nb45"),
     ]
 
     operations = [
