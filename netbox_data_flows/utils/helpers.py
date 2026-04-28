@@ -1,5 +1,5 @@
 from django.db.models import Q
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html_join
 
 from core.models import ObjectType
 
@@ -12,9 +12,13 @@ def object_list_to_string(objects, *, linkify=False, default="", separator=", ")
         return default
 
     if linkify:
-        return mark_safe(separator.join(f'<a href="{o.get_absolute_url()}">{o}</a>' for o in objects))
-    else:
-        return separator.join(str(o) for o in objects)
+        return format_html_join(
+            separator,
+            '<a href="{}">{}</a>',
+            ((o.get_absolute_url(), str(o)) for o in objects),
+        )
+
+    return separator.join(str(o) for o in objects)
 
 
 def _get_ip_qs(device):
