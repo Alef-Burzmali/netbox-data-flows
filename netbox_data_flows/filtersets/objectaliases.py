@@ -12,7 +12,6 @@ from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 from .filters import ModelMultipleChoiceFilter
 
-
 __all__ = ("ObjectAliasFilterSet",)
 
 

@@ -6,7 +6,6 @@ from utilities.views import register_model_view
 from netbox_data_flows import filtersets, forms, models, tables
 from netbox_data_flows.utils.views import GetRelatedCustomFieldModelsMixin
 
-
 __all__ = (
     "ApplicationView",
     "ApplicationListView",

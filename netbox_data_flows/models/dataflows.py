@@ -15,7 +15,6 @@ from netbox_data_flows.constants import DATAFLOW_PORT_MAX, DATAFLOW_PORT_MIN
 from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
 
-
 __all__ = ("DataFlow",)
 
 

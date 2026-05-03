@@ -11,7 +11,6 @@ from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowSt
 
 from .applications import Application
 
-
 __all__ = ("DataFlowGroup",)
 
 

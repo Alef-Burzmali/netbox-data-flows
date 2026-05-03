@@ -10,7 +10,6 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models
 
-
 __all__ = (
     "ObjectAliasForm",
     "ObjectAliasBulkEditForm",

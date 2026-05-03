@@ -4,7 +4,6 @@ from netbox_data_flows import choices, models
 
 from .filters import ChoiceFilter, ModelMultipleChoiceFilter
 
-
 __all__ = (
     "ApplicationFilterSetAddin",
     "InheritedStatusFilterSetAddin",

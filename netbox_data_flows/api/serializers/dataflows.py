@@ -11,7 +11,6 @@ from .applications import ApplicationSerializer
 from .groups import DataFlowGroupSerializer
 from .objectaliases import ObjectAliasSerializer
 
-
 __all__ = ("DataFlowSerializer",)
 
 

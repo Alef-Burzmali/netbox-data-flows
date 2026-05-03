@@ -4,7 +4,6 @@ from utilities.data import array_to_string
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.fields import NumericArrayField as NumericArrayField_
 
-
 __all__ = ("NumericArrayField",)
 
 

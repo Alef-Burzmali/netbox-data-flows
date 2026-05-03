@@ -9,7 +9,6 @@ from tenancy.models import Tenant
 
 from netbox_data_flows.models import Application, ApplicationRole
 
-
 __all__ = (
     "ApplicationForm",
     "ApplicationBulkEditForm",

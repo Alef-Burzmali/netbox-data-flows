@@ -9,7 +9,6 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, tables
 
-
 __all__ = tuple()
 
 

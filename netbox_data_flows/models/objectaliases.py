@@ -6,7 +6,6 @@ from utilities.querysets import RestrictedQuerySet
 
 from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
-
 __all__ = ("ObjectAlias",)
 
 

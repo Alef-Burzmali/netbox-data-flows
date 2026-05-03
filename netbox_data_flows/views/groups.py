@@ -5,7 +5,6 @@ from utilities.views import register_model_view
 
 from netbox_data_flows import filtersets, forms, models, tables
 
-
 __all__ = (
     "DataFlowGroupView",
     "DataFlowGroupListView",

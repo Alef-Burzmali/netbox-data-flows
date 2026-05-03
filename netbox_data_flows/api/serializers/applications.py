@@ -6,7 +6,6 @@ from tenancy.api.serializers import TenantSerializer
 
 from netbox_data_flows import models
 
-
 __all__ = (
     "ApplicationSerializer",
     "ApplicationRoleSerializer",

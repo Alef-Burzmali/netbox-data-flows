@@ -4,7 +4,6 @@ from utilities.urls import get_model_urls
 
 from . import views  # noqa F401
 
-
 APP_LABEL = "netbox_data_flows"
 
 

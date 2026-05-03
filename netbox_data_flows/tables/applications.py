@@ -6,7 +6,6 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 from netbox_data_flows.models import Application, ApplicationRole
 
-
 __all__ = (
     "ApplicationRoleTable",
     "ApplicationTable",
