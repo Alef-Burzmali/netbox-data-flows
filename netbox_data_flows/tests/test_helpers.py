@@ -17,7 +17,7 @@ class DummyObject:
 
 class ObjectListToStringTestCase(SimpleTestCase):
     def test_linkify_escapes_object_labels(self):
-        payload = '<img src=x onerror=alert(1)>'
+        payload = "<img src=x onerror=alert(1)>"
         result = object_list_to_string(
             [DummyObject("/plugins/netbox-data-flows/object-aliases/1/", payload)],
             linkify=True,
