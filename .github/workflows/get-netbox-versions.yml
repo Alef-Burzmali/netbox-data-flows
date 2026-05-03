@@ -30,12 +30,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: netbox-data-flows
 
       - name: Checkout latest NetBox release
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "netbox-community/netbox"
           path: netbox

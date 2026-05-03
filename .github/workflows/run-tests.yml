@@ -68,7 +68,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: netbox-data-flows
 
@@ -79,12 +79,12 @@ jobs:
           sed -i '/max_version =/d' netbox_data_flows/__init__.py
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Checkout NetBox release ${{ matrix.netbox-version }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: "netbox-community/netbox"
           path: netbox
