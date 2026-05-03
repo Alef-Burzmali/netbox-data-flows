@@ -72,6 +72,12 @@ jobs:
         with:
           path: netbox-data-flows
 
+      - name: Overwrite maximum NetBox version
+        working-directory: netbox-data-flows
+        if: ${{ inputs.netbox_version }}
+        run: |
+          sed -i '/max_version =/d' netbox_data_flows/__init__.py
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
