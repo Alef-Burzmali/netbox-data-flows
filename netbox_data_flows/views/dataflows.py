@@ -6,7 +6,6 @@ from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
 from netbox_data_flows import filtersets, forms, models, tables
 
-
 __all__ = (
     "DataFlowView",
     "DataFlowListView",

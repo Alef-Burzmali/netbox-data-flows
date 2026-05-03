@@ -21,7 +21,6 @@ from tenancy.models import Tenant
 
 from netbox_data_flows import choices, models
 
-
 __all__ = (
     "DataFlowGroupForm",
     "DataFlowGroupBulkEditForm",

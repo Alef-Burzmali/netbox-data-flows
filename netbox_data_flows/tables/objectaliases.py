@@ -4,7 +4,6 @@ from netbox.tables import PrimaryModelTable, columns
 
 from netbox_data_flows.models import ObjectAlias
 
-
 __all__ = ("ObjectAliasTable",)
 
 

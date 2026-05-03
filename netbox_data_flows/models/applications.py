@@ -4,7 +4,6 @@ from django.urls import reverse
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 
-
 __all__ = (
     "ApplicationRole",
     "Application",

@@ -45,7 +45,7 @@ target_version = ["py312", "py313"]
 [tool.isort]
 profile = "black"
 line_length = 120
-lines_after_imports = 2
+lines_after_imports = -1
 skip_gitignore = true
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "NETBOX_CORE", "NETBOX_APPS", "FIRSTPARTY", "LOCALFOLDER"]
 known_netbox_core = ["account", "core", "extras", "netbox", "utilities", "users"]

@@ -9,7 +9,6 @@ from netbox_data_flows import choices, models
 
 from .applications import ApplicationSerializer
 
-
 __all__ = (
     "NestedDataFlowGroupSerializer",
     "DataFlowGroupSerializer",

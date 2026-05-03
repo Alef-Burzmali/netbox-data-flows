@@ -3,7 +3,6 @@ from django_filters import ChoiceFilter, ModelMultipleChoiceFilter, MultipleChoi
 
 from utilities.filters import MultiValueNumberFilter, TreeNodeMultipleChoiceFilter, multivalue_field_factory
 
-
 __all__ = (
     "ChoiceFilter",
     "ModelMultipleChoiceFilter",

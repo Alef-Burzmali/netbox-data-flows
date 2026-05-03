@@ -8,7 +8,6 @@ from netbox_data_flows.models import DataFlow
 
 from .columns import ObjectAliasListColumn, PortListColumn
 
-
 __all__ = ("DataFlowTable",)
 
 

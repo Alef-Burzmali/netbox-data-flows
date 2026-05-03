@@ -9,7 +9,6 @@ from netbox_data_flows import models
 
 from .filters import ModelMultipleChoiceFilter
 
-
 __all__ = (
     "ApplicationFilterSet",
     "ApplicationRoleFilterSet",

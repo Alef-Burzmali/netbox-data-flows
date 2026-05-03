@@ -23,7 +23,6 @@ from netbox_data_flows.constants import DATAFLOW_PORT_MAX, DATAFLOW_PORT_MIN
 
 from .fields import IcmpTypeChoiceField, NumericArrayField, PlaceholderModelMultipleChoiceField
 
-
 __all__ = (
     "DataFlowForm",
     "DataFlowBulkEditForm",

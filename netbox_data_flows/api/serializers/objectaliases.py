@@ -8,7 +8,6 @@ from ipam.models import IPAddress, IPRange, Prefix
 
 from netbox_data_flows import models
 
-
 __all__ = ("ObjectAliasSerializer",)
 
 

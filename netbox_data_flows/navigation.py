@@ -1,7 +1,6 @@
 from netbox.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
 from netbox.plugins.utils import get_plugin_config
 
-
 #
 # Utility functions
 #

@@ -1,6 +1,5 @@
 from django.db import migrations
 
-
 # Transformed into no-op migration as NetBox upgrade script now
 # runs the reindexation when required and after all migrations
 

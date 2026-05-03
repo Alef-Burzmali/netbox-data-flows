@@ -6,7 +6,6 @@ from tenancy.tables import TenancyColumnsMixin
 
 from netbox_data_flows.models import DataFlowGroup
 
-
 __all__ = ("DataFlowGroupTable",)
 
 

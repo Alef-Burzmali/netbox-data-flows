@@ -9,7 +9,6 @@ from utilities.forms.rendering import FieldSet
 
 from netbox_data_flows.models import ApplicationRole
 
-
 __all__ = (
     "ApplicationRoleForm",
     "ApplicationRoleBulkEditForm",
