@@ -61,8 +61,14 @@ class ObjectAliasForm(PrimaryModelForm):
             "description",
             "tags",
         ),
-        FieldSet("prefixes", "ip_ranges", "ip_addresses", name="Aliased objects"),
-        FieldSet("device_tags", "virtual_machine_tags", name="Dynamic members"),
+        FieldSet(
+            "prefixes",
+            "ip_ranges",
+            "ip_addresses",
+            "device_tags",
+            "virtual_machine_tags",
+            name="Aliased objects",
+        ),
     )
 
     class Meta:
@@ -126,12 +132,9 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
             "prefixes",
             "ip_ranges",
             "ip_addresses",
-            name="Aliased objects",
-        ),
-        FieldSet(
             "device_tags",
             "virtual_machine_tags",
-            name="Dynamic members",
+            name="Aliased objects",
         ),
     )
     nullable_fields = (
