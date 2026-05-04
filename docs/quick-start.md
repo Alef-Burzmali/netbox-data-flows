@@ -52,7 +52,9 @@ Let's create three Object Aliases:
 | acme_backend          | Backend servers for Acme      |
 | acme_database         | Database servers for Acme     |
 
-When you create or edit an object alias, you can link any IP Address, IP Range or Prefix. Zou can use the filter functions to search which addresses need to be added.
+When you create or edit an object alias, you can link any IP Address, IP Range or Prefix. You can also select tags for devices and virtual machines to build dynamic alias members from NetBox inventory.
+
+For dynamic members, the alias resolves to all IP Addresses currently assigned to interfaces of matching devices or virtual machines. This avoids maintaining long static IP lists by hand.
 
 ![Creation of a new alias](media/tuto-objectalias-new.png)
 
@@ -65,7 +67,7 @@ Let's repeat the same process for 'acme_backend' and 'acme_database'.
 ![The object aliases for Acme have been created](media/tuto-objectalias-list.png)
 
 > [!TIP]
-> You can leave the object alias empty if what is represents is not documented in your NetBox instance. For example, an alias named "Internet" could be used to represent any external IP address for data flows ingressing or egressing your network.
+> You can leave the static members of an object alias empty if what it represents is not documented in your NetBox instance. For example, an alias named "Internet" could be used to represent any external IP address for data flows ingressing or egressing your network.
 
 ### Data Flows
 
@@ -213,7 +215,7 @@ Let's create the remaining data flows.
 > Because we have disabled the group "Acme Inc. external access", the data flow it contains is marked as *Disabled (Inherited)*.
 > The data flow "Internal access to Acme backend API" also appears *Disabled*: its groups are all enabled, but the data flow was disabled directy.
 
-The "Targets" tab in the data flow's detailed view can be used to resolve the object aliases and display the list of all IP address, ranges and prefixes in this data flow.
+The "Targets" tab in the data flow's detailed view can be used to resolve the object aliases and display the list of all IP address, ranges and prefixes in this data flow, including IP addresses collected through dynamic device and virtual machine tag members.
 
 ![Targets tab of a data flow showing all its components](media/tuto-dataflow-targets.png)
 
@@ -238,7 +240,7 @@ This tab is automatically displayed when an object is member of at least one obj
 * Virtual machines with at least one IP Address assigned to one interface
 
 > [!WARNING]
-> The tab lists all the object aliases and dataflows where the object is explicitly listed. It does not detect when a prefix or range would implicitly include an IP address, a smaller range or a child prefix.
+> The tab lists all the object aliases and data flows where the object is explicitly listed, or where a device or virtual machine matches the alias through selected tags. It does not detect when a prefix or range would implicitly include an IP address, a smaller range or a child prefix.
 
 ## Application-related Objects
 
