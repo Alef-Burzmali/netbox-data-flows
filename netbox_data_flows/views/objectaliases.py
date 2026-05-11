@@ -71,7 +71,7 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
         ip_address_table = IPAddressTable(instance.ip_addresses.all())
         ip_address_table.configure(request)
 
-        resolved_ip_addresses = instance.get_resolved_ip_addresses()
+        resolved_ip_addresses = instance.get_resolved_ip_addresses(include_static=False)
         resolved_ip_address_table = IPAddressTable(resolved_ip_addresses)
         resolved_ip_address_table.configure(request)
 
