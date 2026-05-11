@@ -1,7 +1,8 @@
 from django.urls import reverse
 
-from utilities.testing import APITestCase, create_tags
 from utilities.testing import APIViewTestCases as _APIViewTestCases
+from utilities.testing import APITestCase
+from utilities.testing import create_tags
 
 from ipam import models as ipam
 
