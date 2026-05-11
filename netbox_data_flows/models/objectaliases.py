@@ -132,11 +132,14 @@ class ObjectAlias(PrimaryModel):
     def __str__(self):
         return self.name
 
-    def get_resolved_ip_addresses(self):
+    def get_resolved_ip_addresses(self, *, include_static=True):
         device_tag_qs = self.device_tags.all()
         virtual_machine_tag_qs = self.virtual_machine_tags.all()
 
-        query = models.Q(pk__in=self.ip_addresses.values("pk"))
+        query = models.Q()
+
+        if include_static:
+            query |= models.Q(pk__in=self.ip_addresses.values("pk"))
 
         if device_tag_qs.exists():
             devices = Device.objects.filter(tags__in=device_tag_qs).distinct()

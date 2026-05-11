@@ -67,6 +67,20 @@ class ObjectAliasTestCase(TestCase):
                 "10.10.0.1/24",
             },
         )
+        self.assertEqual(
+            {
+                str(address)
+                for address in alias.get_resolved_ip_addresses(include_static=False).values_list(
+                    "address",
+                    flat=True,
+                )
+            },
+            {
+                "10.0.1.1/24",
+                "10.0.1.2/24",
+                "10.100.1.1/24",
+            },
+        )
 
     def test_get_resolved_ip_addresses_updates_without_resync(self):
         device_tag = create_tags("dynamic-update")[0]

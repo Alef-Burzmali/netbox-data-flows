@@ -597,8 +597,10 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
         virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
         device.tags.add(device_tag)
         virtual_machine.tags.add(virtual_machine_tag)
+        direct_ip = ipam.IPAddress.objects.get(address="10.10.0.1/24")
 
         instance = models.ObjectAlias.objects.create(name="Object Alias Dynamic View", description="Dynamic")
+        instance.ip_addresses.set([direct_ip])
         instance.device_tags.set([device_tag])
         instance.virtual_machine_tags.set([virtual_machine_tag])
 
@@ -610,5 +612,6 @@ class ObjectAliasTestCase(PluginUrlBase, ViewTestCases.PrimaryObjectViewTestCase
         response = self.client.get(instance.get_absolute_url())
         self.assertHttpStatus(response, 200)
         self.assertContains(response, "Resolved IP Addresses")
+        self.assertContains(response, "10.10.0.1/24", count=1)
         self.assertContains(response, "10.0.1.1/24")
         self.assertContains(response, "10.100.1.1/24")
