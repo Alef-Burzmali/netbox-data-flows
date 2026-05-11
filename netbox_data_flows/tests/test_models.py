@@ -65,7 +65,7 @@ class ObjectAliasTestCase(TestCase):
 
         qs = self.model.objects.related_to(pref[0], *vm)
         self.assertEqual(qs.count(), 2)
-        
+
     def test_get_resolved_ip_addresses(self):
         device_tag, virtual_machine_tag = create_tags("dynamic-device", "dynamic-virtual-machine")
         device = dcim.Device.objects.get(name="Device 1")
@@ -87,6 +87,20 @@ class ObjectAliasTestCase(TestCase):
                 "10.0.1.2/24",
                 "10.100.1.1/24",
                 "10.10.0.1/24",
+            },
+        )
+        self.assertEqual(
+            {
+                str(address)
+                for address in alias.get_resolved_ip_addresses(include_static=False).values_list(
+                    "address",
+                    flat=True,
+                )
+            },
+            {
+                "10.0.1.1/24",
+                "10.0.1.2/24",
+                "10.100.1.1/24",
             },
         )
 
