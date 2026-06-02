@@ -8,6 +8,7 @@ from netbox.models import NestedGroupModel
 from utilities.mptt import TreeManager, TreeQuerySet
 
 from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowStatusChoices
+from netbox_data_flows.utils.tags import AccessibleTagsMixin
 
 from .applications import Application
 
@@ -26,7 +27,7 @@ class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), 
     pass
 
 
-class DataFlowGroup(NestedGroupModel):
+class DataFlowGroup(AccessibleTagsMixin, NestedGroupModel):
     """Hierachical group of Data Flows."""
 
     # Inherited fields:
@@ -83,7 +84,9 @@ class DataFlowGroup(NestedGroupModel):
         if not self.pk:
             return []
 
-        return Tag.objects.filter(dataflowgroup__in=self.get_ancestors(include_self=True)).distinct()
+        return Tag.objects.filter(
+            netbox_data_flows_dataflowgroup_tagged__in=self.get_ancestors(include_self=True)
+        ).distinct()
 
     class Meta:
         ordering = (

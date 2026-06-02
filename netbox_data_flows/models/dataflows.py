@@ -11,6 +11,7 @@ from utilities.querysets import RestrictedQuerySet
 
 from netbox_data_flows import choices
 from netbox_data_flows.constants import DATAFLOW_PORT_MAX, DATAFLOW_PORT_MIN
+from netbox_data_flows.utils.tags import AccessibleTagsMixin
 
 from .groups import DataFlowGroup
 from .objectaliases import ObjectAlias
@@ -51,7 +52,7 @@ class DataFlowQuerySet(RestrictedQuerySet):
         return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains(*objects))).distinct()
 
 
-class DataFlow(PrimaryModel):
+class DataFlow(AccessibleTagsMixin, PrimaryModel):
     """Representation of a data flow for an application."""
 
     # Inherited fields:
@@ -121,7 +122,8 @@ class DataFlow(PrimaryModel):
             return self.tags.all()
 
         return Tag.objects.filter(
-            models.Q(dataflow=self.pk) | models.Q(dataflowgroup__in=self.group.get_ancestors(include_self=True))
+            models.Q(netbox_data_flows_dataflow_tagged=self.pk)
+            | models.Q(netbox_data_flows_dataflowgroup_tagged__in=self.group.get_ancestors(include_self=True))
         ).distinct()
 
     #
