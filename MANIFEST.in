@@ -1,8 +1,8 @@
 include *.md
+include netbox_data_flows/tests/query_counts.json
 recursive-include netbox_data_flows/templates *.html
 recursive-include docs *.md *.png *.drawio
 
 exclude .editorconfig .pre-commit-config.yaml
 exclude mkdocs.yml
 exclude requirements_dev.txt requirements_docs.txt
-exclude netbox_data_flows/tests/query_counts.json
