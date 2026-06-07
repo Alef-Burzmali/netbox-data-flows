@@ -4,7 +4,7 @@ from netbox.models.features import TagsMixin
 try:
     from extras.managers import NetBoxTaggableManagerField
 except ImportError:
-    # Compatibility Netbox < 4.6.2
+    # COMPAT: Compatibility Netbox < 4.6.2
     from taggit.managers import TaggableManager
 
     class NetBoxTaggableManagerField(TaggableManager):
