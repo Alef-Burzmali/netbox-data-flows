@@ -6,6 +6,7 @@ from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
 from netbox_data_flows import filtersets, forms, models, tables
+from netbox_data_flows.utils.helpers import object_list_to_string
 
 __all__ = (
     "ObjectAliasView",
@@ -70,11 +71,19 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
         ip_address_table = IPAddressTable(instance.ip_addresses.all())
         ip_address_table.configure(request)
 
+        resolved_ip_addresses = instance.get_resolved_ip_addresses(include_static=False)
+        resolved_ip_address_table = IPAddressTable(resolved_ip_addresses)
+        resolved_ip_address_table.configure(request)
+
         return {
+            "device_tags": object_list_to_string(instance.device_tags.all(), linkify=True),
             "related_models": related_models,
             "prefix_table": prefix_table,
             "ip_range_table": ip_range_table,
             "ip_address_table": ip_address_table,
+            "resolved_ip_address_count": resolved_ip_addresses.count(),
+            "resolved_ip_address_table": resolved_ip_address_table,
+            "virtual_machine_tags": object_list_to_string(instance.virtual_machine_tags.all(), linkify=True),
         }
 
 

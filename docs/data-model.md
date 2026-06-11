@@ -88,11 +88,18 @@ Only in the REST API, the inherited list of tags is available (inherited_tags wh
 
 **Object Aliases** are a group of references to other NetBox objects. Object Aliases are used as sources and destinations of Data Flows and corresponds to the groups or aliases used in firewall configuration.
 
-Object Aliases can contain any number of:
+Object Aliases can contain any number of static members:
 
 * IP Addresses (`ipam.ipaddress`)
 * IP Ranges (`ipam.iprange`)
 * Prefixes (`ipam.prefix`)
+
+Object Aliases can also include dynamic members by selecting tags for:
+
+* Devices (`dcim.device`)
+* Virtual Machines (`virtualization.virtualmachine`)
+
+When device or virtual machine tags are selected, the alias resolves to all IP Addresses currently assigned to interfaces of matching objects.
 
 There is no defined meaning for an empty object alias, but it can be used when:
 * The aliased object is not documented in NetBox (e.g.: third party public IP addresses)

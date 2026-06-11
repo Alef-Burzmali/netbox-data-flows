@@ -20,6 +20,14 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Device Tags" %}</th>
+            <td>{{ device_tags|placeholder|safe }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Virtual Machine Tags" %}</th>
+            <td>{{ virtual_machine_tags|placeholder|safe }}</td>
+          </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
@@ -70,6 +78,15 @@
           </div>
         {% endif %}
       {% endwith %}
+      {% if resolved_ip_address_count %}
+        <div class="card">
+          <h5 class="card-header">
+            {% trans "Resolved IP Addresses" %}
+            &nbsp;<span class="badge text-bg-primary rounded-pill">{{ resolved_ip_address_count }}</span>
+          </h5>
+          {% render_table resolved_ip_address_table %}
+        </div>
+      {% endif %}
     </div>
   </div>
 

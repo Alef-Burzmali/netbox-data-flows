@@ -17,6 +17,14 @@ __all__ = (
 )
 
 
+def _get_resolved_ip_addresses(aliases):
+    ip_addresses = IPAddress.objects.none()
+    for alias in aliases:
+        ip_addresses = ip_addresses | alias.get_resolved_ip_addresses()
+
+    return ip_addresses.distinct()
+
+
 @register_model_view(models.DataFlow, "list", path="", detail=False)
 class DataFlowListView(generic.ObjectListView):
     queryset = models.DataFlow.objects.all()
@@ -53,19 +61,16 @@ class DataFlowTargetView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Get all unique sources and destinations
         # They could be duplicated if several ObjectAliases refer to them
-        sources_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
-        sources_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
-        sources_ip_addresses = IPAddress.objects.filter(data_flow_object_aliases__in=instance.sources.all()).distinct()
+        source_aliases = list(instance.sources.all())
+        destination_aliases = list(instance.destinations.all())
 
-        destinations_prefixes = Prefix.objects.filter(
-            data_flow_object_aliases__in=instance.destinations.all()
-        ).distinct()
-        destinations_ip_ranges = IPRange.objects.filter(
-            data_flow_object_aliases__in=instance.destinations.all()
-        ).distinct()
-        destinations_ip_addresses = IPAddress.objects.filter(
-            data_flow_object_aliases__in=instance.destinations.all()
-        ).distinct()
+        sources_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=source_aliases).distinct()
+        sources_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=source_aliases).distinct()
+        sources_ip_addresses = _get_resolved_ip_addresses(source_aliases)
+
+        destinations_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=destination_aliases).distinct()
+        destinations_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=destination_aliases).distinct()
+        destinations_ip_addresses = _get_resolved_ip_addresses(destination_aliases)
 
         # Prepare tables
         sources_prefixes_table = PrefixTable(sources_prefixes, orderable=False)

@@ -40,8 +40,25 @@ def get_one_device_ipaddresses(device):
 
 def get_device_ipaddresses(*devices):
     """Return the list of IP addresses of a list of devices or virtual machines."""
+    if not devices:
+        return IPAddress.objects.none()
+
     qs = Q()
     for dev in devices:
         qs |= _get_ip_qs(dev)
 
     return IPAddress.objects.filter(qs)
+
+
+def get_ipaddress_host(ip_address):
+    """Return the Device or VirtualMachine an IP address is assigned to, if any."""
+    assigned_object = getattr(ip_address, "assigned_object", None)
+    if not assigned_object:
+        return None
+
+    if hasattr(assigned_object, "device"):
+        return assigned_object.device
+    if hasattr(assigned_object, "virtual_machine"):
+        return assigned_object.virtual_machine
+
+    return None
