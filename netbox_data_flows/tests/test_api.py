@@ -8,6 +8,7 @@ from ipam import models as ipam
 from netbox_data_flows import choices, models
 
 from .data import TestData
+from .test_views import OverrideQueryCountTests
 
 
 class PluginUrlBase:
@@ -34,7 +35,7 @@ class AppTest(PluginUrlBase, APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class ApplicationRoleTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
+class ApplicationRoleTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ApplicationRole
     brief_fields = [
         "description",
@@ -69,7 +70,7 @@ class ApplicationRoleTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoG
         }
 
 
-class ApplicationTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
+class ApplicationTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.Application
     brief_fields = [
         "description",
@@ -106,7 +107,7 @@ class ApplicationTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
         }
 
 
-class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
+class DataFlowGroupTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.DataFlowGroup
     brief_fields = [
         "description",
@@ -154,7 +155,7 @@ class DataFlowGroupTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGra
         }
 
 
-class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
+class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.ObjectAlias
     brief_fields = [
         "description",
@@ -211,7 +212,7 @@ class ObjectAliasTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraph
         }
 
 
-class DataFlowTestCase(PluginUrlBase, APIViewTestCases.APIViewTestCaseNoGraphQL):
+class DataFlowTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCases.APIViewTestCaseNoGraphQL):
     model = models.DataFlow
     brief_fields = [
         "description",
