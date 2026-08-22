@@ -10,7 +10,8 @@ Once installed, go to the [quick start guide](quick-start.md) to discover how to
 
 | netbox version | netbox-data-flows version     |
 | -------------- | ----------------------------- |
-| >= 4.6.0       | >= v1.5.2                     |
+| >= 4.7.0       | >= v1.5.4                     |
+| >= 4.6.0       | >= v1.5.2, < v1.6.0           |
 | >= 4.5.0       | >= v1.4.1, < v1.5.3           |
 | >= 4.4.0       | >= v1.2.1, < v1.5.0           |
 | >= 4.3.0       | >= v1.1.1, < v1.5.0           |
