@@ -1,6 +1,6 @@
 from netbox.plugins import PluginConfig
 
-__version__ = "1.5.3"
+__version__ = "1.5.4-dev"
 
 
 class DataFlowsConfig(PluginConfig):
@@ -16,7 +16,7 @@ class DataFlowsConfig(PluginConfig):
         "application_custom_field": None,
     }
     min_version = "4.6.0"
-    max_version = "4.6.99"
+    max_version = "4.7.99"
 
 
 config = DataFlowsConfig

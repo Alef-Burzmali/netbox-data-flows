@@ -1,12 +1,12 @@
 {
-  "application:api_list_objects": 14,
-  "application:list_objects_with_permission": 22,
-  "applicationrole:api_list_objects": 13,
-  "applicationrole:list_objects_with_permission": 20,
-  "dataflow:api_list_objects": 21,
-  "dataflow:list_objects_with_permission": 26,
-  "dataflowgroup:api_list_objects": 17,
-  "dataflowgroup:list_objects_with_permission": 26,
+  "application:api_list_objects": 13,
+  "application:list_objects_with_permission": 19,
+  "applicationrole:api_list_objects": 12,
+  "applicationrole:list_objects_with_permission": 17,
+  "dataflow:api_list_objects": 20,
+  "dataflow:list_objects_with_permission": 23,
+  "dataflowgroup:api_list_objects": 16,
+  "dataflowgroup:list_objects_with_permission": 23,
   "objectalias:api_list_objects": 15,
-  "objectalias:list_objects_with_permission": 20
+  "objectalias:list_objects_with_permission": 17
 }
