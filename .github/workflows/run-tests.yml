@@ -111,6 +111,7 @@ jobs:
 
       - name: Check missing migrations
         working-directory: netbox
+        if: ${{ matrix.netbox-version == fromJSON(needs.get-netbox-versions.outputs.latest_version) }}
         run: |
           python netbox/manage.py makemigrations --check netbox_data_flows
 
