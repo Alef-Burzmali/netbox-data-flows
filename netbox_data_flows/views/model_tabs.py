@@ -132,7 +132,9 @@ class RelatedDataFlowListTabViewBase(generic.ObjectView):
         related_dataflow_sources_table = tables.DataFlowTable(models.DataFlow.objects.related_sources(parent).all())
         related_dataflow_sources_table.configure(request)
 
-        related_dataflow_destinations_table = tables.DataFlowTable(models.DataFlow.objects.related_destinations(parent).all())
+        related_dataflow_destinations_table = tables.DataFlowTable(
+            models.DataFlow.objects.related_destinations(parent).all()
+        )
         related_dataflow_destinations_table.configure(request)
 
         return {
