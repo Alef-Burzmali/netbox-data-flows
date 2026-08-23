@@ -42,6 +42,28 @@ class ObjectAliasTestCase(TestCase):
         qs = self.model.objects.contains(pref[0], *vm)
         self.assertEqual(qs.count(), 4)
 
+    def test_qs_related_to(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.related_to(*ips)
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 2)
+        iprange = ipam.IPRange.objects.all()[:1]
+        qs = self.model.objects.related_to(*iprange)
+        self.assertEqual(qs.count(), 2)
+        pref = ipam.Prefix.objects.all()[:2]
+        qs = self.model.objects.related_to(*pref)
+        self.assertEqual(qs.count(), 2)
+
+        dev = dcim.Device.objects.all()[:2]
+        qs = self.model.objects.related_to(*dev)
+        self.assertEqual(qs.count(), 2)
+        vm = virtualization.VirtualMachine.objects.all()[:2]
+        qs = self.model.objects.related_to(*vm)
+        self.assertEqual(qs.count(), 2)
+
+        qs = self.model.objects.related_to(pref[0], *vm)
+        self.assertEqual(qs.count(), 2)
+
 
 class DataFlowTestCase(TestCase):
     model = models.DataFlow
@@ -98,6 +120,28 @@ class DataFlowTestCase(TestCase):
         qs = self.model.objects.sources(pref[0], *vm)
         self.assertEqual(qs.count(), 4)
 
+    def test_qs_related_sources(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.related_sources(*ips)
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 3)
+        iprange = ipam.IPRange.objects.all()[:1]
+        qs = self.model.objects.related_sources(*iprange)
+        self.assertEqual(qs.count(), 3)
+        pref = ipam.Prefix.objects.all()[:2]
+        qs = self.model.objects.related_sources(*pref)
+        self.assertEqual(qs.count(), 3)
+
+        dev = dcim.Device.objects.all()[:2]
+        qs = self.model.objects.related_sources(*dev)
+        self.assertEqual(qs.count(), 3)
+        vm = virtualization.VirtualMachine.objects.all()[:2]
+        qs = self.model.objects.related_sources(*vm)
+        self.assertEqual(qs.count(), 3)
+
+        qs = self.model.objects.related_sources(pref[0], *vm)
+        self.assertEqual(qs.count(), 3)
+
     def test_qs_destinations(self):
         ips = ipam.IPAddress.objects.all()[:3]
         qs = self.model.objects.destinations(*ips)
@@ -120,6 +164,28 @@ class DataFlowTestCase(TestCase):
         qs = self.model.objects.destinations(pref[0], *vm)
         self.assertEqual(qs.count(), 3)
 
+    def test_qs_related_destinations(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.related_destinations(*ips)
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 1)
+        iprange = ipam.IPRange.objects.all()[:1]
+        qs = self.model.objects.related_destinations(*iprange)
+        self.assertEqual(qs.count(), 1)
+        pref = ipam.Prefix.objects.all()[:2]
+        qs = self.model.objects.related_destinations(*pref)
+        self.assertEqual(qs.count(), 1)
+
+        dev = dcim.Device.objects.all()[:2]
+        qs = self.model.objects.related_destinations(*dev)
+        self.assertEqual(qs.count(), 1)
+        vm = virtualization.VirtualMachine.objects.all()[:2]
+        qs = self.model.objects.related_destinations(*vm)
+        self.assertEqual(qs.count(), 1)
+
+        qs = self.model.objects.related_destinations(pref[0], *vm)
+        self.assertEqual(qs.count(), 1)
+
     def test_qs_sources_or_destinations(self):
         ips = ipam.IPAddress.objects.all()[:3]
         qs = self.model.objects.sources_or_destinations(*ips)
@@ -141,6 +207,28 @@ class DataFlowTestCase(TestCase):
 
         qs = self.model.objects.sources_or_destinations(pref[0], *vm)
         self.assertEqual(qs.count(), 5)
+
+    def test_qs_related_sources_or_destinations(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.related_sources_or_destinations(*ips)
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 4)
+        iprange = ipam.IPRange.objects.all()[:1]
+        qs = self.model.objects.related_sources_or_destinations(*iprange)
+        self.assertEqual(qs.count(), 4)
+        pref = ipam.Prefix.objects.all()[:2]
+        qs = self.model.objects.related_sources_or_destinations(*pref)
+        self.assertEqual(qs.count(), 4)
+
+        dev = dcim.Device.objects.all()[:2]
+        qs = self.model.objects.related_sources_or_destinations(*dev)
+        self.assertEqual(qs.count(), 4)
+        vm = virtualization.VirtualMachine.objects.all()[:2]
+        qs = self.model.objects.related_sources_or_destinations(*vm)
+        self.assertEqual(qs.count(), 4)
+
+        qs = self.model.objects.related_sources_or_destinations(pref[0], *vm)
+        self.assertEqual(qs.count(), 4)
 
     def test_inherited_status(self):
         d = self.model(
