@@ -1,4 +1,4 @@
-from django.db.models import Count
+from django.db.models import Count, Value
 
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
@@ -17,11 +17,14 @@ MODELS = (Device, VirtualMachine, IPAddress, IPRange, Prefix)
 
 
 def _count_aliases_or_dataflows(obj):
-    aliases = models.ObjectAlias.objects.contains(obj).count()
+    aliases = models.ObjectAlias.objects.contains(obj).count() + models.ObjectAlias.objects.related_to(obj).count()
     if not aliases:
         return 0  # cannot have a dataflow without an alias
 
-    dataflows = models.DataFlow.objects.sources_or_destinations(obj).count()
+    dataflows = (
+        models.DataFlow.objects.sources_or_destinations(obj).count()
+        + models.DataFlow.objects.related_sources_or_destinations(obj).count()
+    )
     # return as string so "0" is considered non-empty
     return str(dataflows)
 
@@ -54,23 +57,45 @@ class DataFlowListTabViewBase(generic.ObjectView):
     )
 
     def get_extra_context(self, request, parent):
-        aliases_table = tables.ObjectAliasTable(
+        aliases_table = tables.SourcedObjectAliasTable(
             models.ObjectAlias.objects.annotate(
                 prefix_count=Count("prefixes", distinct=True),
                 ip_range_count=Count("ip_ranges", distinct=True),
                 ip_address_count=Count("ip_addresses", distinct=True),
                 dataflow_source_count=Count("dataflow_sources", distinct=True),
                 dataflow_destination_count=Count("dataflow_destinations", distinct=True),
+                result_source=Value("direct"),
             )
-            .order_by(*models.ObjectAlias._meta.ordering)
             .contains(parent)
+            .union(
+                models.ObjectAlias.objects.annotate(
+                    prefix_count=Count("prefixes", distinct=True),
+                    ip_range_count=Count("ip_ranges", distinct=True),
+                    ip_address_count=Count("ip_addresses", distinct=True),
+                    dataflow_source_count=Count("dataflow_sources", distinct=True),
+                    dataflow_destination_count=Count("dataflow_destinations", distinct=True),
+                    result_source=Value("related"),
+                ).related_to(parent),
+                all=True,
+            )
+            .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
         )
         aliases_table.configure(request)
 
-        dataflow_sources_table = tables.DataFlowTable(models.DataFlow.objects.sources(parent).all())
+        dataflow_sources_table = tables.SourcedDataFlowTable(
+            models.DataFlow.objects.sources(parent)
+            .annotate(result_source=Value("direct"))
+            .union(models.DataFlow.objects.related_sources(parent).annotate(result_source=Value("related")))
+            .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
+        )
         dataflow_sources_table.configure(request)
 
-        dataflow_destinations_table = tables.DataFlowTable(models.DataFlow.objects.destinations(parent).all())
+        dataflow_destinations_table = tables.SourcedDataFlowTable(
+            models.DataFlow.objects.destinations(parent)
+            .annotate(result_source=Value("direct"))
+            .union(models.DataFlow.objects.related_destinations(parent).annotate(result_source=Value("related")))
+            .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
+        )
         dataflow_destinations_table.configure(request)
 
         return {
@@ -80,83 +105,11 @@ class DataFlowListTabViewBase(generic.ObjectView):
         }
 
 
-def _count_related_aliases_or_dataflows(obj):
-    aliases = models.ObjectAlias.objects.related_to(obj).count()
-    if not aliases:
-        return 0  # cannot have a dataflow without an alias
-
-    dataflows = models.DataFlow.objects.related_sources_or_destinations(obj).count()
-    # return as string so "0" is considered non-empty
-    return str(dataflows)
-
-
-class RelatedDataFlowListTabViewBase(generic.ObjectView):
-    """Add a tab with related ObjectAlias and DataFlows to built-in models."""
-
-    def __init_subclass__(cls, /, model, **kwargs):
-        """Create a subclass associated to a NetBox model."""
-        super().__init_subclass__(**kwargs)
-
-        # map the queryset to our NetBox model
-        cls.queryset = model.objects.all()
-
-        # call the decorator to register the view
-        register_model_view(
-            model,
-            name="related-dataflows-tab",
-            path="related-dataflows",
-        )(cls)
-
-    queryset = None
-    template_name = "netbox_data_flows/related_dataflow_tab.html"
-
-    tab = ViewTab(
-        label="Related Data Flows",
-        permission="netbox_data_flows.view_dataflow",
-        badge=_count_related_aliases_or_dataflows,
-        hide_if_empty=True,
-    )
-
-    def get_extra_context(self, request, parent):
-        related_aliases_table = tables.ObjectAliasTable(
-            models.ObjectAlias.objects.annotate(
-                prefix_count=Count("prefixes", distinct=True),
-                ip_range_count=Count("ip_ranges", distinct=True),
-                ip_address_count=Count("ip_addresses", distinct=True),
-            )
-            .order_by(*models.ObjectAlias._meta.ordering)
-            .related_to(parent)
-        )
-        related_aliases_table.configure(request)
-
-        related_dataflow_sources_table = tables.DataFlowTable(models.DataFlow.objects.related_sources(parent).all())
-        related_dataflow_sources_table.configure(request)
-
-        related_dataflow_destinations_table = tables.DataFlowTable(
-            models.DataFlow.objects.related_destinations(parent).all()
-        )
-        related_dataflow_destinations_table.configure(request)
-
-        return {
-            "related_aliases_table": related_aliases_table,
-            "related_dataflow_sources_table": related_dataflow_sources_table,
-            "related_dataflow_destinations_table": related_dataflow_destinations_table,
-        }
-
-
 for model in MODELS:
     # create a subclass of DataFlowListTabViewBase per model
     type(
         f"{model.__name__}DataFlowTabView",
         (DataFlowListTabViewBase,),
-        {},
-        model=model,
-    )
-
-    # create a subclass of RelatedDataFlowListTabViewBase per model
-    type(
-        f"{model.__name__}RelatedDataFlowTabView",
-        (RelatedDataFlowListTabViewBase,),
         {},
         model=model,
     )

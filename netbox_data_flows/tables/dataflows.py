@@ -6,9 +6,12 @@ from tenancy.tables import TenancyColumnsMixin
 
 from netbox_data_flows.models import DataFlow
 
-from .columns import ObjectAliasListColumn, PortListColumn
+from .columns import RESULT_SOURCE, ObjectAliasListColumn, PortListColumn
 
-__all__ = ("DataFlowTable",)
+__all__ = (
+    "DataFlowTable",
+    "SourcedDataFlowTable",
+)
 
 
 class DataFlowTable(TenancyColumnsMixin, PrimaryModelTable):
@@ -56,7 +59,6 @@ class DataFlowTable(TenancyColumnsMixin, PrimaryModelTable):
             "destinations",
             "destination_ports",
             "parent",
-            "depth",
             "tenant",
             "tenant_group",
             "comments",
@@ -78,3 +80,55 @@ class DataFlowTable(TenancyColumnsMixin, PrimaryModelTable):
             "destination_ports",
             "description",
         )
+
+
+class SourcedDataFlowTable(DataFlowTable):
+    result_source = tables.TemplateColumn(
+        verbose_name="Assignment",
+        template_code=RESULT_SOURCE,
+    )
+
+    class Meta(DataFlowTable.Meta):
+        fields = (
+            "pk",
+            "id",
+            "result_source",
+            "application",
+            "application_role",
+            "group",
+            "name",
+            "description",
+            "status",
+            "protocol",
+            "sources",
+            "source_ports",
+            "destinations",
+            "destination_ports",
+            "parent",
+            "tenant",
+            "tenant_group",
+            "comments",
+            "tags",
+            "owner",
+            "created",
+            "last_updated",
+            "actions",
+        )
+        default_columns = (
+            "result_source",
+            "application",
+            "group",
+            "name",
+            "status",
+            "protocol",
+            "sources",
+            "source_ports",
+            "destinations",
+            "destination_ports",
+            "description",
+        )
+
+    def _apply_prefetching(self, *args, **kwargs):
+        # Disable NetBox's smart prefetching as it is not compatible with UNION
+        # The UNION is used to merge the different querysets from the different sources.
+        pass
