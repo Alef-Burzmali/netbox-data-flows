@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
-
 from netaddr.ip import IPNetwork
+
 from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 
@@ -44,20 +44,27 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                 # prefixes where passed prefix is within prefix
                 filtering |= models.Q(prefixes__vrf=prefix.vrf, prefixes__prefix__net_contains=prefix.prefix)
                 # ranges where passed prefix is within or equals range
-                filtering |= models.Q(ip_ranges__vrf=prefix.vrf, ip_ranges__start_address__lte=network_address, ip_ranges__end_address__gte=broadcast_address)
+                filtering |= models.Q(
+                    ip_ranges__vrf=prefix.vrf,
+                    ip_ranges__start_address__lte=network_address,
+                    ip_ranges__end_address__gte=broadcast_address,
+                )
         if ip_ranges := [o for o in objects if o._meta.model_name == "iprange"]:
             for ip_range in ip_ranges:
                 # prefixes where passed range is within or equals prefix
-                filtering |= (
-                    models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.start_address) &
-                    models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.end_address)
-                )
+                filtering |= models.Q(
+                    prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.start_address
+                ) & models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.end_address)
         if ip_addresses := [o for o in objects if o._meta.model_name == "ipaddress"]:
             for ip_address in ip_addresses:
                 # prefixes where passed IP is within prefix
                 filtering |= models.Q(prefixes__vrf=ip_address.vrf, prefixes__prefix__net_contains=ip_address.address)
                 # ranges where passed IP is within range
-                filtering |= models.Q(ip_ranges__vrf=ip_address.vrf, ip_ranges__start_address__lte=ip_address.address, ip_ranges__end_address__gte=ip_address.address)
+                filtering |= models.Q(
+                    ip_ranges__vrf=ip_address.vrf,
+                    ip_ranges__start_address__lte=ip_address.address,
+                    ip_ranges__end_address__gte=ip_address.address,
+                )
 
         if other := [o for o in objects if o._meta.model_name not in ("prefix", "iprange", "ipaddress")]:
             dev_addresses = []
@@ -71,7 +78,11 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                 # prefixes where passed IP is within prefix
                 filtering |= models.Q(prefixes__vrf=dev_address.vrf, prefixes__prefix__net_contains=dev_address.address)
                 # ranges where passed IP is within range
-                filtering |= models.Q(ip_ranges__vrf=dev_address.vrf, ip_ranges__start_address__lte=dev_address.address, ip_ranges__end_address__gte=dev_address.address)
+                filtering |= models.Q(
+                    ip_ranges__vrf=dev_address.vrf,
+                    ip_ranges__start_address__lte=dev_address.address,
+                    ip_ranges__end_address__gte=dev_address.address,
+                )
 
         return self.filter(filtering).distinct()
 
