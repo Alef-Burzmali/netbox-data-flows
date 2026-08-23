@@ -4,7 +4,12 @@ from netbox.tables import PrimaryModelTable, columns
 
 from netbox_data_flows.models import ObjectAlias
 
-__all__ = ("ObjectAliasTable",)
+from .columns import RESULT_SOURCE
+
+__all__ = (
+    "ObjectAliasTable",
+    "SourcedObjectAliasTable",
+)
 
 
 class ObjectAliasTable(PrimaryModelTable):
@@ -60,3 +65,45 @@ class ObjectAliasTable(PrimaryModelTable):
             "dataflow_source_count",
             "dataflow_destination_count",
         )
+
+
+class SourcedObjectAliasTable(ObjectAliasTable):
+    result_source = tables.TemplateColumn(
+        verbose_name="Assignment",
+        template_code=RESULT_SOURCE,
+    )
+
+    class Meta(ObjectAliasTable.Meta):
+        fields = (
+            "pk",
+            "id",
+            "result_source",
+            "name",
+            "description",
+            "prefix_count",
+            "ip_range_count",
+            "ip_address_count",
+            "dataflow_source_count",
+            "dataflow_destination_count",
+            "comments",
+            "tags",
+            "owner",
+            "created",
+            "last_updated",
+            "actions",
+        )
+        default_columns = (
+            "result_source",
+            "name",
+            "description",
+            "prefix_count",
+            "ip_range_count",
+            "ip_address_count",
+            "dataflow_source_count",
+            "dataflow_destination_count",
+        )
+
+    def _apply_prefetching(self, *args, **kwargs):
+        # Disable NetBox's smart prefetching as it is not compatible with UNION
+        # The UNION is used to merge the different querysets from the different sources.
+        pass
