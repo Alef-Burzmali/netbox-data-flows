@@ -75,8 +75,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
                     result_source=Value("related"),
-                ).related_to(parent),
-                all=True,
+                ).related_to(parent)
             )
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
         )
