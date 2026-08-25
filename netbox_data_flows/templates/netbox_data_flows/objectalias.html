@@ -28,6 +28,10 @@
             <th scope="row">{% trans "Virtual Machine Tags" %}</th>
             <td>{{ virtual_machine_tags|placeholder|safe }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Tag matching rule" %}</th>
+            <td>{% badge object.get_tag_matching_rule_display bg_color=object.get_tag_matching_rule_color %}</td>
+          </tr>
         </table>
       </div>
       {% include 'inc/panels/tags.html' %}
@@ -81,7 +85,7 @@
       {% if resolved_ip_address_count %}
         <div class="card">
           <h5 class="card-header">
-            {% trans "Resolved IP Addresses" %}
+            {% trans "Tagged devices' IP Addresses" %}
             &nbsp;<span class="badge text-bg-primary rounded-pill">{{ resolved_ip_address_count }}</span>
           </h5>
           {% render_table resolved_ip_address_table %}

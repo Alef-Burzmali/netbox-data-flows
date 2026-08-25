@@ -17,13 +17,18 @@ MODELS = (Device, VirtualMachine, IPAddress, IPRange, Prefix)
 
 
 def _count_aliases_or_dataflows(obj):
-    aliases = models.ObjectAlias.objects.contains(obj).count() + models.ObjectAlias.objects.related_to(obj).count()
+    aliases = (
+        models.ObjectAlias.objects.contains(obj).count()
+        + models.ObjectAlias.objects.contains_tagged(obj).count()
+        + models.ObjectAlias.objects.related_to(obj).count()
+    )
     if not aliases:
         return 0  # cannot have a dataflow without an alias
 
     dataflows = (
         models.DataFlow.objects.sources_or_destinations(obj).count()
         + models.DataFlow.objects.related_sources_or_destinations(obj).count()
+        + models.DataFlow.objects.tagged_sources_or_destinations(obj).count()
     )
     # return as string so "0" is considered non-empty
     return str(dataflows)
@@ -74,6 +79,17 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     ip_address_count=Count("ip_addresses", distinct=True),
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
+                    result_source=Value("tagged"),
+                ).contains_tagged(parent)
+            )
+            .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
+            .union(
+                models.ObjectAlias.objects.annotate(
+                    prefix_count=Count("prefixes", distinct=True),
+                    ip_range_count=Count("ip_ranges", distinct=True),
+                    ip_address_count=Count("ip_addresses", distinct=True),
+                    dataflow_source_count=Count("dataflow_sources", distinct=True),
+                    dataflow_destination_count=Count("dataflow_destinations", distinct=True),
                     result_source=Value("related"),
                 ).related_to(parent)
             )
@@ -84,7 +100,9 @@ class DataFlowListTabViewBase(generic.ObjectView):
         dataflow_sources_table = tables.SourcedDataFlowTable(
             models.DataFlow.objects.sources(parent)
             .annotate(result_source=Value("direct"))
+            .prefetch_related("application", "group", "sources", "destinations")
             .union(models.DataFlow.objects.related_sources(parent).annotate(result_source=Value("related")))
+            .union(models.DataFlow.objects.tagged_sources(parent).annotate(result_source=Value("tagged")))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_sources_table.configure(request)
@@ -92,7 +110,9 @@ class DataFlowListTabViewBase(generic.ObjectView):
         dataflow_destinations_table = tables.SourcedDataFlowTable(
             models.DataFlow.objects.destinations(parent)
             .annotate(result_source=Value("direct"))
+            .prefetch_related("application", "group", "sources", "destinations")
             .union(models.DataFlow.objects.related_destinations(parent).annotate(result_source=Value("related")))
+            .union(models.DataFlow.objects.tagged_destinations(parent).annotate(result_source=Value("tagged")))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_destinations_table.configure(request)

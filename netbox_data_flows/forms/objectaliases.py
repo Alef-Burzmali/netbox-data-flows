@@ -2,14 +2,15 @@ from django import forms
 
 from extras.models import Tag
 from netbox.forms import PrimaryModelBulkEditForm, PrimaryModelFilterSetForm, PrimaryModelForm, PrimaryModelImportForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CSVChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
 
 from dcim.models import Device
 from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
-from netbox_data_flows import models
+from netbox_data_flows import choices, models
 
 __all__ = (
     "ObjectAliasForm",
@@ -47,12 +48,20 @@ class ObjectAliasForm(PrimaryModelForm):
         required=False,
         selector=True,
         label="Device Tags",
+        help_text="The IPs of the devices with this tag re dynamically added to this alias.",
     )
     virtual_machine_tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False,
         selector=True,
         label="Virtual Machine Tags",
+        help_text="The IPs of the virtual machines with this tag re dynamically added to this alias.",
+    )
+    tag_matching_rule = forms.ChoiceField(
+        choices=choices.TagMatchingRuleChoices,
+        label="Tag matching rule",
+        help_text="Select with IP of the devices and virtual machines are selected with the tags.",
+        required=True,
     )
 
     fieldsets = (
@@ -65,9 +74,13 @@ class ObjectAliasForm(PrimaryModelForm):
             "prefixes",
             "ip_ranges",
             "ip_addresses",
+            name="Aliased objects",
+        ),
+        FieldSet(
             "device_tags",
             "virtual_machine_tags",
-            name="Aliased objects",
+            "tag_matching_rule",
+            name="Tag matching",
         ),
     )
 
@@ -82,6 +95,7 @@ class ObjectAliasForm(PrimaryModelForm):
             "name",
             "owner",
             "prefixes",
+            "tag_matching_rule",
             "tags",
             "virtual_machine_tags",
         )
@@ -122,6 +136,11 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label="Virtual Machine Tags",
     )
+    tag_matching_rule = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagMatchingRuleChoices),
+        label="Tag matching rule",
+        required=False,
+    )
 
     fieldsets = (
         FieldSet(
@@ -132,9 +151,13 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
             "prefixes",
             "ip_ranges",
             "ip_addresses",
+            name="Aliased objects",
+        ),
+        FieldSet(
             "device_tags",
             "virtual_machine_tags",
-            name="Aliased objects",
+            "tag_matching_rule",
+            name="Tag matching",
         ),
     )
     nullable_fields = (
@@ -146,10 +169,17 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         "ip_ranges",
         "ip_addresses",
         "virtual_machine_tags",
+        "tag_matching_rule",
     )
 
 
 class ObjectAliasImportForm(PrimaryModelImportForm):
+    tag_matching_rule = CSVChoiceField(
+        choices=add_blank_choice(choices.TagMatchingRuleChoices),
+        required=True,
+        help_text="Tag matching rule",
+    )
+
     class Meta:
         model = models.ObjectAlias
         fields = (
@@ -157,6 +187,7 @@ class ObjectAliasImportForm(PrimaryModelImportForm):
             "description",
             "owner",
             "comments",
+            "tag_matching_rule",
             "tags",
         )
 
@@ -197,6 +228,13 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
         label="Virtual Machines",
         help_text="Any IP address of the virtual machine",
     )
+    device_tags = TagFilterField(Device)
+    virtual_machine_tags = TagFilterField(VirtualMachine)
+    tag_matching_rule = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagMatchingRuleChoices),
+        label="Tag matching rule",
+        required=False,
+    )
 
     fieldsets = (
         FieldSet(
@@ -212,5 +250,11 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
             "devices",
             "virtual_machines",
             name="Aliased objects - all objects are OR'ed together, any will match",
+        ),
+        FieldSet(
+            "device_tags",
+            "virtual_machine_tags",
+            "tag_matching_rule",
+            name="Tag matching",
         ),
     )

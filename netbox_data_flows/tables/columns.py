@@ -7,6 +7,8 @@ from netbox_data_flows.utils.helpers import object_list_to_string
 
 RESULT_SOURCE = """{% if record.result_source == "direct" %}
     <span class="badge text-bg-success">Direct</span>
+{% elif record.result_source == "tagged" %}
+    <span class="badge text-bg-warning">Tagged</span>
 {% elif record.result_source == "related" %}
     <span class="badge text-bg-info">Related</span>
 {% endif %}"""

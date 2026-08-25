@@ -92,7 +92,7 @@ class ObjectAliasTestCase(TestCase):
         self.assertEqual(
             {
                 str(address)
-                for address in alias.get_resolved_ip_addresses(include_static=False).values_list(
+                for address in alias.get_resolved_ip_addresses(include_direct_assignments=False).values_list(
                     "address",
                     flat=True,
                 )
