@@ -32,20 +32,31 @@ def _get_ip_qs(device):
     )
 
 
-def get_one_device_ipaddresses(device):
-    """Return the list of IP addresses of a device or virtual machine."""
-    ip_qs = _get_ip_qs(device)
-    return IPAddress.objects.filter(ip_qs)
+def get_device_ipaddresses(*devices, primary=False, oob=False):
+    """Return the list of IP addresses of a list of devices or virtual machines.
 
-
-def get_device_ipaddresses(*devices):
-    """Return the list of IP addresses of a list of devices or virtual machines."""
+    If primary is True, primary IP v4 and v6 are returned
+    If oob is True, oob IP is returned
+    If neither primary nor oob is True, all assigned IPs are returned.
+    """
     if not devices:
         return IPAddress.objects.none()
 
     qs = Q()
     for dev in devices:
-        qs |= _get_ip_qs(dev)
+        if not primary and not oob:
+            qs |= _get_ip_qs(dev)
+            continue
+
+        if primary and dev.primary_ip4:
+            qs |= Q(pk=dev.primary_ip4.pk)
+        if primary and dev.primary_ip6:
+            qs |= Q(pk=dev.primary_ip4.pk)
+        if oob and getattr(dev, "oob_ip", None):
+            qs |= Q(pk=dev.oob_ip.pk)
+
+    if qs == Q():
+        return IPAddress.objects.none()
 
     return IPAddress.objects.filter(qs)
 
