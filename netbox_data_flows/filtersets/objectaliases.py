@@ -92,10 +92,11 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         qs = super().qs
 
         if hasattr(self, "_targets"):
-            qs = qs.contains(*self._targets) | qs.contains_tagged(*self._targets)
+            qs = qs.contains(*self._targets)
 
         return qs
 
+    # FIXME: replace by filter_targets?
     def filter_devices(self, queryset, name, value):
         if not value:
             return queryset
