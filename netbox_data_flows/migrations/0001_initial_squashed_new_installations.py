@@ -15,21 +15,6 @@ import utilities.json
 class Migration(migrations.Migration):
     initial = True
 
-    replaces = [
-        ("netbox_data_flows", "0001_initial"),
-        ("netbox_data_flows", "0002_alter_objectalias_options"),
-        ("netbox_data_flows", "0003_alter_application_custom_field_data_and_more"),
-        ("netbox_data_flows", "0004_reindex_netbox_data_flows"),
-        ("netbox_data_flows", "0005_dataflowgroup_slug"),
-        ("netbox_data_flows", "0006_reindex_netbox_data_flows"),
-        ("netbox_data_flows", "0007_remove_objectalias_size"),
-        ("netbox_data_flows", "0008_delete_orphaned_aliases"),
-        ("netbox_data_flows", "0009_fix_empty_dfg_slugs"),
-        ("netbox_data_flows", "0010_alter_objectaliastarget_options"),
-        ("netbox_data_flows", "0011_objectalias_comments"),
-        ("netbox_data_flows", "0012_split_objectaliastargets_into_direct_relationships"),
-    ]
-
     dependencies = [
         ("contenttypes", "0002_remove_content_type_name"),
         ("extras", "0077_customlink_extend_text_and_url"),
