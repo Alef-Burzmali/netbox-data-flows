@@ -1,5 +1,6 @@
 from django.db.models import Q
 
+from extras.models import Tag
 from netbox.filtersets import PrimaryModelFilterSet
 from utilities.filtersets import register_filterset
 
@@ -7,10 +8,10 @@ from dcim.models import Device
 from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
-from netbox_data_flows import models
+from netbox_data_flows import choices, models
 from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
-from .filters import ModelMultipleChoiceFilter
+from .filters import ModelMultipleChoiceFilter, MultipleChoiceFilter
 
 __all__ = ("ObjectAliasFilterSet",)
 
@@ -41,6 +42,19 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         queryset=VirtualMachine.objects.all(),
         label="Virtual Machine (any IP address) (ID)",
         method="filter_devices",
+    )
+
+    device_tags = ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(),
+        label="Device tag (ID)",
+    )
+    virtual_machine_tags = ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(),
+        label="Virtual Machine tag (ID)",
+    )
+
+    tag_matching_rule = MultipleChoiceFilter(
+        choices=choices.TagMatchingRuleChoices,
     )
 
     class Meta:
@@ -78,7 +92,7 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         qs = super().qs
 
         if hasattr(self, "_targets"):
-            qs = qs.contains(*self._targets)
+            qs = qs.contains(*self._targets) | qs.contains_tagged(*self._targets)
 
         return qs
 

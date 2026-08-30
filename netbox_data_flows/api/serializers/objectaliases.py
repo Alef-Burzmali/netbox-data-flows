@@ -1,13 +1,13 @@
 from rest_framework import serializers
 
 from extras.models import Tag
-from netbox.api.fields import SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NestedTagSerializer, PrimaryModelSerializer
 
 from ipam.api.serializers import IPAddressSerializer, IPRangeSerializer, PrefixSerializer
 from ipam.models import IPAddress, IPRange, Prefix
 
-from netbox_data_flows import models
+from netbox_data_flows import choices, models
 
 __all__ = ("ObjectAliasSerializer",)
 
@@ -49,21 +49,27 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    tag_matching_rule = ChoiceField(
+        choices=choices.TagMatchingRuleChoices,
+        required=False,
+        default=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
+    )
 
     class Meta:
         model = models.ObjectAlias
         fields = (
             "comments",
-            "device_tags",
             "description",
+            "device_tags",
             "display",
             "id",
-            "name",
-            "prefixes",
-            "ip_ranges",
             "ip_addresses",
-            "tags",
+            "ip_ranges",
+            "name",
             "owner",
+            "prefixes",
+            "tag_matching_rule",
+            "tags",
             "url",
             "virtual_machine_tags",
         )

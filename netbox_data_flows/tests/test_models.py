@@ -66,7 +66,7 @@ class ObjectAliasTestCase(TestCase):
         qs = self.model.objects.related_to(pref[0], *vm)
         self.assertEqual(qs.count(), 2)
 
-    def test_get_resolved_ip_addresses(self):
+    def test_get_resolved_ip_addresses_all_addresses(self):
         device_tag, virtual_machine_tag = create_tags("dynamic-device", "dynamic-virtual-machine")
         device = dcim.Device.objects.get(name="Device 1")
         virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
@@ -75,7 +75,11 @@ class ObjectAliasTestCase(TestCase):
 
         direct_ip = ipam.IPAddress.objects.get(address="10.10.0.1/24")
 
-        alias = self.model.objects.create(name="Object Alias Dynamic", description="Dynamic targets")
+        alias = self.model.objects.create(
+            name="Object Alias Dynamic",
+            description="Dynamic targets",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         alias.ip_addresses.set([direct_ip])
         alias.device_tags.set([device_tag])
         alias.virtual_machine_tags.set([virtual_machine_tag])
@@ -104,11 +108,103 @@ class ObjectAliasTestCase(TestCase):
             },
         )
 
+    def test_get_resolved_ip_addresses_primary_addresses(self):
+        device_tag, virtual_machine_tag = create_tags("dynamic-device", "dynamic-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        direct_ip = ipam.IPAddress.objects.get(address="10.10.0.1/24")
+
+        device.primary_ip4 = device.interfaces.first().ip_addresses.first()
+        device.save()
+        virtual_machine.primary_ip4 = virtual_machine.interfaces.first().ip_addresses.first()
+        virtual_machine.save()
+
+        alias = self.model.objects.create(
+            name="Object Alias Dynamic",
+            description="Dynamic targets",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
+        )
+        alias.ip_addresses.set([direct_ip])
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        self.assertEqual(
+            {str(address) for address in alias.get_resolved_ip_addresses().values_list("address", flat=True)},
+            {
+                "10.0.1.1/24",
+                "10.100.1.1/24",
+                "10.10.0.1/24",
+            },
+        )
+        self.assertEqual(
+            {
+                str(address)
+                for address in alias.get_resolved_ip_addresses(include_direct_assignments=False).values_list(
+                    "address",
+                    flat=True,
+                )
+            },
+            {
+                "10.0.1.1/24",
+                "10.100.1.1/24",
+            },
+        )
+
+    def test_get_resolved_ip_addresses_oob_addresses(self):
+        device_tag, virtual_machine_tag = create_tags("dynamic-device", "dynamic-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        direct_ip = ipam.IPAddress.objects.get(address="10.10.0.1/24")
+
+        device.oob_ip = device.interfaces.first().ip_addresses.first()
+        device.save()
+        virtual_machine.primary_ip4 = virtual_machine.interfaces.first().ip_addresses.first()
+        virtual_machine.save()
+
+        alias = self.model.objects.create(
+            name="Object Alias Dynamic",
+            description="Dynamic targets",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
+        )
+        alias.ip_addresses.set([direct_ip])
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        self.assertEqual(
+            {str(address) for address in alias.get_resolved_ip_addresses().values_list("address", flat=True)},
+            {
+                "10.0.1.1/24",
+                "10.10.0.1/24",
+            },
+        )
+        self.assertEqual(
+            {
+                str(address)
+                for address in alias.get_resolved_ip_addresses(include_direct_assignments=False).values_list(
+                    "address",
+                    flat=True,
+                )
+            },
+            {
+                "10.0.1.1/24",
+            },
+        )
+
     def test_get_resolved_ip_addresses_updates_without_resync(self):
         device_tag = create_tags("dynamic-update")[0]
         device = dcim.Device.objects.get(name="Device 1")
 
-        alias = self.model.objects.create(name="Object Alias Dynamic Update", description="Dynamic targets")
+        alias = self.model.objects.create(
+            name="Object Alias Dynamic Update",
+            description="Dynamic targets",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         alias.device_tags.set([device_tag])
         self.assertEqual(alias.get_resolved_ip_addresses().count(), 0)
 
@@ -131,17 +227,21 @@ class ObjectAliasTestCase(TestCase):
         device.tags.add(device_tag)
         virtual_machine.tags.add(virtual_machine_tag)
 
-        alias = self.model.objects.create(name="Object Alias Dynamic Match", description="Dynamic targets")
+        alias = self.model.objects.create(
+            name="Object Alias Dynamic Match",
+            description="Dynamic targets",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         alias.device_tags.set([device_tag])
         alias.virtual_machine_tags.set([virtual_machine_tag])
 
         device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
         virtual_machine_ip = ipam.IPAddress.objects.get(address="10.100.1.1/24")
 
-        self.assertIn(alias, self.model.objects.contains(device))
-        self.assertIn(alias, self.model.objects.contains(virtual_machine))
-        self.assertIn(alias, self.model.objects.contains(device_ip))
-        self.assertIn(alias, self.model.objects.contains(virtual_machine_ip))
+        self.assertIn(alias, self.model.objects.contains_tagged(device))
+        self.assertIn(alias, self.model.objects.contains_tagged(virtual_machine))
+        self.assertIn(alias, self.model.objects.contains_tagged(device_ip))
+        self.assertIn(alias, self.model.objects.contains_tagged(virtual_machine_ip))
 
 
 class DataFlowTestCase(TestCase):
