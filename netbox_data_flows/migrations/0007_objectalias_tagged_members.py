@@ -6,7 +6,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("extras", "0143_event_rule_action_registry"),
         ("netbox_data_flows", "0006_alter_application_owner_alter_applicationrole_owner_and_more"),
     ]
 

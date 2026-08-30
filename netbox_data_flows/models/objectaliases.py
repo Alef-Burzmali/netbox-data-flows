@@ -1,6 +1,7 @@
+import itertools
+
 from django.db import models
 from django.urls import reverse
-from netaddr.ip import IPNetwork
 
 from extras.models import Tag
 from netbox.models import PrimaryModel
@@ -16,89 +17,169 @@ from netbox_data_flows.utils.helpers import get_device_ipaddresses, get_ipaddres
 __all__ = ("ObjectAlias",)
 
 
-# TODO: REFACTOR
-
-
 class ObjectAliasQuerySet(RestrictedQuerySet):
-    def contains(self, *objects):
-        """Return ObjectAlias containing any one of the objects in parameter."""
-        # make sure the default filter returns an empty list
-        filtering = models.Q(name=None)
+    def contains(self, *objects, direct=None, indirect=None, tagged=None):
+        """Return ObjectAlias containing any one of the objects in parameter.
 
-        if prefixes := [o for o in objects if o._meta.model_name == "prefix"]:
-            filtering |= models.Q(prefixes__in=prefixes)
-        if ip_ranges := [o for o in objects if o._meta.model_name == "iprange"]:
-            filtering |= models.Q(ip_ranges__in=ip_ranges)
-        if ip_addresses := [o for o in objects if o._meta.model_name == "ipaddress"]:
-            filtering |= models.Q(ip_addresses__in=ip_addresses)
-        if other := [o for o in objects if o._meta.model_name not in ("prefix", "iprange", "ipaddress")]:
-            dev_addresses = []
-            for obj in other:
+        If direct is True, an object is contained if it is a direct member of prefixes, ip_ranges or ip_addresses,
+        or is a device or virtual machine with an IP in ip_addresses.
+
+        If indirect is True, an object is contained if it is a subset of a prefix or range directly contained.
+
+        If tagged is True, the device_tags and virtual_machine_tags are used. An IP is contained if its parent
+        object has the corresponding tag and the following tag_matching_rule is respected:
+        - primary: the IP is the primary IPv4 or IPv6 of the object
+        - oob: the IP is the OOB IP of the object (only device)
+        - all: the IP is assigned to one of the interfaces of the object.
+
+        If all selectors are None, all the selection types are used.
+        """
+        if direct is None and indirect is None and tagged is None:
+            direct, indirect, tagged = True, True, True
+
+        # Split the requested objects in four lists based on their types
+        prefixes, ip_ranges, ip_addresses, devices = [], [], [], []
+        for obj in objects:
+            if obj._meta.model_name == "prefix":
+                prefixes.append(obj)
+            elif obj._meta.model_name == "iprange":
+                ip_ranges.append(obj)
+            elif obj._meta.model_name == "ipaddress":
+                ip_addresses.append(obj)
+            else:
+                # devices or virtual machines only, other types will raise TypeError
                 try:
-                    addresses = get_device_ipaddresses(obj)
-                except Exception as e:
+                    dev_addresses = get_device_ipaddresses(obj)
+                except AttributeError as e:
                     raise TypeError(f"Cannot test if {self.__class__} contains {obj}") from e
 
-                if addresses.exists():
-                    dev_addresses += addresses
+                devices.append((obj, dev_addresses))
 
-            if dev_addresses:
-                filtering |= models.Q(ip_addresses__in=dev_addresses)
+        filtering = models.Q()
+        if direct:
+            filtering |= self._contains_direct(prefixes, ip_ranges, ip_addresses, devices)
+        if indirect:
+            filtering |= self._contains_indirect(prefixes, ip_ranges, ip_addresses, devices)
+        if tagged:
+            filtering |= self._contains_tagged(ip_addresses, devices)
+
+        # make sure the default filter returns an empty list
+        if filtering == models.Q():
+            return self.none()
 
         return self.filter(filtering).distinct()
 
-    def contains_tagged(self, *objects):
-        """Return ObjectAliases matching any one of the objects in parameters based on their tags."""
-        # make sure the default filter returns an empty list
-        filtering = models.Q(name=None)
+    def _contains_direct(self, prefixes, ip_ranges, ip_addresses, devices):
+        """Return ObjectAlias containing any one of the objects in parameter based on the direct rule."""
+        filtering = models.Q()
 
+        if prefixes:
+            filtering |= models.Q(prefixes__in=prefixes)
+        if ip_ranges:
+            filtering |= models.Q(ip_ranges__in=ip_ranges)
+        if ip_addresses:
+            filtering |= models.Q(ip_addresses__in=ip_addresses)
+        if devices:
+            dev_addresses = IPAddress.objects.none()
+            for dev, ips in devices:
+                dev_addresses |= ips
+            filtering |= models.Q(ip_addresses__in=dev_addresses)
+
+        return filtering
+
+    def _contains_indirect(self, prefixes, ip_ranges, ip_addresses, devices):
+        """Return ObjectAlias containing any one of the objects in parameter based on the indirect rule."""
+        filtering = models.Q()
+
+        for prefix in prefixes:
+            # aliases with prefixes that are parents of our prefix
+            filtering |= models.Q(prefixes__in=prefix.get_parents())
+
+            # aliases with ranges that fully contain our prefix
+            # compare host to avoid comparing prefix lengths
+            filtering |= models.Q(
+                ip_ranges__vrf=prefix.vrf,
+                ip_ranges__start_address__host__inet__lte=prefix.prefix.ip,
+                ip_ranges__end_address__host__inet__gte=prefix.prefix.broadcast,
+            )
+
+        for ip_range in ip_ranges:
+            # NetBox IP ranges cannot overlap
+            # aliases with prefixes that fully contain our range
+            filtering |= models.Q(
+                prefixes__vrf=ip_range.vrf,
+                prefixes__prefix__net_contains_or_equals=ip_range.start_address,
+            ) & models.Q(
+                prefixes__vrf=ip_range.vrf,
+                prefixes__prefix__net_contains_or_equals=ip_range.end_address,
+            )
+
+        for ip_address in ip_addresses:
+            # prefixes where passed IP is within prefix
+            filtering |= models.Q(prefixes__vrf=ip_address.vrf, prefixes__prefix__net_contains=ip_address.address)
+            # ranges where passed IP is within range
+            filtering |= models.Q(
+                ip_ranges__vrf=ip_address.vrf,
+                ip_ranges__start_address__lte=ip_address.address,
+                ip_ranges__end_address__gte=ip_address.address,
+            )
+
+        for dev_address in itertools.chain.from_iterable(ips for (dev, ips) in devices):
+            # prefixes where passed IP is within prefix
+            filtering |= models.Q(prefixes__vrf=dev_address.vrf, prefixes__prefix__net_contains=dev_address.address)
+            # ranges where passed IP is within range
+            filtering |= models.Q(
+                ip_ranges__vrf=dev_address.vrf,
+                ip_ranges__start_address__lte=dev_address.address,
+                ip_ranges__end_address__gte=dev_address.address,
+            )
+
+        return filtering
+
+    def _contains_tagged(self, ip_addresses, devices):
+        """Return ObjectAliases matching any one of the objects in parameters based on their tags."""
+        # Six possible combination based on type (Device/VM) and matching rule (All, Primary, OOB)
+        # But VM do not have oob ips
         device_tag_all_ips = []
         vm_tag_all_ips = []
         device_tag_primary_ips = []
         vm_tag_primary_ips = []
         device_tag_oob_ips = []
-        # vm do not have oob ips
 
-        for obj in objects:
-            if obj._meta.model_name == "ipaddress":
-                ip_address = obj
+        for ip_address in ip_addresses:
+            host = get_ipaddress_host(ip_address)
+            if isinstance(host, Device):
+                device_tag_all_ips.extend(host.tags.all())
+                if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
+                    device_tag_primary_ips.extend(host.tags.all())
+                if ip_address == host.oob_ip:
+                    device_tag_oob_ips.extend(host.tags.all())
 
-                host = get_ipaddress_host(ip_address)
-                if isinstance(host, Device):
-                    device_tag_all_ips.extend(host.tags.all())
-                    if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
-                        device_tag_primary_ips.extend(host.tags.all())
-                    if ip_address == host.oob_ip:
-                        device_tag_oob_ips.extend(host.tags.all())
+            elif isinstance(host, VirtualMachine):
+                vm_tag_all_ips.extend(host.tags.all())
+                if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
+                    vm_tag_primary_ips.extend(host.tags.all())
 
-                elif isinstance(host, VirtualMachine):
-                    vm_tag_all_ips.extend(host.tags.all())
-                    if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
-                        vm_tag_primary_ips.extend(host.tags.all())
+        for obj, dev_addresses in devices:
+            # Ensure that the device has at least one address
+            if not dev_addresses.exists():
+                continue
 
-            elif obj._meta.model_name not in ("prefix", "iprange", "ipaddress"):
-                try:
-                    addresses = get_device_ipaddresses(obj)
-                except Exception as e:
-                    raise TypeError(f"Cannot test if {self.__class__} contains {obj}") from e
+            if obj._meta.model_name == "device":
+                tags = list(obj.tags.all())
+                device_tag_all_ips.extend(tags)
+                if obj.primary_ip4 or obj.primary_ip6:
+                    device_tag_primary_ips.extend(tags)
+                if obj.oob_ip:
+                    device_tag_oob_ips.extend(tags)
 
-                # Ensure that the device has at least one address
-                if not addresses.exists():
-                    continue
+            elif obj._meta.model_name == "virtualmachine":
+                tags = list(obj.tags.all())
+                vm_tag_all_ips.extend(tags)
+                if obj.primary_ip4 or obj.primary_ip6:
+                    vm_tag_primary_ips.extend(tags)
 
-                if obj._meta.model_name == "device":
-                    tags = list(obj.tags.all())
-                    device_tag_all_ips.extend(tags)
-                    if obj.primary_ip4 or obj.primary_ip6:
-                        device_tag_primary_ips.extend(tags)
-                    if obj.oob_ip:
-                        device_tag_oob_ips.extend(tags)
-
-                elif obj._meta.model_name == "virtualmachine":
-                    tags = list(obj.tags.all())
-                    vm_tag_all_ips.extend(tags)
-                    if obj.primary_ip4 or obj.primary_ip6:
-                        vm_tag_primary_ips.extend(tags)
+        filtering = models.Q()
 
         if device_tag_all_ips:
             filtering |= models.Q(
@@ -126,65 +207,7 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                 tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
             )
 
-        return self.filter(filtering).distinct()
-
-    def related_to(self, *objects):
-        """Return ObjectAlias related to any one of the objects in parameter.
-
-        A object is related if it is within a prefix or range of the ObjectAlias.
-        """
-        # make sure the default filter returns an empty list
-        filtering = models.Q(name=None)
-
-        if prefixes := [o for o in objects if o._meta.model_name == "prefix"]:
-            for prefix in prefixes:
-                network_address = IPNetwork(f"{prefix.prefix.network}/{prefix.prefix.prefixlen}")
-                broadcast_address = IPNetwork(f"{prefix.prefix.broadcast}/{prefix.prefix.prefixlen}")
-
-                # prefixes where passed prefix is within prefix
-                filtering |= models.Q(prefixes__vrf=prefix.vrf, prefixes__prefix__net_contains=prefix.prefix)
-                # ranges where passed prefix is within or equals range
-                filtering |= models.Q(
-                    ip_ranges__vrf=prefix.vrf,
-                    ip_ranges__start_address__lte=network_address,
-                    ip_ranges__end_address__gte=broadcast_address,
-                )
-        if ip_ranges := [o for o in objects if o._meta.model_name == "iprange"]:
-            for ip_range in ip_ranges:
-                # prefixes where passed range is within or equals prefix
-                filtering |= models.Q(
-                    prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.start_address
-                ) & models.Q(prefixes__vrf=ip_range.vrf, prefixes__prefix__net_contains_or_equals=ip_range.end_address)
-        if ip_addresses := [o for o in objects if o._meta.model_name == "ipaddress"]:
-            for ip_address in ip_addresses:
-                # prefixes where passed IP is within prefix
-                filtering |= models.Q(prefixes__vrf=ip_address.vrf, prefixes__prefix__net_contains=ip_address.address)
-                # ranges where passed IP is within range
-                filtering |= models.Q(
-                    ip_ranges__vrf=ip_address.vrf,
-                    ip_ranges__start_address__lte=ip_address.address,
-                    ip_ranges__end_address__gte=ip_address.address,
-                )
-
-        if other := [o for o in objects if o._meta.model_name not in ("prefix", "iprange", "ipaddress")]:
-            dev_addresses = []
-            for obj in other:
-                try:
-                    dev_addresses += get_device_ipaddresses(obj)
-                except Exception as e:
-                    raise TypeError(f"Cannot test if {self.__class__} is related to {obj}") from e
-
-            for dev_address in dev_addresses:
-                # prefixes where passed IP is within prefix
-                filtering |= models.Q(prefixes__vrf=dev_address.vrf, prefixes__prefix__net_contains=dev_address.address)
-                # ranges where passed IP is within range
-                filtering |= models.Q(
-                    ip_ranges__vrf=dev_address.vrf,
-                    ip_ranges__start_address__lte=dev_address.address,
-                    ip_ranges__end_address__gte=dev_address.address,
-                )
-
-        return self.filter(filtering).distinct()
+        return filtering
 
 
 class ObjectAlias(PrimaryModel):

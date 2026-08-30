@@ -276,12 +276,12 @@ class TestData:
             self._ranges = ranges
 
             ips = [
-                ipam.IPAddress(address="10.0.1.1/24"),
-                ipam.IPAddress(address="10.0.1.2/24"),
-                ipam.IPAddress(address="10.0.2.1/24"),
-                ipam.IPAddress(address="10.0.2.2/24"),
-                ipam.IPAddress(address="10.0.3.3/24"),
-                ipam.IPAddress(address="10.100.1.1/24"),
+                ipam.IPAddress(address="10.0.1.1/24"),  # dev 1 eth0
+                ipam.IPAddress(address="10.0.1.2/24"),  # dev 1 eth1
+                ipam.IPAddress(address="10.0.2.1/24"),  # vm 1 eth0
+                ipam.IPAddress(address="10.0.2.2/24"),  # vm 1 eth1
+                ipam.IPAddress(address="10.0.3.3/24"),  # dev 2 eth0
+                ipam.IPAddress(address="10.100.1.1/24"),  # vm 2 eth 0
                 ipam.IPAddress(address="10.200.1.1/24"),
                 ipam.IPAddress(address="10.10.0.1/24"),
             ]

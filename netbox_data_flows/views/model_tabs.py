@@ -17,20 +17,14 @@ MODELS = (Device, VirtualMachine, IPAddress, IPRange, Prefix)
 
 
 def _count_aliases_or_dataflows(obj):
-    aliases = (
-        models.ObjectAlias.objects.contains(obj).count()
-        + models.ObjectAlias.objects.contains_tagged(obj).count()
-        + models.ObjectAlias.objects.related_to(obj).count()
-    )
+    aliases = models.ObjectAlias.objects.contains(obj).count()
     if not aliases:
         return 0  # cannot have a dataflow without an alias
 
-    dataflows = (
-        models.DataFlow.objects.sources_or_destinations(obj).count()
-        + models.DataFlow.objects.related_sources_or_destinations(obj).count()
-        + models.DataFlow.objects.tagged_sources_or_destinations(obj).count()
-    )
+    dataflows = models.DataFlow.objects.sources_or_destinations(obj).count()
+
     # return as string so "0" is considered non-empty
+    # we display the object aliases even without a data flow
     return str(dataflows)
 
 
@@ -71,7 +65,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                 dataflow_destination_count=Count("dataflow_destinations", distinct=True),
                 result_source=Value("direct"),
             )
-            .contains(parent)
+            .contains(parent, direct=True)
             .union(
                 models.ObjectAlias.objects.annotate(
                     prefix_count=Count("prefixes", distinct=True),
@@ -80,7 +74,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
                     result_source=Value("tagged"),
-                ).contains_tagged(parent)
+                ).contains(parent, tagged=True)
             )
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
             .union(
@@ -91,28 +85,28 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
                     result_source=Value("related"),
-                ).related_to(parent)
+                ).contains(parent, indirect=True)
             )
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
         )
         aliases_table.configure(request)
 
         dataflow_sources_table = tables.SourcedDataFlowTable(
-            models.DataFlow.objects.sources(parent)
+            models.DataFlow.objects.sources(parent, direct=True)
             .annotate(result_source=Value("direct"))
             .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.related_sources(parent).annotate(result_source=Value("related")))
-            .union(models.DataFlow.objects.tagged_sources(parent).annotate(result_source=Value("tagged")))
+            .union(models.DataFlow.objects.sources(parent, indirect=True).annotate(result_source=Value("related")))
+            .union(models.DataFlow.objects.sources(parent, tagged=True).annotate(result_source=Value("tagged")))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_sources_table.configure(request)
 
         dataflow_destinations_table = tables.SourcedDataFlowTable(
-            models.DataFlow.objects.destinations(parent)
+            models.DataFlow.objects.destinations(parent, direct=True)
             .annotate(result_source=Value("direct"))
             .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.related_destinations(parent).annotate(result_source=Value("related")))
-            .union(models.DataFlow.objects.tagged_destinations(parent).annotate(result_source=Value("tagged")))
+            .union(models.DataFlow.objects.destinations(parent, indirect=True).annotate(result_source=Value("related")))
+            .union(models.DataFlow.objects.destinations(parent, tagged=True).annotate(result_source=Value("tagged")))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_destinations_table.configure(request)

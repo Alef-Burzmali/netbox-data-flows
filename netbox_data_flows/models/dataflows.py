@@ -39,41 +39,29 @@ class DataFlowQuerySet(RestrictedQuerySet):
         )
         return self.filter(group_id__in=subgroups)
 
-    def sources_or_destinations(self, *objects):
+    def sources_or_destinations(self, *objects, direct=None, indirect=None, tagged=None):
         return self.filter(
-            models.Q(sources__in=ObjectAlias.objects.contains(*objects))
-            | models.Q(destinations__in=ObjectAlias.objects.contains(*objects))
+            models.Q(
+                sources__in=ObjectAlias.objects.contains(*objects, direct=direct, indirect=indirect, tagged=tagged)
+            )
+            | models.Q(
+                destinations__in=ObjectAlias.objects.contains(*objects, direct=direct, indirect=indirect, tagged=tagged)
+            )
         ).distinct()
 
-    def sources(self, *objects):
-        return self.filter(models.Q(sources__in=ObjectAlias.objects.contains(*objects))).distinct()
-
-    def destinations(self, *objects):
-        return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains(*objects))).distinct()
-
-    def related_sources_or_destinations(self, *objects):
+    def sources(self, *objects, direct=None, indirect=None, tagged=None):
         return self.filter(
-            models.Q(sources__in=ObjectAlias.objects.related_to(*objects))
-            | models.Q(destinations__in=ObjectAlias.objects.related_to(*objects))
+            models.Q(
+                sources__in=ObjectAlias.objects.contains(*objects, direct=direct, indirect=indirect, tagged=tagged)
+            )
         ).distinct()
 
-    def related_sources(self, *objects):
-        return self.filter(models.Q(sources__in=ObjectAlias.objects.related_to(*objects))).distinct()
-
-    def related_destinations(self, *objects):
-        return self.filter(models.Q(destinations__in=ObjectAlias.objects.related_to(*objects))).distinct()
-
-    def tagged_sources_or_destinations(self, *objects):
+    def destinations(self, *objects, direct=None, indirect=None, tagged=None):
         return self.filter(
-            models.Q(sources__in=ObjectAlias.objects.contains_tagged(*objects))
-            | models.Q(destinations__in=ObjectAlias.objects.contains_tagged(*objects))
+            models.Q(
+                destinations__in=ObjectAlias.objects.contains(*objects, direct=direct, indirect=indirect, tagged=tagged)
+            )
         ).distinct()
-
-    def tagged_sources(self, *objects):
-        return self.filter(models.Q(sources__in=ObjectAlias.objects.contains_tagged(*objects))).distinct()
-
-    def tagged_destinations(self, *objects):
-        return self.filter(models.Q(destinations__in=ObjectAlias.objects.contains_tagged(*objects))).distinct()
 
 
 class DataFlow(AccessibleTagsMixin, PrimaryModel):

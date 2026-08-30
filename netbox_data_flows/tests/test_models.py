@@ -22,48 +22,71 @@ class ObjectAliasTestCase(TestCase):
         data = TestData()
         data.objectaliases
 
-    def test_qs_contains(self):
-        ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.contains(*ips)
+    def test_qs_contains_empty(self):
+        qs = self.model.objects.contains()
         self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 0)
+
+    def test_qs_contains_direct(self):
+        aliases = models.ObjectAlias.objects.all()
+
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.contains(*ips, direct=True)
+        self.assertIn(aliases[3], qs)
+        self.assertIn(aliases[4], qs)
         self.assertEqual(qs.count(), 2)
+
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.contains(*iprange)
+        qs = self.model.objects.contains(*iprange, direct=True)
+        self.assertIn(aliases[2], qs)
         self.assertEqual(qs.count(), 1)
+
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.contains(*pref)
+        qs = self.model.objects.contains(*pref, direct=True)
+        self.assertIn(aliases[0], qs)
+        self.assertIn(aliases[2], qs)
         self.assertEqual(qs.count(), 2)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.contains(*dev)
+        qs = self.model.objects.contains(*dev, direct=True)
+        self.assertIn(aliases[3], qs)
+        self.assertIn(aliases[4], qs)
         self.assertEqual(qs.count(), 2)
+
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.contains(*vm)
+        qs = self.model.objects.contains(*vm, direct=True)
+        self.assertEqual(qs.count(), 2)
+        self.assertIn(aliases[3], qs)
+        self.assertIn(aliases[5], qs)
         self.assertEqual(qs.count(), 2)
 
-        qs = self.model.objects.contains(pref[0], *vm)
+        qs = self.model.objects.contains(pref[0], *vm, direct=True)
         self.assertEqual(qs.count(), 4)
+        self.assertIn(aliases[0], qs)
+        self.assertIn(aliases[2], qs)
+        self.assertIn(aliases[3], qs)
+        self.assertIn(aliases[5], qs)
 
-    def test_qs_related_to(self):
+    def test_qs_contains_indirect(self):
         ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.related_to(*ips)
+        qs = self.model.objects.contains(*ips, indirect=True)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 2)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.related_to(*iprange)
+        qs = self.model.objects.contains(*iprange, indirect=True)
         self.assertEqual(qs.count(), 2)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.related_to(*pref)
+        qs = self.model.objects.contains(*pref, indirect=True)
         self.assertEqual(qs.count(), 2)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.related_to(*dev)
+        qs = self.model.objects.contains(*dev, indirect=True)
         self.assertEqual(qs.count(), 2)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.related_to(*vm)
+        qs = self.model.objects.contains(*vm, indirect=True)
         self.assertEqual(qs.count(), 2)
 
-        qs = self.model.objects.related_to(pref[0], *vm)
+        qs = self.model.objects.contains(pref[0], *vm, indirect=True)
         self.assertEqual(qs.count(), 2)
 
     def test_get_resolved_ip_addresses_all_addresses(self):
@@ -238,10 +261,18 @@ class ObjectAliasTestCase(TestCase):
         device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
         virtual_machine_ip = ipam.IPAddress.objects.get(address="10.100.1.1/24")
 
-        self.assertIn(alias, self.model.objects.contains_tagged(device))
-        self.assertIn(alias, self.model.objects.contains_tagged(virtual_machine))
-        self.assertIn(alias, self.model.objects.contains_tagged(device_ip))
-        self.assertIn(alias, self.model.objects.contains_tagged(virtual_machine_ip))
+        self.assertIn(alias, self.model.objects.contains(device))
+        self.assertIn(alias, self.model.objects.contains(virtual_machine))
+        self.assertIn(alias, self.model.objects.contains(device_ip))
+        self.assertIn(alias, self.model.objects.contains(virtual_machine_ip))
+
+        self.assertIn(alias, self.model.objects.contains(device, tagged=True))
+        self.assertIn(alias, self.model.objects.contains(virtual_machine, tagged=True))
+        self.assertIn(alias, self.model.objects.contains(device_ip, tagged=True))
+        self.assertIn(alias, self.model.objects.contains(virtual_machine_ip, tagged=True))
+
+        self.assertNotIn(alias, self.model.objects.contains(device, direct=True))
+        self.assertNotIn(alias, self.model.objects.contains(device, indirect=True))
 
 
 class DataFlowTestCase(TestCase):
@@ -277,136 +308,149 @@ class DataFlowTestCase(TestCase):
         qs = self.model.objects.part_of_group_recursive(groups[1], groups[5], include_direct_children=False)
         self.assertEqual(qs.count(), 5)
 
-    def test_qs_sources(self):
-        ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.sources(*ips)
+    def test_qs_sources_empty(self):
+        qs = self.model.objects.sources()
         self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 0)
+
+    def test_qs_sources_direct(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.sources(*ips, direct=True)
         self.assertEqual(qs.count(), 1)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.sources(*iprange)
+        qs = self.model.objects.sources(*iprange, direct=True)
         self.assertEqual(qs.count(), 1)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.sources(*pref)
+        qs = self.model.objects.sources(*pref, direct=True)
         self.assertEqual(qs.count(), 3)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.sources(*dev)
+        qs = self.model.objects.sources(*dev, direct=True)
         self.assertEqual(qs.count(), 1)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.sources(*vm)
+        qs = self.model.objects.sources(*vm, direct=True)
         self.assertEqual(qs.count(), 1)
 
-        qs = self.model.objects.sources(pref[0], *vm)
+        qs = self.model.objects.sources(pref[0], *vm, direct=True)
         self.assertEqual(qs.count(), 4)
 
-    def test_qs_related_sources(self):
+    def test_qs_sources_indirect(self):
         ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.related_sources(*ips)
+        qs = self.model.objects.sources(*ips, indirect=True)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 3)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.related_sources(*iprange)
+        qs = self.model.objects.sources(*iprange, indirect=True)
         self.assertEqual(qs.count(), 3)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.related_sources(*pref)
+        qs = self.model.objects.sources(*pref, indirect=True)
         self.assertEqual(qs.count(), 3)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.related_sources(*dev)
+        qs = self.model.objects.sources(*dev, indirect=True)
         self.assertEqual(qs.count(), 3)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.related_sources(*vm)
+        qs = self.model.objects.sources(*vm, indirect=True)
         self.assertEqual(qs.count(), 3)
 
-        qs = self.model.objects.related_sources(pref[0], *vm)
+        qs = self.model.objects.sources(pref[0], *vm, indirect=True)
         self.assertEqual(qs.count(), 3)
 
-    def test_qs_destinations(self):
-        ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.destinations(*ips)
+    def test_qs_destinations_empty(self):
+        qs = self.model.objects.destinations()
         self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 0)
+
+    def test_qs_destinations_direct(self):
+        ips = ipam.IPAddress.objects.all()[:3]
+        qs = self.model.objects.destinations(*ips, direct=True)
         self.assertEqual(qs.count(), 2)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.destinations(*iprange)
+        qs = self.model.objects.destinations(*iprange, direct=True)
         self.assertEqual(qs.count(), 1)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.destinations(*pref)
+        qs = self.model.objects.destinations(*pref, direct=True)
         self.assertEqual(qs.count(), 1)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.destinations(*dev)
+        qs = self.model.objects.destinations(*dev, direct=True)
         self.assertEqual(qs.count(), 2)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.destinations(*vm)
+        qs = self.model.objects.destinations(*vm, direct=True)
         self.assertEqual(qs.count(), 3)
 
-        qs = self.model.objects.destinations(pref[0], *vm)
+        qs = self.model.objects.destinations(pref[0], *vm, direct=True)
         self.assertEqual(qs.count(), 3)
 
-    def test_qs_related_destinations(self):
+    def test_qs_destinations_indirect(self):
         ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.related_destinations(*ips)
+        qs = self.model.objects.destinations(*ips, indirect=True)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 1)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.related_destinations(*iprange)
+        qs = self.model.objects.destinations(*iprange, indirect=True)
         self.assertEqual(qs.count(), 1)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.related_destinations(*pref)
+        qs = self.model.objects.destinations(*pref, indirect=True)
         self.assertEqual(qs.count(), 1)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.related_destinations(*dev)
+        qs = self.model.objects.destinations(*dev, indirect=True)
         self.assertEqual(qs.count(), 1)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.related_destinations(*vm)
+        qs = self.model.objects.destinations(*vm, indirect=True)
         self.assertEqual(qs.count(), 1)
 
-        qs = self.model.objects.related_destinations(pref[0], *vm)
+        qs = self.model.objects.destinations(pref[0], *vm, indirect=True)
         self.assertEqual(qs.count(), 1)
 
-    def test_qs_sources_or_destinations(self):
+    def test_qs_sources_or_destinations_empty(self):
+        qs = self.model.objects.sources_or_destinations()
+        self.assertIsInstance(qs, QuerySet)
+        self.assertEqual(qs.count(), 0)
+
+    def test_qs_sources_or_destinations_direct(self):
         ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.sources_or_destinations(*ips)
+        qs = self.model.objects.sources_or_destinations(*ips, direct=True)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 3)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.sources_or_destinations(*iprange)
+        qs = self.model.objects.sources_or_destinations(*iprange, direct=True)
         self.assertEqual(qs.count(), 2)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.sources_or_destinations(*pref)
+        qs = self.model.objects.sources_or_destinations(*pref, direct=True)
         self.assertEqual(qs.count(), 4)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.sources_or_destinations(*dev)
+        qs = self.model.objects.sources_or_destinations(*dev, direct=True)
         self.assertEqual(qs.count(), 3)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.sources_or_destinations(*vm)
+        qs = self.model.objects.sources_or_destinations(*vm, direct=True)
         self.assertEqual(qs.count(), 3)
 
-        qs = self.model.objects.sources_or_destinations(pref[0], *vm)
+        qs = self.model.objects.sources_or_destinations(pref[0], *vm, direct=True)
         self.assertEqual(qs.count(), 5)
 
-    def test_qs_related_sources_or_destinations(self):
+    def test_qs_sources_or_destinations_indirect(self):
         ips = ipam.IPAddress.objects.all()[:3]
-        qs = self.model.objects.related_sources_or_destinations(*ips)
+        qs = self.model.objects.sources_or_destinations(*ips, indirect=True)
         self.assertIsInstance(qs, QuerySet)
         self.assertEqual(qs.count(), 4)
         iprange = ipam.IPRange.objects.all()[:1]
-        qs = self.model.objects.related_sources_or_destinations(*iprange)
+        qs = self.model.objects.sources_or_destinations(*iprange, indirect=True)
         self.assertEqual(qs.count(), 4)
         pref = ipam.Prefix.objects.all()[:2]
-        qs = self.model.objects.related_sources_or_destinations(*pref)
+        qs = self.model.objects.sources_or_destinations(*pref, indirect=True)
         self.assertEqual(qs.count(), 4)
 
         dev = dcim.Device.objects.all()[:2]
-        qs = self.model.objects.related_sources_or_destinations(*dev)
+        qs = self.model.objects.sources_or_destinations(*dev, indirect=True)
         self.assertEqual(qs.count(), 4)
         vm = virtualization.VirtualMachine.objects.all()[:2]
-        qs = self.model.objects.related_sources_or_destinations(*vm)
+        qs = self.model.objects.sources_or_destinations(*vm, indirect=True)
         self.assertEqual(qs.count(), 4)
 
-        qs = self.model.objects.related_sources_or_destinations(pref[0], *vm)
+        qs = self.model.objects.sources_or_destinations(pref[0], *vm, indirect=True)
         self.assertEqual(qs.count(), 4)
 
     def test_inherited_status(self):

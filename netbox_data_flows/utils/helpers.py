@@ -48,12 +48,12 @@ def get_device_ipaddresses(*devices, primary=False, oob=False):
             qs |= _get_ip_qs(dev)
             continue
 
-        if primary and dev.primary_ip4:
-            qs |= Q(pk=dev.primary_ip4.pk)
-        if primary and dev.primary_ip6:
-            qs |= Q(pk=dev.primary_ip4.pk)
-        if oob and getattr(dev, "oob_ip", None):
-            qs |= Q(pk=dev.oob_ip.pk)
+        if primary and dev.primary_ip4_id:
+            qs |= Q(pk=dev.primary_ip4_id)
+        if primary and dev.primary_ip6_id:
+            qs |= Q(pk=dev.primary_ip6_id)
+        if oob and hasattr(dev, "oob_ip_id"):
+            qs |= Q(pk=dev.oob_ip_id)
 
     if qs == Q():
         return IPAddress.objects.none()
