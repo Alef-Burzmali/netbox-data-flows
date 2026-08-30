@@ -64,6 +64,10 @@ Full reference: [Using Plugins - NetBox Documentation](https://docs.netbox.dev/e
 
 ### Upgrade
 
+> [!WARNING]
+> Direct upgrade from versions before v1.1.0 to v1.6.x and later is not supported.
+> Upgrade the plugin to v1.5.4 first (requires NetBox v4.6.x or v4.7.x).
+
 The latest version from PyPi is always installed when `upgrade.sh` is run again, thus the plugin will be updated when you update your NetBox instance.
 
 You can manually update the plugin without upgrading NetBox with:
