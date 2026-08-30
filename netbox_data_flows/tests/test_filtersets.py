@@ -276,14 +276,84 @@ class ObjectAliasTestCase(TestCase):
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_dynamic_tag_members(self):
+    def test_tag_matching_rule(self):
+        existing_aliases = models.ObjectAlias.objects.count()
+
+        alias_primary = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter PRIMARY",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
+        )
+        params = {"tag_matching_rule": [choices.TagMatchingRuleChoices.MATCHING_PRIMARY]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1 + existing_aliases)
+        self.assertIn(alias_primary, self.filterset(params, self.queryset).qs)
+
+        alias_all = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter ALL",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        params = {"tag_matching_rule": [choices.TagMatchingRuleChoices.MATCHING_ALL]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertIn(alias_all, self.filterset(params, self.queryset).qs)
+
+        alias_oob = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter OOB",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
+        )
+        params = {"tag_matching_rule": [choices.TagMatchingRuleChoices.MATCHING_OOB]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertIn(alias_oob, self.filterset(params, self.queryset).qs)
+
+    def test_device_tags(self):
+        device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
+
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        params = {"device_tags": [device_tag]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertIn(alias, self.filterset(params, self.queryset).qs)
+
+        params = {"device_tags": [virtual_machine_tag]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_virtual_machine_tags(self):
+        device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
+
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        params = {"virtual_machine_tags": [virtual_machine_tag]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertIn(alias, self.filterset(params, self.queryset).qs)
+
+        params = {"virtual_machine_tags": [device_tag]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_dynamic_tag_members_all_ips(self):
         device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
         device = dcim.Device.objects.get(name="Device 1")
         virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
         device.tags.add(device_tag)
         virtual_machine.tags.add(virtual_machine_tag)
 
-        alias = models.ObjectAlias.objects.create(name="Object Alias Dynamic Filter", description="Dynamic")
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         alias.device_tags.set([device_tag])
         alias.virtual_machine_tags.set([virtual_machine_tag])
 
@@ -292,6 +362,65 @@ class ObjectAliasTestCase(TestCase):
 
         virtual_machine_params = {"virtual_machines": [virtual_machine.pk]}
         self.assertIn(alias, self.filterset(virtual_machine_params, self.queryset).qs)
+
+        device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
+        ip_params = {"ip_addresses": [device_ip.pk]}
+        self.assertIn(alias, self.filterset(ip_params, self.queryset).qs)
+
+    def test_dynamic_tag_members_primary_ips(self):
+        device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
+        )
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        device.primary_ip4 = device.interfaces.first().ip_addresses.first()
+        device.save()
+        virtual_machine.primary_ip4 = virtual_machine.interfaces.first().ip_addresses.first()
+        virtual_machine.save()
+
+        device_params = {"devices": [device.pk]}
+        self.assertIn(alias, self.filterset(device_params, self.queryset).qs)
+
+        virtual_machine_params = {"virtual_machines": [virtual_machine.pk]}
+        self.assertIn(alias, self.filterset(virtual_machine_params, self.queryset).qs)
+
+        device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
+        ip_params = {"ip_addresses": [device_ip.pk]}
+        self.assertIn(alias, self.filterset(ip_params, self.queryset).qs)
+
+    def test_dynamic_tag_members_oob_ips(self):
+        device_tag, virtual_machine_tag = create_tags("filter-device", "filter-virtual-machine")
+        device = dcim.Device.objects.get(name="Device 1")
+        virtual_machine = virtualization.VirtualMachine.objects.get(name="VM 2")
+        device.tags.add(device_tag)
+        virtual_machine.tags.add(virtual_machine_tag)
+
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Filter",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
+        )
+        alias.device_tags.set([device_tag])
+        alias.virtual_machine_tags.set([virtual_machine_tag])
+
+        device.oob_ip = device.interfaces.first().ip_addresses.first()
+        device.save()
+
+        device_params = {"devices": [device.pk]}
+        self.assertIn(alias, self.filterset(device_params, self.queryset).qs)
+
+        # VM do not have OOB
+        virtual_machine_params = {"virtual_machines": [virtual_machine.pk]}
+        self.assertNotIn(alias, self.filterset(virtual_machine_params, self.queryset).qs)
 
         device_ip = ipam.IPAddress.objects.get(address="10.0.1.1/24")
         ip_params = {"ip_addresses": [device_ip.pk]}

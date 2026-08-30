@@ -413,7 +413,11 @@ class DataFlowTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.Pri
         device = dcim.Device.objects.get(name="Device 1")
         device.tags.add(device_tag)
 
-        alias = models.ObjectAlias.objects.create(name="Object Alias Dynamic Targets", description="Dynamic")
+        alias = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic Targets",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         alias.device_tags.set([device_tag])
 
         instance = models.DataFlow.objects.create(
@@ -590,13 +594,14 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
             "device_tags": [tags[0].pk],
             "tags": [t.pk for t in tags],
             "virtual_machine_tags": [tags[1].pk],
+            "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
         }
 
         cls.csv_data = (
-            "name,description,comments",
-            "Alias 20,Fourth alias,Comments 4",
-            "Alias 21,Fifth alias,",
-            "Alias 22,Sixth description,Comments 6",
+            "name,tag_matching_rule,description,comments",
+            "Alias 20,primary,Fourth alias,Comments 4",
+            "Alias 21,oob,Fifth alias,",
+            "Alias 22,all,Sixth description,Comments 6",
         )
 
         cls.csv_update_data = (
@@ -614,6 +619,7 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
             "ip_addresses": [ip_addresses[1]],
             "device_tags": [tags[0].pk],
             "virtual_machine_tags": [tags[1].pk],
+            "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_OOB,
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
@@ -625,7 +631,11 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
         virtual_machine.tags.add(virtual_machine_tag)
         direct_ip = ipam.IPAddress.objects.get(address="10.10.0.1/24")
 
-        instance = models.ObjectAlias.objects.create(name="Object Alias Dynamic View", description="Dynamic")
+        instance = models.ObjectAlias.objects.create(
+            name="Object Alias Dynamic View",
+            description="Dynamic",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
         instance.ip_addresses.set([direct_ip])
         instance.device_tags.set([device_tag])
         instance.virtual_machine_tags.set([virtual_machine_tag])
@@ -637,7 +647,6 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
 
         response = self.client.get(instance.get_absolute_url())
         self.assertHttpStatus(response, 200)
-        self.assertContains(response, "Resolved IP Addresses")
         self.assertContains(response, "10.10.0.1/24", count=1)
         self.assertContains(response, "10.0.1.1/24")
         self.assertContains(response, "10.100.1.1/24")

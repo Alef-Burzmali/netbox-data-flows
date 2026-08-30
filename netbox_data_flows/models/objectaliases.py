@@ -102,11 +102,13 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
 
         if device_tag_all_ips:
             filtering |= models.Q(
-                device_tags__in=device_tag_all_ips, tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL
+                device_tags__in=device_tag_all_ips,
+                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
             )
         if vm_tag_all_ips:
             filtering |= models.Q(
-                vm_tags__in=vm_tag_all_ips, tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL
+                virtual_machine_tags__in=vm_tag_all_ips,
+                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
             )
         if device_tag_primary_ips:
             filtering |= models.Q(
@@ -115,11 +117,13 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
             )
         if vm_tag_primary_ips:
             filtering |= models.Q(
-                vm_tags__in=vm_tag_primary_ips, tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY
+                virtual_machine_tags__in=vm_tag_primary_ips,
+                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
             )
         if device_tag_oob_ips:
             filtering |= models.Q(
-                device_tags__in=device_tag_oob_ips, tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB
+                device_tags__in=device_tag_oob_ips,
+                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
             )
 
         return self.filter(filtering).distinct()
