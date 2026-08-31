@@ -579,6 +579,81 @@ class ObjectAliasTestCase(TestCase):
         ip_params = {"ip_addresses": [device_ip.pk]}
         self.assertIn(alias, self.filterset(ip_params, self.queryset).qs)
 
+    def test_target_matching_type(self):
+        device = dcim.Device.objects.get(name="Device 1")
+        ip = device.interfaces.first().ip_addresses.first()
+        prefix = ipam.Prefix.objects.get(prefix="10.0.0.0/16")
+
+        alias_direct = models.ObjectAlias.objects.create(
+            name="Object Alias Direct",
+        )
+        alias_direct.ip_addresses.set([ip])
+
+        alias_indirect = models.ObjectAlias.objects.create(
+            name="Object Alias Indirect",
+        )
+        alias_indirect.prefixes.set([prefix])
+
+        device_tag = create_tags("filter-device")[0]
+        alias_tagged = models.ObjectAlias.objects.create(
+            name="Object Alias Tagged",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        alias_tagged.device_tags.set([device_tag])
+        device.tags.add(device_tag)
+
+        params = {"ip_addresses": [ip.pk]}
+        default_search = self.filterset(params, self.queryset).qs
+        self.assertIn(alias_direct, default_search)
+        self.assertIn(alias_indirect, default_search)
+        self.assertIn(alias_tagged, default_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_DIRECT]
+        direct_search = self.filterset(params, self.queryset).qs
+        self.assertIn(alias_direct, direct_search)
+        self.assertNotIn(alias_indirect, direct_search)
+        self.assertNotIn(alias_tagged, direct_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT]
+        indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(alias_direct, indirect_search)
+        self.assertIn(alias_indirect, indirect_search)
+        self.assertNotIn(alias_tagged, indirect_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_TAGGED]
+        tagged_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(alias_direct, tagged_search)
+        self.assertNotIn(alias_indirect, tagged_search)
+        self.assertIn(alias_tagged, tagged_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+        ]
+        direct_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertIn(alias_direct, direct_indirect_search)
+        self.assertIn(alias_indirect, direct_indirect_search)
+        self.assertNotIn(alias_tagged, direct_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+        ]
+        tagged_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(alias_direct, tagged_indirect_search)
+        self.assertIn(alias_indirect, tagged_indirect_search)
+        self.assertIn(alias_tagged, tagged_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+        ]
+        all_search = self.filterset(params, self.queryset).qs
+        self.assertIn(alias_direct, all_search)
+        self.assertIn(alias_indirect, all_search)
+        self.assertIn(alias_tagged, all_search)
+
 
 class DataFlowTestCase(TestCase):
     queryset = models.DataFlow.objects.all()
@@ -1111,3 +1186,183 @@ class DataFlowTestCase(TestCase):
             "destination_devices": [devices[0].pk],
         }
         self._assertEqualSet(params, models.DataFlow.objects.filter(name__in=("Data Flow 5",)))
+
+    def test_target_matching_type_source(self):
+        device = dcim.Device.objects.get(name="Device 1")
+        ip = device.interfaces.first().ip_addresses.first()
+        prefix = ipam.Prefix.objects.get(prefix="10.0.0.0/16")
+
+        alias_direct = models.ObjectAlias.objects.create(
+            name="Object Alias Direct",
+        )
+        alias_direct.ip_addresses.set([ip])
+        df_direct = models.DataFlow.objects.create(
+            name="DF Direct",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_direct.sources.set([alias_direct])
+
+        alias_indirect = models.ObjectAlias.objects.create(
+            name="Object Alias Indirect",
+        )
+        alias_indirect.prefixes.set([prefix])
+        df_indirect = models.DataFlow.objects.create(
+            name="DF Indirect",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_indirect.sources.set([alias_indirect])
+
+        device_tag = create_tags("filter-device")[0]
+        alias_tagged = models.ObjectAlias.objects.create(
+            name="Object Alias Tagged",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        alias_tagged.device_tags.set([device_tag])
+        device.tags.add(device_tag)
+        df_tagged = models.DataFlow.objects.create(
+            name="DF Tagged",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_tagged.sources.set([alias_tagged])
+
+        params = {"source_ip_addresses": [ip.pk]}
+        default_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, default_search)
+        self.assertIn(df_indirect, default_search)
+        self.assertIn(df_tagged, default_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_DIRECT]
+        direct_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, direct_search)
+        self.assertNotIn(df_indirect, direct_search)
+        self.assertNotIn(df_tagged, direct_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT]
+        indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, indirect_search)
+        self.assertIn(df_indirect, indirect_search)
+        self.assertNotIn(df_tagged, indirect_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_TAGGED]
+        tagged_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, tagged_search)
+        self.assertNotIn(df_indirect, tagged_search)
+        self.assertIn(df_tagged, tagged_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+        ]
+        direct_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, direct_indirect_search)
+        self.assertIn(df_indirect, direct_indirect_search)
+        self.assertNotIn(df_tagged, direct_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+        ]
+        tagged_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, tagged_indirect_search)
+        self.assertIn(df_indirect, tagged_indirect_search)
+        self.assertIn(df_tagged, tagged_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+        ]
+        all_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, all_search)
+        self.assertIn(df_indirect, all_search)
+        self.assertIn(df_tagged, all_search)
+
+    def test_target_matching_type_destination(self):
+        device = dcim.Device.objects.get(name="Device 1")
+        ip = device.interfaces.first().ip_addresses.first()
+        prefix = ipam.Prefix.objects.get(prefix="10.0.0.0/16")
+
+        alias_direct = models.ObjectAlias.objects.create(
+            name="Object Alias Direct",
+        )
+        alias_direct.ip_addresses.set([ip])
+        df_direct = models.DataFlow.objects.create(
+            name="DF Direct",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_direct.destinations.set([alias_direct])
+
+        alias_indirect = models.ObjectAlias.objects.create(
+            name="Object Alias Indirect",
+        )
+        alias_indirect.prefixes.set([prefix])
+        df_indirect = models.DataFlow.objects.create(
+            name="DF Indirect",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_indirect.destinations.set([alias_indirect])
+
+        device_tag = create_tags("filter-device")[0]
+        alias_tagged = models.ObjectAlias.objects.create(
+            name="Object Alias Tagged",
+            tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
+        )
+        alias_tagged.device_tags.set([device_tag])
+        device.tags.add(device_tag)
+        df_tagged = models.DataFlow.objects.create(
+            name="DF Tagged",
+            protocol=choices.DataFlowProtocolChoices.PROTOCOL_ANY,
+        )
+        df_tagged.destinations.set([alias_tagged])
+
+        params = {"destination_ip_addresses": [ip.pk]}
+        default_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, default_search)
+        self.assertIn(df_indirect, default_search)
+        self.assertIn(df_tagged, default_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_DIRECT]
+        direct_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, direct_search)
+        self.assertNotIn(df_indirect, direct_search)
+        self.assertNotIn(df_tagged, direct_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT]
+        indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, indirect_search)
+        self.assertIn(df_indirect, indirect_search)
+        self.assertNotIn(df_tagged, indirect_search)
+
+        params["matching_type"] = [choices.ObjectAliasMatchingChoices.MATCHING_TAGGED]
+        tagged_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, tagged_search)
+        self.assertNotIn(df_indirect, tagged_search)
+        self.assertIn(df_tagged, tagged_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+        ]
+        direct_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, direct_indirect_search)
+        self.assertIn(df_indirect, direct_indirect_search)
+        self.assertNotIn(df_tagged, direct_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+        ]
+        tagged_indirect_search = self.filterset(params, self.queryset).qs
+        self.assertNotIn(df_direct, tagged_indirect_search)
+        self.assertIn(df_indirect, tagged_indirect_search)
+        self.assertIn(df_tagged, tagged_indirect_search)
+
+        params["matching_type"] = [
+            choices.ObjectAliasMatchingChoices.MATCHING_INDIRECT,
+            choices.ObjectAliasMatchingChoices.MATCHING_TAGGED,
+            choices.ObjectAliasMatchingChoices.MATCHING_DIRECT,
+        ]
+        all_search = self.filterset(params, self.queryset).qs
+        self.assertIn(df_direct, all_search)
+        self.assertIn(df_indirect, all_search)
+        self.assertIn(df_tagged, all_search)

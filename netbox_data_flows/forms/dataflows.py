@@ -421,6 +421,15 @@ class DataFlowFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
         help_text="Use the API or repeat the URL parameter to select several",
     )
 
+    matching_type = forms.MultipleChoiceField(
+        choices=choices.ObjectAliasMatchingChoices,
+        label="Target matching type",
+        required=False,
+        help_text=(
+            "Define how a source or destination contains prefixes, ranges, addresses, devices and virtual machines."
+        ),
+    )
+
     source_is_null = forms.ChoiceField(
         choices=add_blank_choice(choices.TargetIsEmptyChoice),
         required=False,
@@ -526,6 +535,10 @@ class DataFlowFilterForm(TenancyFilterForm, PrimaryModelFilterSetForm):
             "source_ports",
             "destination_ports",
             name="Specifications",
+        ),
+        FieldSet(
+            "matching_type",
+            name="Search options",
         ),
         FieldSet(
             "source_is_null",

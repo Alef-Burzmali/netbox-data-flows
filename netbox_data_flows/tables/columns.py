@@ -1,17 +1,34 @@
 import django_tables2 as tables
+from django.utils.safestring import mark_safe
 
 from netbox.tables import columns
 from utilities.data import array_to_string
 
 from netbox_data_flows.utils.helpers import object_list_to_string
 
-RESULT_SOURCE = """{% if record.result_source == "direct" %}
-    <span class="badge text-bg-success">Direct</span>
-{% elif record.result_source == "tagged" %}
-    <span class="badge text-bg-warning">Tagged</span>
-{% elif record.result_source == "related" %}
-    <span class="badge text-bg-info">Related</span>
-{% endif %}"""
+
+class ChoiceVirtualColumn(tables.Column):
+    """Render a badge column based on a virtual field value.
+
+    The choiceset must be passed as parameter.
+    """
+
+    def __init__(self, *args, choices=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.choices = choices
+
+    def render(self, record, bound_column, value):
+        if value in self.empty_values:
+            return self.default
+
+        for choice, display, color in self.choices.CHOICES:
+            if choice == value:
+                break
+
+        return mark_safe(f'<span class="badge text-bg-{color}">{display}</span>')
+
+    def value(self, value):
+        return value
 
 
 class PortListColumn(tables.Column):

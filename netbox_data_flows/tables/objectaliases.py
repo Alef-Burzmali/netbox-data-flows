@@ -2,9 +2,10 @@ import django_tables2 as tables
 
 from netbox.tables import PrimaryModelTable, columns
 
+from netbox_data_flows import choices
 from netbox_data_flows.models import ObjectAlias
 
-from .columns import RESULT_SOURCE
+from .columns import ChoiceVirtualColumn
 
 __all__ = (
     "ObjectAliasTable",
@@ -68,9 +69,9 @@ class ObjectAliasTable(PrimaryModelTable):
 
 
 class SourcedObjectAliasTable(ObjectAliasTable):
-    result_source = tables.TemplateColumn(
+    result_source = ChoiceVirtualColumn(
         verbose_name="Assignment",
-        template_code=RESULT_SOURCE,
+        choices=choices.ObjectAliasMatchingChoices,
     )
 
     class Meta(ObjectAliasTable.Meta):

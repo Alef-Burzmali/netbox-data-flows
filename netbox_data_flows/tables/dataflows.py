@@ -4,9 +4,10 @@ from netbox.tables import ChoiceFieldColumn, PrimaryModelTable, columns
 
 from tenancy.tables import TenancyColumnsMixin
 
+from netbox_data_flows import choices
 from netbox_data_flows.models import DataFlow
 
-from .columns import RESULT_SOURCE, ObjectAliasListColumn, PortListColumn
+from .columns import ChoiceVirtualColumn, ObjectAliasListColumn, PortListColumn
 
 __all__ = (
     "DataFlowTable",
@@ -83,9 +84,9 @@ class DataFlowTable(TenancyColumnsMixin, PrimaryModelTable):
 
 
 class SourcedDataFlowTable(DataFlowTable):
-    result_source = tables.TemplateColumn(
+    result_source = ChoiceVirtualColumn(
         verbose_name="Assignment",
-        template_code=RESULT_SOURCE,
+        choices=choices.ObjectAliasMatchingChoices,
     )
 
     class Meta(DataFlowTable.Meta):
