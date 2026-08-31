@@ -9,7 +9,6 @@ from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices, models
-from netbox_data_flows.utils.helpers import get_device_ipaddresses
 
 from .filters import ModelMultipleChoiceFilter, MultipleChoiceFilter
 
@@ -42,12 +41,12 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
     devices = ModelMultipleChoiceFilter(
         queryset=Device.objects.all(),
         label="Devices (any IP address) (ID)",
-        method="filter_devices",
+        method="filter_targets",
     )
     virtual_machines = ModelMultipleChoiceFilter(
         queryset=VirtualMachine.objects.all(),
         label="Virtual Machine (any IP address) (ID)",
-        method="filter_devices",
+        method="filter_targets",
     )
 
     device_tags = ModelMultipleChoiceFilter(
@@ -115,14 +114,3 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
             qs = qs.contains(*self._targets, **matching)
 
         return qs
-
-    # FIXME: replace by filter_targets?
-    def filter_devices(self, queryset, name, value):
-        if not value:
-            return queryset
-
-        ip_addresses = get_device_ipaddresses(*value)
-        if not ip_addresses.exists():
-            return queryset.none()
-
-        return self.filter_targets(queryset, name, ip_addresses)
