@@ -18,6 +18,12 @@ __all__ = ("ObjectAliasFilterSet",)
 
 @register_filterset
 class ObjectAliasFilterSet(PrimaryModelFilterSet):
+    matching_type = MultipleChoiceFilter(
+        choices=choices.ObjectAliasMatchingChoices,
+        method="filter_matching_type",
+        label="Target matching type",
+    )
+
     prefixes = ModelMultipleChoiceFilter(
         queryset=Prefix.objects.all(),
         label="Prefix (ID)",
@@ -72,6 +78,13 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
         return queryset.filter(qs_filter)
 
+    def filter_matching_type(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        self._matching_type = value
+        return queryset
+
     # OR all the targets
     # First, build a list
     def filter_targets(self, queryset, name, value):
@@ -91,8 +104,15 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         # OR(targets)
         qs = super().qs
 
+        matching = dict()
+        if hasattr(self, "_matching_type"):
+            authorized_matching = set(c[0] for c in choices.ObjectAliasMatchingChoices)
+            for value in self._matching_type:
+                if value in authorized_matching:
+                    matching[value] = True
+
         if hasattr(self, "_targets"):
-            qs = qs.contains(*self._targets)
+            qs = qs.contains(*self._targets, **matching)
 
         return qs
 

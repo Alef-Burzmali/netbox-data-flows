@@ -201,6 +201,13 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
     model = models.ObjectAlias
     tag = TagFilterField(model)
 
+    matching_type = forms.MultipleChoiceField(
+        choices=choices.ObjectAliasMatchingChoices,
+        label="Target matching type",
+        required=False,
+        help_text="Define how an object alias contains prefixes, ranges, addresses, devices and virtual machines.",
+    )
+
     prefixes = DynamicModelMultipleChoiceField(
         queryset=Prefix.objects.all(),
         required=False,
@@ -244,6 +251,7 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
             "owner_id",
         ),
         FieldSet(
+            "matching_type",
             "prefixes",
             "ip_ranges",
             "ip_addresses",

@@ -6,6 +6,7 @@ __all__ = (
     "DataFlowStatusChoices",
     "ICMPv4TypeChoices",
     "ICMPv6TypeChoices",
+    "ObjectAliasMatchingChoices",
     "TagMatchingRuleChoices",
     "TargetIsEmptyChoice",
 )
@@ -144,6 +145,20 @@ class DataFlowInheritedStatusChoices(DataFlowStatusChoices):
         (STATUS_ENABLED, "Enabled", "green"),
         (STATUS_DISABLED, "Disabled", "red"),
         (STATUS_INHERITED_DISABLED, "Disabled (Inherited)", "orange"),
+    )
+
+
+class ObjectAliasMatchingChoices(ChoiceSet):
+    """Matching rules for tags attached to an object alias."""
+
+    MATCHING_DIRECT = "direct"
+    MATCHING_INDIRECT = "indirect"
+    MATCHING_TAGGED = "tagged"
+
+    CHOICES = (
+        (MATCHING_DIRECT, "Direct", "green"),
+        (MATCHING_INDIRECT, "Indirect", "blue"),
+        (MATCHING_TAGGED, "Tagged", "orange"),
     )
 
 

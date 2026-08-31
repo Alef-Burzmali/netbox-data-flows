@@ -8,6 +8,7 @@ from ipam.models import IPAddress, IPRange, Prefix
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, tables
+from netbox_data_flows.choices import ObjectAliasMatchingChoices
 
 __all__ = tuple()
 
@@ -56,6 +57,10 @@ class DataFlowListTabViewBase(generic.ObjectView):
     )
 
     def get_extra_context(self, request, parent):
+        DIRECT = Value(ObjectAliasMatchingChoices.MATCHING_DIRECT)
+        INDIRECT = Value(ObjectAliasMatchingChoices.MATCHING_INDIRECT)
+        TAGGED = Value(ObjectAliasMatchingChoices.MATCHING_TAGGED)
+
         aliases_table = tables.SourcedObjectAliasTable(
             models.ObjectAlias.objects.annotate(
                 prefix_count=Count("prefixes", distinct=True),
@@ -63,7 +68,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                 ip_address_count=Count("ip_addresses", distinct=True),
                 dataflow_source_count=Count("dataflow_sources", distinct=True),
                 dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                result_source=Value("direct"),
+                result_source=DIRECT,
             )
             .contains(parent, direct=True)
             .union(
@@ -73,7 +78,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     ip_address_count=Count("ip_addresses", distinct=True),
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                    result_source=Value("tagged"),
+                    result_source=TAGGED,
                 ).contains(parent, tagged=True)
             )
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
@@ -84,7 +89,7 @@ class DataFlowListTabViewBase(generic.ObjectView):
                     ip_address_count=Count("ip_addresses", distinct=True),
                     dataflow_source_count=Count("dataflow_sources", distinct=True),
                     dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                    result_source=Value("related"),
+                    result_source=INDIRECT,
                 ).contains(parent, indirect=True)
             )
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
@@ -93,20 +98,20 @@ class DataFlowListTabViewBase(generic.ObjectView):
 
         dataflow_sources_table = tables.SourcedDataFlowTable(
             models.DataFlow.objects.sources(parent, direct=True)
-            .annotate(result_source=Value("direct"))
+            .annotate(result_source=DIRECT)
             .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.sources(parent, indirect=True).annotate(result_source=Value("related")))
-            .union(models.DataFlow.objects.sources(parent, tagged=True).annotate(result_source=Value("tagged")))
+            .union(models.DataFlow.objects.sources(parent, indirect=True).annotate(result_source=INDIRECT))
+            .union(models.DataFlow.objects.sources(parent, tagged=True).annotate(result_source=TAGGED))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_sources_table.configure(request)
 
         dataflow_destinations_table = tables.SourcedDataFlowTable(
             models.DataFlow.objects.destinations(parent, direct=True)
-            .annotate(result_source=Value("direct"))
+            .annotate(result_source=DIRECT)
             .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.destinations(parent, indirect=True).annotate(result_source=Value("related")))
-            .union(models.DataFlow.objects.destinations(parent, tagged=True).annotate(result_source=Value("tagged")))
+            .union(models.DataFlow.objects.destinations(parent, indirect=True).annotate(result_source=INDIRECT))
+            .union(models.DataFlow.objects.destinations(parent, tagged=True).annotate(result_source=TAGGED))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_destinations_table.configure(request)

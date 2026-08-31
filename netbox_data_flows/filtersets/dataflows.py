@@ -73,6 +73,12 @@ class DataFlowFilterSet(
         method="filter_ports",
     )
 
+    matching_type = MultipleChoiceFilter(
+        choices=choices.ObjectAliasMatchingChoices,
+        method="filter_matching_type",
+        label="Target matching type",
+    )
+
     source_is_null = ChoiceFilter(
         choices=choices.TargetIsEmptyChoice,
         method="filter_target_is_null",
@@ -195,6 +201,13 @@ class DataFlowFilterSet(
 
         return queryset.filter(query)
 
+    def filter_matching_type(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        self._matching_type = value
+        return queryset
+
     # OR all the targets
     def filter_target_is_null(self, queryset, field_name, value):
         if field_name.startswith("source_"):
@@ -238,6 +251,13 @@ class DataFlowFilterSet(
         # OR(sources) AND OR(destinations)
         qs = super().qs
 
+        matching = dict()
+        if hasattr(self, "_matching_type"):
+            authorized_matching = set(c[0] for c in choices.ObjectAliasMatchingChoices)
+            for value in self._matching_type:
+                if value in authorized_matching:
+                    matching[value] = True
+
         sources = Q()
         if hasattr(self, "_sources_is_null"):
             if self._sources_is_null:
@@ -247,7 +267,7 @@ class DataFlowFilterSet(
         if hasattr(self, "_sources_pk"):
             sources |= Q(sources__in=self._sources_pk)
         if hasattr(self, "_sources"):
-            sources |= Q(sources__in=models.ObjectAlias.objects.contains(*self._sources))
+            sources |= Q(sources__in=models.ObjectAlias.objects.contains(*self._sources, **matching))
 
         destinations = Q()
         if hasattr(self, "_destinations_is_null"):
@@ -258,6 +278,6 @@ class DataFlowFilterSet(
         if hasattr(self, "_destinations_pk"):
             destinations |= Q(destinations__in=self._destinations_pk)
         if hasattr(self, "_destinations"):
-            destinations |= Q(destinations__in=models.ObjectAlias.objects.contains(*self._destinations))
+            destinations |= Q(destinations__in=models.ObjectAlias.objects.contains(*self._destinations, **matching))
 
         return qs.filter(sources).filter(destinations).distinct()
