@@ -1,11 +1,12 @@
+from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
 
 from extras.models import Tag
-from netbox.models import NestedGroupModel
-from utilities.mptt import TreeManager, TreeQuerySet
+from netbox.models import NestedLtreeGroupModel
+from netbox.models.ltree import LtreeManager, LtreeQuerySet
 
 from netbox_data_flows.choices import DataFlowInheritedStatusChoices, DataFlowStatusChoices
 from netbox_data_flows.utils.tags import AccessibleTagsMixin
@@ -15,7 +16,7 @@ from .applications import Application
 __all__ = ("DataFlowGroup",)
 
 
-class DataFlowGroupQuerySet(TreeQuerySet):
+class DataFlowGroupQuerySet(LtreeQuerySet):
     def only_disabled(self):
         return self.filter(status=DataFlowStatusChoices.STATUS_DISABLED).get_descendants(include_self=True)
 
@@ -23,11 +24,11 @@ class DataFlowGroupQuerySet(TreeQuerySet):
         return self.exclude(pk__in=self.only_disabled().only("pk"))
 
 
-class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), TreeManager):
+class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), LtreeManager):
     pass
 
 
-class DataFlowGroup(AccessibleTagsMixin, NestedGroupModel):
+class DataFlowGroup(AccessibleTagsMixin, NestedLtreeGroupModel):
     """Hierachical group of Data Flows."""
 
     # Inherited fields:
@@ -89,9 +90,10 @@ class DataFlowGroup(AccessibleTagsMixin, NestedGroupModel):
         ).distinct()
 
     class Meta:
-        ordering = (
-            "application",
-            "name",
+        ordering = ("sort_path",)
+        indexes = (
+            GistIndex(fields=["path"], name="netbox_data_flows_dfg_path_gist"),
+            models.Index(fields=["sort_path"], name="netbox_data_flows_dfg_spath_ix"),
         )
         constraints = (
             models.UniqueConstraint(

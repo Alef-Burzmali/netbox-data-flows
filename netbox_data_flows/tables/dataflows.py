@@ -26,7 +26,7 @@ class DataFlowTable(TenancyColumnsMixin, PrimaryModelTable):
     group = tables.Column(
         linkify=True,
     )
-    name = columns.MPTTColumn(
+    name = tables.Column(
         linkify=True,
     )
     status = ChoiceFieldColumn(accessor=tables.A("inherited_status_display"))
