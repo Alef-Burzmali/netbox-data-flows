@@ -205,6 +205,9 @@ Now, we can create the other Object Aliases that we need, such as the network ra
 > [!TIP]
 > Do you need to enforce a naming convention for your object aliases, data flows or groups? Check [the Nomenclature section in this page](installation-configuration.md#nomenclature) for details.
 
+> [!NOTE]
+> Aternatively, you can use device and virtual machine tags to dynamically add the IP addresses of the tagged machine to an object alias.
+
 ### Data flows
 
 Let's create the remaining data flows.
