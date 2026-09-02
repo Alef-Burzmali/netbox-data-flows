@@ -99,8 +99,20 @@ Object Aliases can also include dynamic members by selecting tags for:
 * Devices (`dcim.device`)
 * Virtual Machines (`virtualization.virtualmachine`)
 
+Three tag matching rules are available:
+
+* Primary IP only (default): only the primary IPv4 and IPv6 of the device or virtual machine are matched.
+* OOB IP only: only the out-of-band IP of the device is matched (VM have no OOB IP).
+* All IPs: any IP address assigned to any interface of the device or virtual machine are matched.
+
 When device or virtual machine tags are selected, the alias resolves to all IP Addresses currently assigned to interfaces of matching objects.
 
 There is no defined meaning for an empty object alias, but it can be used when:
 * The aliased object is not documented in NetBox (e.g.: third party public IP addresses)
 * The alias is "Any" / "Internet" destination
+
+When filtering object aliases or displaying them in a device or virtual machine's data flow tab, you have three matching types:
+
+* Direct: are the prefixes, IP ranges and IP addresses explicitly added to an object alias.
+* Indirect: are prefixes, IP ranges or IP addresses that are fully within another prefix or IP range which are added to the object alias.
+* Tagged: are the IP addresses of a device or virtual machine that are tagged by a tag added to the object alias.
