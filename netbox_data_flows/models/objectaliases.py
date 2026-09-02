@@ -49,7 +49,7 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
             else:
                 # devices or virtual machines only, other types will raise TypeError
                 try:
-                    dev_addresses = get_device_ipaddresses(obj)
+                    dev_addresses = get_device_ipaddresses(obj).only("pk", "address", "vrf_id")
                 except AttributeError as e:
                     raise TypeError(f"Cannot test if {self.__class__} contains {obj}") from e
 
@@ -98,7 +98,7 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
             # aliases with ranges that fully contain our prefix
             # compare host to avoid comparing prefix lengths
             filtering |= models.Q(
-                ip_ranges__vrf=prefix.vrf,
+                ip_ranges__vrf=prefix.vrf_id,
                 ip_ranges__start_address__host__inet__lte=prefix.prefix.ip,
                 ip_ranges__end_address__host__inet__gte=prefix.prefix.broadcast,
             )
@@ -107,29 +107,29 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
             # NetBox IP ranges cannot overlap
             # aliases with prefixes that fully contain our range
             filtering |= models.Q(
-                prefixes__vrf=ip_range.vrf,
+                prefixes__vrf=ip_range.vrf_id,
                 prefixes__prefix__net_contains_or_equals=ip_range.start_address,
             ) & models.Q(
-                prefixes__vrf=ip_range.vrf,
+                prefixes__vrf=ip_range.vrf_id,
                 prefixes__prefix__net_contains_or_equals=ip_range.end_address,
             )
 
         for ip_address in ip_addresses:
             # prefixes where passed IP is within prefix
-            filtering |= models.Q(prefixes__vrf=ip_address.vrf, prefixes__prefix__net_contains=ip_address.address)
+            filtering |= models.Q(prefixes__vrf=ip_address.vrf_id, prefixes__prefix__net_contains=ip_address.address)
             # ranges where passed IP is within range
             filtering |= models.Q(
-                ip_ranges__vrf=ip_address.vrf,
+                ip_ranges__vrf=ip_address.vrf_id,
                 ip_ranges__start_address__lte=ip_address.address,
                 ip_ranges__end_address__gte=ip_address.address,
             )
 
         for dev_address in itertools.chain.from_iterable(ips for (dev, ips) in devices):
             # prefixes where passed IP is within prefix
-            filtering |= models.Q(prefixes__vrf=dev_address.vrf, prefixes__prefix__net_contains=dev_address.address)
+            filtering |= models.Q(prefixes__vrf=dev_address.vrf_id, prefixes__prefix__net_contains=dev_address.address)
             # ranges where passed IP is within range
             filtering |= models.Q(
-                ip_ranges__vrf=dev_address.vrf,
+                ip_ranges__vrf=dev_address.vrf_id,
                 ip_ranges__start_address__lte=dev_address.address,
                 ip_ranges__end_address__gte=dev_address.address,
             )
