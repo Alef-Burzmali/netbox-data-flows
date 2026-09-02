@@ -55,6 +55,8 @@ Instructions to install, configure, update or uninstall the plugin can be found 
 
 Only the latest version of the plugin is officially supported. The test suite is run on the latest patch version of the current version of NetBox, and the previous one (if no breaking compatibility change).
 
+[Abbreviated changelog](https://alef-burzmali.github.io/netbox-data-flows/changelog)
+
 ### Dependencies
 
 * NetBox
