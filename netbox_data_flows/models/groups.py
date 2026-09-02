@@ -23,6 +23,18 @@ class DataFlowGroupQuerySet(LtreeQuerySet):
     def only_enabled(self):
         return self.exclude(pk__in=self.only_disabled().only("pk"))
 
+    def get_descendants(self, include_self=False):
+        lookup = "descendant_or_equal" if include_self else "descendant"
+
+        path_filter = models.Q()
+        for path in self.only("path").values_list("path", flat=True):
+            path_filter |= models.Q(**{f"path__{lookup}": path})
+
+        if not path_filter:
+            return self.none()
+
+        return self.model.objects.filter(path_filter).distinct()
+
 
 class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), LtreeManager):
     pass
