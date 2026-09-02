@@ -1,5 +1,3 @@
-from django.db.models import Count
-
 from netbox.views import generic
 from utilities.views import register_model_view
 
@@ -18,8 +16,8 @@ __all__ = (
 
 @register_model_view(models.DataFlowGroup, "list", path="", detail=False)
 class DataFlowGroupListView(generic.ObjectListView):
-    queryset = models.DataFlowGroup.objects.annotate(
-        dataflow_count=Count("dataflows", distinct=True),
+    queryset = models.DataFlowGroup.objects.add_related_count(
+        models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
     )
     table = tables.DataFlowGroupTable
     filterset = filtersets.DataFlowGroupFilterSet
@@ -52,8 +50,8 @@ class DataFlowGroupBulkImportView(generic.BulkImportView):
 
 @register_model_view(models.DataFlowGroup, "bulk_edit", path="edit", detail=False)
 class DataFlowGroupBulkEditView(generic.BulkEditView):
-    queryset = models.DataFlowGroup.objects.annotate(
-        dataflow_count=Count("dataflows", distinct=True),
+    queryset = models.DataFlowGroup.objects.add_related_count(
+        models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
     )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
@@ -62,8 +60,8 @@ class DataFlowGroupBulkEditView(generic.BulkEditView):
 
 @register_model_view(models.DataFlowGroup, "bulk_delete", path="delete", detail=False)
 class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.DataFlowGroup.objects.annotate(
-        dataflow_count=Count("dataflows", distinct=True),
+    queryset = models.DataFlowGroup.objects.add_related_count(
+        models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
     )
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
