@@ -18,7 +18,7 @@ __all__ = (
 class DataFlowGroupListView(generic.ObjectListView):
     queryset = models.DataFlowGroup.objects.add_related_count(
         models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
-    )
+    ).add_inherited_status()
     table = tables.DataFlowGroupTable
     filterset = filtersets.DataFlowGroupFilterSet
     filterset_form = forms.DataFlowGroupFilterForm
@@ -52,7 +52,7 @@ class DataFlowGroupBulkImportView(generic.BulkImportView):
 class DataFlowGroupBulkEditView(generic.BulkEditView):
     queryset = models.DataFlowGroup.objects.add_related_count(
         models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
-    )
+    ).add_inherited_status()
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable
     form = forms.DataFlowGroupBulkEditForm
@@ -62,6 +62,6 @@ class DataFlowGroupBulkEditView(generic.BulkEditView):
 class DataFlowGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = models.DataFlowGroup.objects.add_related_count(
         models.DataFlowGroup.objects.all(), models.DataFlow, "group", "dataflow_count", cumulative=True
-    )
+    ).add_inherited_status()
     filterset = filtersets.DataFlowGroupFilterSet
     table = tables.DataFlowGroupTable

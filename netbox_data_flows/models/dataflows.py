@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import connection, models
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -63,6 +64,20 @@ class DataFlowQuerySet(RestrictedQuerySet):
             )
         ).distinct()
 
+    def add_inherited_status(self):
+        """Precompute the inherited status based on ancestors status."""
+        qn = connection.ops.quote_name
+        df_table = qn(self.model._meta.db_table)
+        group_table = qn(DataFlowGroup._meta.db_table)
+        return self.annotate(
+            _inherited_status_disabled_parent=RawSQL(
+                f"(SELECT COUNT(dfg_ancestors.id) FROM {group_table} as dfg_ancestors LEFT JOIN {group_table} "
+                f"ON {group_table}.id = {df_table}.group_id "
+                f"WHERE dfg_ancestors.status = %s AND dfg_ancestors.path @> {group_table}.path)",
+                [choices.DataFlowInheritedStatusChoices.STATUS_DISABLED],
+            )
+        )
+
 
 class DataFlow(AccessibleTagsMixin, PrimaryModel):
     """Representation of a data flow for an application."""
@@ -108,6 +123,11 @@ class DataFlow(AccessibleTagsMixin, PrimaryModel):
 
     @cached_property
     def inherited_status(self):
+        if hasattr(self, "_inherited_status_disabled_parent"):
+            if self._inherited_status_disabled_parent != 0:
+                return choices.DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
+            return self.status
+
         if self.status == choices.DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
         elif self.group and self.group.inherited_status != choices.DataFlowInheritedStatusChoices.STATUS_ENABLED:
