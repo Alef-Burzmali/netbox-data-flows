@@ -27,7 +27,7 @@ def _get_resolved_ip_addresses(aliases):
 
 @register_model_view(models.DataFlow, "list", path="", detail=False)
 class DataFlowListView(generic.ObjectListView):
-    queryset = models.DataFlow.objects.all()
+    queryset = models.DataFlow.objects.add_inherited_status()
     table = tables.DataFlowTable
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm

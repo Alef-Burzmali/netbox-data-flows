@@ -1,6 +1,7 @@
 from django.contrib.postgres.indexes import GistIndex
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import connection, models
+from django.db.models.expressions import RawSQL
 from django.urls import reverse
 from django.utils.functional import cached_property
 
@@ -34,6 +35,30 @@ class DataFlowGroupQuerySet(LtreeQuerySet):
             return self.none()
 
         return self.model.objects.filter(path_filter).distinct()
+
+    def get_ancestors(self, include_self=False):
+        lookup = "ancestor_or_equal" if include_self else "ancestor"
+
+        path_filter = models.Q()
+        for path in self.only("path").values_list("path", flat=True):
+            path_filter |= models.Q(**{f"path__{lookup}": path})
+
+        if not path_filter:
+            return self.none()
+
+        return self.model.objects.filter(path_filter).distinct()
+
+    def add_inherited_status(self):
+        """Precompute the inherited status based on ancestors status."""
+        qn = connection.ops.quote_name
+        group_table = qn(self.model._meta.db_table)
+        return self.annotate(
+            _inherited_status_disabled_parent=RawSQL(
+                f"(SELECT COUNT(dfg_ancestors.id) FROM {group_table} as dfg_ancestors WHERE dfg_ancestors.status = %s "
+                f"AND dfg_ancestors.path @> {group_table}.path AND dfg_ancestors.path <> {group_table}.path)",
+                [DataFlowInheritedStatusChoices.STATUS_DISABLED],
+            )
+        )
 
 
 class DataFlowGroupManager(models.Manager.from_queryset(DataFlowGroupQuerySet), LtreeManager):
@@ -75,6 +100,11 @@ class DataFlowGroup(AccessibleTagsMixin, NestedLtreeGroupModel):
 
     @cached_property
     def inherited_status(self):
+        if hasattr(self, "_inherited_status_disabled_parent"):
+            if self._inherited_status_disabled_parent != 0:
+                return DataFlowInheritedStatusChoices.STATUS_INHERITED_DISABLED
+            return self.status
+
         if self.status == DataFlowStatusChoices.STATUS_DISABLED:
             return self.status
         elif self.get_ancestors(include_self=False).filter(status=DataFlowStatusChoices.STATUS_DISABLED).exists():

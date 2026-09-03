@@ -3,10 +3,10 @@
   "application:list_objects_with_permission": 19,
   "applicationrole:api_list_objects": 12,
   "applicationrole:list_objects_with_permission": 17,
-  "dataflow:api_list_objects": 20,
-  "dataflow:list_objects_with_permission": 23,
+  "dataflow:api_list_objects": 18,
+  "dataflow:list_objects_with_permission": 21,
   "dataflowgroup:api_list_objects": 16,
-  "dataflowgroup:list_objects_with_permission": 23,
+  "dataflowgroup:list_objects_with_permission": 19,
   "objectalias:api_list_objects": 17,
   "objectalias:list_objects_with_permission": 19
 }
