@@ -54,7 +54,17 @@ Let's create three Object Aliases:
 
 When you create or edit an object alias, you can link any IP Address, IP Range or Prefix. You can also select tags for devices and virtual machines to build dynamic alias members from NetBox inventory.
 
-For dynamic members, the alias resolves to all IP Addresses currently assigned to interfaces of matching devices or virtual machines. This avoids maintaining long static IP lists by hand.
+For dynamic members, choose the machine tags and whether to match **Any tag (OR)** or **All tags (AND)**. The **Tag matching rule** then selects primary IPs (the default), the device's OOB IP or all assigned IPs. Optional **Interface Tags** further restrict those addresses to matching interfaces, with their own independent tag operator. This avoids maintaining long static IP lists by hand.
+
+For example, to select OOB interfaces on VMs tagged both ALPHA and BETA:
+
+1. Assign ALPHA and BETA to the VMs and OOB to the interfaces carrying the desired IPs.
+2. In the alias, select ALPHA and BETA under **Virtual Machine Tags**.
+3. Set **Machine tag operator** to **All tags (AND)**.
+4. Set **Tag matching rule** to **All IPs** and **Interface Tags** to OOB.
+5. Leave **Interface tag operator** at **Any tag (OR)**. To select OOB or ADMIN interfaces, add ADMIN; to require both tags on one interface, choose **All tags (AND)** instead.
+
+The alias detail page and the data flow Targets tab display the resulting IPs. A VM with only ALPHA or only BETA is excluded. Clearing Interface Tags restores the IP matching rule without an interface restriction. The [data model](data-model.md#object-alias) describes empty selectors, static membership and the REST fields.
 
 ![Creation of a new alias](media/tuto-objectalias-new.png)
 
