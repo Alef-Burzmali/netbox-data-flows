@@ -57,6 +57,12 @@ class ObjectAliasForm(PrimaryModelForm):
         label="Virtual Machine Tags",
         help_text="The IPs of the virtual machines with this tag re dynamically added to this alias.",
     )
+    machine_tag_operator = forms.ChoiceField(
+        choices=choices.TagOperatorChoices,
+        label="Machine tag operator",
+        help_text="Match any or all tags on each device or virtual machine.",
+        required=True,
+    )
     tag_matching_rule = forms.ChoiceField(
         choices=choices.TagMatchingRuleChoices,
         label="Tag matching rule",
@@ -79,6 +85,7 @@ class ObjectAliasForm(PrimaryModelForm):
         FieldSet(
             "device_tags",
             "virtual_machine_tags",
+            "machine_tag_operator",
             "tag_matching_rule",
             name="Tag matching",
         ),
@@ -95,6 +102,7 @@ class ObjectAliasForm(PrimaryModelForm):
             "name",
             "owner",
             "prefixes",
+            "machine_tag_operator",
             "tag_matching_rule",
             "tags",
             "virtual_machine_tags",
@@ -136,6 +144,12 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label="Virtual Machine Tags",
     )
+    machine_tag_operator = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagOperatorChoices),
+        label="Machine tag operator",
+        help_text="Match any or all tags on each device or virtual machine.",
+        required=False,
+    )
     tag_matching_rule = forms.ChoiceField(
         choices=add_blank_choice(choices.TagMatchingRuleChoices),
         label="Tag matching rule",
@@ -156,6 +170,7 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         FieldSet(
             "device_tags",
             "virtual_machine_tags",
+            "machine_tag_operator",
             "tag_matching_rule",
             name="Tag matching",
         ),
@@ -174,6 +189,11 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class ObjectAliasImportForm(PrimaryModelImportForm):
+    machine_tag_operator = CSVChoiceField(
+        choices=choices.TagOperatorChoices,
+        required=False,
+        help_text="Machine tag operator (any or all)",
+    )
     tag_matching_rule = CSVChoiceField(
         choices=add_blank_choice(choices.TagMatchingRuleChoices),
         required=True,
@@ -187,6 +207,7 @@ class ObjectAliasImportForm(PrimaryModelImportForm):
             "description",
             "owner",
             "comments",
+            "machine_tag_operator",
             "tag_matching_rule",
             "tags",
         )
@@ -237,6 +258,12 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
     )
     device_tags = TagFilterField(Device)
     virtual_machine_tags = TagFilterField(VirtualMachine)
+    machine_tag_operator = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagOperatorChoices),
+        label="Machine tag operator",
+        help_text="Match any or all tags on each device or virtual machine.",
+        required=False,
+    )
     tag_matching_rule = forms.ChoiceField(
         choices=add_blank_choice(choices.TagMatchingRuleChoices),
         label="Tag matching rule",
@@ -262,6 +289,7 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
         FieldSet(
             "device_tags",
             "virtual_machine_tags",
+            "machine_tag_operator",
             "tag_matching_rule",
             name="Tag matching",
         ),

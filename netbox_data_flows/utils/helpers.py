@@ -5,6 +5,8 @@ from core.models import ObjectType
 
 from ipam.models import IPAddress
 
+from netbox_data_flows.choices import TagOperatorChoices
+
 
 def object_list_to_string(objects, *, linkify=False, default="", separator=", "):
     """Take a list of objects and return a string, with optional links."""
@@ -19,6 +21,17 @@ def object_list_to_string(objects, *, linkify=False, default="", separator=", ")
         )
 
     return separator.join(str(o) for o in objects)
+
+
+def filter_by_tags(queryset, tags, operator=TagOperatorChoices.OPERATOR_ANY):
+    """Match any or all of the supplied tags on the same object."""
+    if not tags:
+        return queryset.none()
+    if operator == TagOperatorChoices.OPERATOR_ALL:
+        for tag in tags:
+            queryset = queryset.filter(tags=tag)
+        return queryset.distinct()
+    return queryset.filter(tags__in=tags).distinct()
 
 
 def _get_ip_qs(device):

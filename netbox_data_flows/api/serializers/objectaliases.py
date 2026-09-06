@@ -49,6 +49,10 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    machine_tag_operator = ChoiceField(
+        choices=choices.TagOperatorChoices,
+        required=False,
+    )
     tag_matching_rule = ChoiceField(
         choices=choices.TagMatchingRuleChoices,
         required=False,
@@ -65,6 +69,7 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
             "id",
             "ip_addresses",
             "ip_ranges",
+            "machine_tag_operator",
             "name",
             "owner",
             "prefixes",

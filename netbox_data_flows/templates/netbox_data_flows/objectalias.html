@@ -29,6 +29,10 @@
             <td>{{ virtual_machine_tags|placeholder|safe }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Machine tag operator" %}</th>
+            <td>{{ object.get_machine_tag_operator_display }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Tag matching rule" %}</th>
             <td>{% badge object.get_tag_matching_rule_display bg_color=object.get_tag_matching_rule_color %}</td>
           </tr>

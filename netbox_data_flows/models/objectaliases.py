@@ -12,7 +12,7 @@ from ipam.models import IPAddress
 from virtualization.models import VirtualMachine
 
 from netbox_data_flows import choices
-from netbox_data_flows.utils.helpers import get_device_ipaddresses, get_ipaddress_host
+from netbox_data_flows.utils.helpers import filter_by_tags, get_device_ipaddresses, get_ipaddress_host
 
 __all__ = ("ObjectAlias",)
 
@@ -136,76 +136,43 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
 
         return filtering
 
+    def _tagged_machine_filter(self, host):
+        """Match alias selectors against one machine, without combining different machines' tags."""
+        field = "device_tags" if isinstance(host, Device) else "virtual_machine_tags"
+        selected_tags = getattr(self.model, field).through.objects.filter(objectalias_id=models.OuterRef("pk"))
+        tag_ids = [tag.pk for tag in host.tags.all()]
+        return models.Q(models.Exists(selected_tags.filter(tag_id__in=tag_ids))) & (
+            models.Q(machine_tag_operator=choices.TagOperatorChoices.OPERATOR_ANY)
+            | (
+                models.Q(machine_tag_operator=choices.TagOperatorChoices.OPERATOR_ALL)
+                & models.Q(~models.Exists(selected_tags.exclude(tag_id__in=tag_ids)))
+            )
+        )
+
     def _contains_tagged(self, ip_addresses, devices):
         """Return ObjectAliases matching any one of the objects in parameters based on their tags."""
-        # Six possible combination based on type (Device/VM) and matching rule (All, Primary, OOB)
-        # But VM do not have oob ips
-        device_tag_all_ips = []
-        vm_tag_all_ips = []
-        device_tag_primary_ips = []
-        vm_tag_primary_ips = []
-        device_tag_oob_ips = []
+        filtering = models.Q()
 
         for ip_address in ip_addresses:
             host = get_ipaddress_host(ip_address)
-            if isinstance(host, Device):
-                device_tag_all_ips.extend(host.tags.all())
-                if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
-                    device_tag_primary_ips.extend(host.tags.all())
-                if ip_address == host.oob_ip:
-                    device_tag_oob_ips.extend(host.tags.all())
+            if not isinstance(host, (Device, VirtualMachine)):
+                continue
+            matching = models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL)
+            if ip_address.pk in (host.primary_ip4_id, host.primary_ip6_id):
+                matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY)
+            if isinstance(host, Device) and ip_address.pk == host.oob_ip_id:
+                matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB)
+            filtering |= self._tagged_machine_filter(host) & matching
 
-            elif isinstance(host, VirtualMachine):
-                vm_tag_all_ips.extend(host.tags.all())
-                if ip_address == host.primary_ip4 or ip_address == host.primary_ip6:
-                    vm_tag_primary_ips.extend(host.tags.all())
-
-        for obj, dev_addresses in devices:
-            # Ensure that the device has at least one address
+        for host, dev_addresses in devices:
             if not dev_addresses.exists():
                 continue
-
-            if obj._meta.model_name == "device":
-                tags = list(obj.tags.all())
-                device_tag_all_ips.extend(tags)
-                if obj.primary_ip4 or obj.primary_ip6:
-                    device_tag_primary_ips.extend(tags)
-                if obj.oob_ip:
-                    device_tag_oob_ips.extend(tags)
-
-            elif obj._meta.model_name == "virtualmachine":
-                tags = list(obj.tags.all())
-                vm_tag_all_ips.extend(tags)
-                if obj.primary_ip4 or obj.primary_ip6:
-                    vm_tag_primary_ips.extend(tags)
-
-        filtering = models.Q()
-
-        if device_tag_all_ips:
-            filtering |= models.Q(
-                device_tags__in=device_tag_all_ips,
-                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
-            )
-        if vm_tag_all_ips:
-            filtering |= models.Q(
-                virtual_machine_tags__in=vm_tag_all_ips,
-                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL,
-            )
-        if device_tag_primary_ips:
-            filtering |= models.Q(
-                device_tags__in=device_tag_primary_ips,
-                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
-            )
-        if vm_tag_primary_ips:
-            filtering |= models.Q(
-                virtual_machine_tags__in=vm_tag_primary_ips,
-                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
-            )
-        if device_tag_oob_ips:
-            filtering |= models.Q(
-                device_tags__in=device_tag_oob_ips,
-                tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB,
-            )
+            matching = models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL)
+            if host.primary_ip4_id or host.primary_ip6_id:
+                matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY)
+            if isinstance(host, Device) and host.oob_ip_id:
+                matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB)
+            filtering |= self._tagged_machine_filter(host) & matching
 
         return filtering
 
@@ -258,6 +225,11 @@ class ObjectAlias(PrimaryModel):
         blank=True,
         related_name="data_flow_virtual_machine_object_aliases",
     )
+    machine_tag_operator = models.CharField(
+        max_length=3,
+        choices=choices.TagOperatorChoices,
+        default=choices.TagOperatorChoices.OPERATOR_ANY,
+    )
     tag_matching_rule = models.CharField(
         max_length=10,
         choices=choices.TagMatchingRuleChoices,
@@ -281,6 +253,7 @@ class ObjectAlias(PrimaryModel):
         "prefixes",
         "virtual_machine_tags",
         "tag_matching_rule",
+        "machine_tag_operator",
     )
 
     def get_absolute_url(self):
@@ -293,8 +266,8 @@ class ObjectAlias(PrimaryModel):
         return choices.TagMatchingRuleChoices.colors.get(self.tag_matching_rule)
 
     def get_resolved_ip_addresses(self, *, include_direct_assignments=True):
-        device_tag_qs = self.device_tags.all()
-        virtual_machine_tag_qs = self.virtual_machine_tags.all()
+        device_tags = list(self.device_tags.all())
+        virtual_machine_tags = list(self.virtual_machine_tags.all())
 
         matching_rule = {"primary": False, "oob": False}
         if self.tag_matching_rule == "primary":
@@ -307,12 +280,14 @@ class ObjectAlias(PrimaryModel):
         if include_direct_assignments:
             results |= self.ip_addresses.all()
 
-        if device_tag_qs.exists():
-            devices = Device.objects.filter(tags__in=device_tag_qs).distinct()
+        if device_tags:
+            devices = filter_by_tags(Device.objects.all(), device_tags, self.machine_tag_operator)
             results |= get_device_ipaddresses(*devices, **matching_rule)
 
-        if virtual_machine_tag_qs.exists():
-            virtual_machines = VirtualMachine.objects.filter(tags__in=virtual_machine_tag_qs).distinct()
+        if virtual_machine_tags:
+            virtual_machines = filter_by_tags(
+                VirtualMachine.objects.all(), virtual_machine_tags, self.machine_tag_operator
+            )
             results |= get_device_ipaddresses(*virtual_machines, **matching_rule)
 
         return results.distinct()
