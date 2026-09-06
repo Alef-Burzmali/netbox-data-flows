@@ -209,6 +209,8 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCas
                 "virtual_machine_tags": [dynamic_tags[1].pk],
                 "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
                 "machine_tag_operator": choices.TagOperatorChoices.OPERATOR_ALL,
+                "interface_tag_operator": choices.TagOperatorChoices.OPERATOR_ALL,
+                "interface_tags": [dynamic_tags[0].pk],
             },
         ]
         cls.bulk_update_data = {
@@ -219,6 +221,8 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, APIViewTestCas
             "virtual_machine_tags": [dynamic_tags[1].pk],
             "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_ALL,
             "machine_tag_operator": choices.TagOperatorChoices.OPERATOR_ANY,
+            "interface_tag_operator": choices.TagOperatorChoices.OPERATOR_ANY,
+            "interface_tags": [dynamic_tags[1].pk],
         }
 
 

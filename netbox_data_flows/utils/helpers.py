@@ -34,9 +34,11 @@ def filter_by_tags(queryset, tags, operator=TagOperatorChoices.OPERATOR_ANY):
     return queryset.filter(tags__in=tags).distinct()
 
 
-def _get_ip_qs(device):
+def _get_ip_qs(device, interface_tags=(), interface_tag_operator=TagOperatorChoices.OPERATOR_ANY):
     """Return a querystring matching any IP assigned to the device."""
     interfaces = device.interfaces.all()
+    if interface_tags:
+        interfaces = filter_by_tags(interfaces, interface_tags, interface_tag_operator)
     ct = ObjectType.objects.get_for_model(interfaces.model)
 
     return Q(
@@ -45,12 +47,15 @@ def _get_ip_qs(device):
     )
 
 
-def get_device_ipaddresses(*devices, primary=False, oob=False):
+def get_device_ipaddresses(
+    *devices, primary=False, oob=False, interface_tags=(), interface_tag_operator=TagOperatorChoices.OPERATOR_ANY
+):
     """Return the list of IP addresses of a list of devices or virtual machines.
 
     If primary is True, primary IP v4 and v6 are returned
     If oob is True, oob IP is returned
     If neither primary nor oob is True, all assigned IPs are returned.
+    Interface tags, when supplied, further restrict the selected IPs to matching interfaces.
     """
     if not devices:
         return IPAddress.objects.none()
@@ -58,15 +63,18 @@ def get_device_ipaddresses(*devices, primary=False, oob=False):
     qs = Q()
     for dev in devices:
         if not primary and not oob:
-            qs |= _get_ip_qs(dev)
+            qs |= _get_ip_qs(dev, interface_tags, interface_tag_operator)
             continue
 
-        if primary and dev.primary_ip4_id:
-            qs |= Q(pk=dev.primary_ip4_id)
-        if primary and dev.primary_ip6_id:
-            qs |= Q(pk=dev.primary_ip6_id)
+        address_ids = []
+        if primary:
+            address_ids.extend((dev.primary_ip4_id, dev.primary_ip6_id))
         if oob and hasattr(dev, "oob_ip_id"):
-            qs |= Q(pk=dev.oob_ip_id)
+            address_ids.append(dev.oob_ip_id)
+        device_qs = Q(pk__in=[pk for pk in address_ids if pk is not None])
+        if interface_tags:
+            device_qs &= _get_ip_qs(dev, interface_tags, interface_tag_operator)
+        qs |= device_qs
 
     if qs == Q():
         return IPAddress.objects.none()

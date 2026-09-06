@@ -49,6 +49,17 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
         required=False,
         many=True,
     )
+    interface_tags = SerializedPKRelatedField(
+        queryset=Tag.objects.all(),
+        serializer=NestedTagSerializer,
+        nested=True,
+        required=False,
+        many=True,
+    )
+    interface_tag_operator = ChoiceField(
+        choices=choices.TagOperatorChoices,
+        required=False,
+    )
     machine_tag_operator = ChoiceField(
         choices=choices.TagOperatorChoices,
         required=False,
@@ -67,6 +78,8 @@ class ObjectAliasSerializer(PrimaryModelSerializer):
             "device_tags",
             "display",
             "id",
+            "interface_tag_operator",
+            "interface_tags",
             "ip_addresses",
             "ip_ranges",
             "machine_tag_operator",

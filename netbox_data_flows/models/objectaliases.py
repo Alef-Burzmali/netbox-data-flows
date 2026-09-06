@@ -7,9 +7,9 @@ from extras.models import Tag
 from netbox.models import PrimaryModel
 from utilities.querysets import RestrictedQuerySet
 
-from dcim.models import Device
+from dcim.models import Device, Interface
 from ipam.models import IPAddress
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, VMInterface
 
 from netbox_data_flows import choices
 from netbox_data_flows.utils.helpers import filter_by_tags, get_device_ipaddresses, get_ipaddress_host
@@ -31,6 +31,8 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
         - primary: the IP is the primary IPv4 or IPv6 of the object
         - oob: the IP is the OOB IP of the object (only device)
         - all: the IP is assigned to one of the interfaces of the object.
+
+        Nonempty interface_tags further restrict tagged membership to matching interfaces.
 
         If all selectors are None, all the selection types are used.
         """
@@ -136,22 +138,33 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
 
         return filtering
 
-    def _tagged_machine_filter(self, host):
-        """Match alias selectors against one machine, without combining different machines' tags."""
-        field = "device_tags" if isinstance(host, Device) else "virtual_machine_tags"
+    def _tagged_object_filter(self, field, operator_field, tag_ids):
+        """Match a nonempty alias tag selector against the tags of one object."""
         selected_tags = getattr(self.model, field).through.objects.filter(objectalias_id=models.OuterRef("pk"))
-        tag_ids = [tag.pk for tag in host.tags.all()]
         return models.Q(models.Exists(selected_tags.filter(tag_id__in=tag_ids))) & (
-            models.Q(machine_tag_operator=choices.TagOperatorChoices.OPERATOR_ANY)
+            models.Q(**{operator_field: choices.TagOperatorChoices.OPERATOR_ANY})
             | (
-                models.Q(machine_tag_operator=choices.TagOperatorChoices.OPERATOR_ALL)
+                models.Q(**{operator_field: choices.TagOperatorChoices.OPERATOR_ALL})
                 & models.Q(~models.Exists(selected_tags.exclude(tag_id__in=tag_ids)))
             )
+        )
+
+    def _tagged_machine_filter(self, host):
+        field = "device_tags" if isinstance(host, Device) else "virtual_machine_tags"
+        return self._tagged_object_filter(field, "machine_tag_operator", [tag.pk for tag in host.tags.all()])
+
+    def _tagged_interface_filter(self, interface):
+        if not isinstance(interface, (Interface, VMInterface)):
+            return models.Q(pk__in=[])
+        return self._tagged_object_filter(
+            "interface_tags", "interface_tag_operator", [tag.pk for tag in interface.tags.all()]
         )
 
     def _contains_tagged(self, ip_addresses, devices):
         """Return ObjectAliases matching any one of the objects in parameters based on their tags."""
         filtering = models.Q()
+        interface_selectors = self.model.interface_tags.through.objects.filter(objectalias_id=models.OuterRef("pk"))
+        unfiltered_interfaces = models.Q(~models.Exists(interface_selectors))
 
         for ip_address in ip_addresses:
             host = get_ipaddress_host(ip_address)
@@ -162,7 +175,11 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                 matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY)
             if isinstance(host, Device) and ip_address.pk == host.oob_ip_id:
                 matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB)
-            filtering |= self._tagged_machine_filter(host) & matching
+            filtering |= (
+                self._tagged_machine_filter(host)
+                & matching
+                & (unfiltered_interfaces | self._tagged_interface_filter(ip_address.assigned_object))
+            )
 
         for host, dev_addresses in devices:
             if not dev_addresses.exists():
@@ -172,6 +189,17 @@ class ObjectAliasQuerySet(RestrictedQuerySet):
                 matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY)
             if isinstance(host, Device) and host.oob_ip_id:
                 matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB)
+            matching &= unfiltered_interfaces
+            for interface in host.interfaces.prefetch_related("tags", "ip_addresses"):
+                address_ids = {address.pk for address in interface.ip_addresses.all()}
+                if not address_ids:
+                    continue
+                interface_matching = models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_ALL)
+                if address_ids.intersection((host.primary_ip4_id, host.primary_ip6_id)):
+                    interface_matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_PRIMARY)
+                if isinstance(host, Device) and host.oob_ip_id in address_ids:
+                    interface_matching |= models.Q(tag_matching_rule=choices.TagMatchingRuleChoices.MATCHING_OOB)
+                matching |= self._tagged_interface_filter(interface) & interface_matching
             filtering |= self._tagged_machine_filter(host) & matching
 
         return filtering
@@ -225,6 +253,16 @@ class ObjectAlias(PrimaryModel):
         blank=True,
         related_name="data_flow_virtual_machine_object_aliases",
     )
+    interface_tags = models.ManyToManyField(
+        Tag,
+        blank=True,
+        related_name="data_flow_interface_object_aliases",
+    )
+    interface_tag_operator = models.CharField(
+        max_length=3,
+        choices=choices.TagOperatorChoices,
+        default=choices.TagOperatorChoices.OPERATOR_ANY,
+    )
     machine_tag_operator = models.CharField(
         max_length=3,
         choices=choices.TagOperatorChoices,
@@ -254,6 +292,8 @@ class ObjectAlias(PrimaryModel):
         "virtual_machine_tags",
         "tag_matching_rule",
         "machine_tag_operator",
+        "interface_tags",
+        "interface_tag_operator",
     )
 
     def get_absolute_url(self):
@@ -269,7 +309,12 @@ class ObjectAlias(PrimaryModel):
         device_tags = list(self.device_tags.all())
         virtual_machine_tags = list(self.virtual_machine_tags.all())
 
-        matching_rule = {"primary": False, "oob": False}
+        matching_rule = {
+            "primary": False,
+            "oob": False,
+            "interface_tags": list(self.interface_tags.all()),
+            "interface_tag_operator": self.interface_tag_operator,
+        }
         if self.tag_matching_rule == "primary":
             matching_rule["primary"] = True
         elif self.tag_matching_rule == "oob":

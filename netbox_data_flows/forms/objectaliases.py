@@ -48,14 +48,27 @@ class ObjectAliasForm(PrimaryModelForm):
         required=False,
         selector=True,
         label="Device Tags",
-        help_text="The IPs of the devices with this tag re dynamically added to this alias.",
+        help_text="Dynamically select devices matching these tags using the machine tag operator.",
     )
     virtual_machine_tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         required=False,
         selector=True,
         label="Virtual Machine Tags",
-        help_text="The IPs of the virtual machines with this tag re dynamically added to this alias.",
+        help_text="Dynamically select virtual machines matching these tags using the machine tag operator.",
+    )
+    interface_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        selector=True,
+        label="Interface Tags",
+        help_text="Restrict dynamic IPs to interfaces with these tags; leave empty for no interface filter.",
+    )
+    interface_tag_operator = forms.ChoiceField(
+        choices=choices.TagOperatorChoices,
+        label="Interface tag operator",
+        help_text="Match any or all tags on each interface.",
+        required=True,
     )
     machine_tag_operator = forms.ChoiceField(
         choices=choices.TagOperatorChoices,
@@ -66,7 +79,7 @@ class ObjectAliasForm(PrimaryModelForm):
     tag_matching_rule = forms.ChoiceField(
         choices=choices.TagMatchingRuleChoices,
         label="Tag matching rule",
-        help_text="Select with IP of the devices and virtual machines are selected with the tags.",
+        help_text="Select primary, OOB or all IPs, then apply the interface tag filter.",
         required=True,
     )
 
@@ -87,6 +100,8 @@ class ObjectAliasForm(PrimaryModelForm):
             "virtual_machine_tags",
             "machine_tag_operator",
             "tag_matching_rule",
+            "interface_tags",
+            "interface_tag_operator",
             name="Tag matching",
         ),
     )
@@ -102,6 +117,8 @@ class ObjectAliasForm(PrimaryModelForm):
             "name",
             "owner",
             "prefixes",
+            "interface_tags",
+            "interface_tag_operator",
             "machine_tag_operator",
             "tag_matching_rule",
             "tags",
@@ -144,6 +161,18 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         required=False,
         label="Virtual Machine Tags",
     )
+    interface_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        label="Interface Tags",
+        help_text="Update the interface tag selector; use the clear option to remove it.",
+    )
+    interface_tag_operator = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagOperatorChoices),
+        label="Interface tag operator",
+        help_text="Match any or all tags on each interface.",
+        required=False,
+    )
     machine_tag_operator = forms.ChoiceField(
         choices=add_blank_choice(choices.TagOperatorChoices),
         label="Machine tag operator",
@@ -172,6 +201,8 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
             "virtual_machine_tags",
             "machine_tag_operator",
             "tag_matching_rule",
+            "interface_tags",
+            "interface_tag_operator",
             name="Tag matching",
         ),
     )
@@ -179,6 +210,7 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
         "comments",
         "description",
         "device_tags",
+        "interface_tags",
         "owner",
         "prefixes",
         "ip_ranges",
@@ -189,6 +221,11 @@ class ObjectAliasBulkEditForm(PrimaryModelBulkEditForm):
 
 
 class ObjectAliasImportForm(PrimaryModelImportForm):
+    interface_tag_operator = CSVChoiceField(
+        choices=choices.TagOperatorChoices,
+        required=False,
+        help_text="Interface tag operator (any or all)",
+    )
     machine_tag_operator = CSVChoiceField(
         choices=choices.TagOperatorChoices,
         required=False,
@@ -207,6 +244,7 @@ class ObjectAliasImportForm(PrimaryModelImportForm):
             "description",
             "owner",
             "comments",
+            "interface_tag_operator",
             "machine_tag_operator",
             "tag_matching_rule",
             "tags",
@@ -258,6 +296,18 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
     )
     device_tags = TagFilterField(Device)
     virtual_machine_tags = TagFilterField(VirtualMachine)
+    interface_tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        label="Interface Tags",
+        help_text="Find aliases configured with these interface tags.",
+    )
+    interface_tag_operator = forms.ChoiceField(
+        choices=add_blank_choice(choices.TagOperatorChoices),
+        label="Interface tag operator",
+        help_text="Match any or all tags on each interface.",
+        required=False,
+    )
     machine_tag_operator = forms.ChoiceField(
         choices=add_blank_choice(choices.TagOperatorChoices),
         label="Machine tag operator",
@@ -291,6 +341,8 @@ class ObjectAliasFilterForm(PrimaryModelFilterSetForm):
             "virtual_machine_tags",
             "machine_tag_operator",
             "tag_matching_rule",
+            "interface_tags",
+            "interface_tag_operator",
             name="Tag matching",
         ),
     )
