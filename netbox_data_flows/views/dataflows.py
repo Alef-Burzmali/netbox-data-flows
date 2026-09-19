@@ -1,3 +1,5 @@
+from django.db.models import Prefetch
+
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
 
@@ -32,18 +34,25 @@ class DataFlowListView(generic.ObjectListView):
     filterset = filtersets.DataFlowFilterSet
     filterset_form = forms.DataFlowFilterForm
 
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .prefetch_related(
+                Prefetch("sources", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+                Prefetch("destinations", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+            )
+        )
+
 
 @register_model_view(models.DataFlow)
 class DataFlowView(generic.ObjectView):
-    queryset = models.DataFlow.objects.prefetch_related(
-        "sources",
-        "destinations",
-    )
+    queryset = models.DataFlow.objects.all()
 
     def get_extra_context(self, request, instance):
         return {
-            "sources": instance.sources.all(),
-            "destinations": instance.destinations.all(),
+            "sources": instance.sources.restrict(request.user, "view"),
+            "destinations": instance.destinations.restrict(request.user, "view"),
         }
 
 
@@ -64,13 +73,27 @@ class DataFlowTargetView(generic.ObjectView):
         source_aliases = list(instance.sources.all())
         destination_aliases = list(instance.destinations.all())
 
-        sources_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=source_aliases).distinct()
-        sources_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=source_aliases).distinct()
-        sources_ip_addresses = _get_resolved_ip_addresses(source_aliases)
+        sources_prefixes = (
+            Prefix.objects.restrict(request.user, "view").filter(data_flow_object_aliases__in=source_aliases).distinct()
+        )
+        sources_ip_ranges = (
+            IPRange.objects.restrict(request.user, "view")
+            .filter(data_flow_object_aliases__in=source_aliases)
+            .distinct()
+        )
+        sources_ip_addresses = _get_resolved_ip_addresses(source_aliases).restrict(request.user, "view")
 
-        destinations_prefixes = Prefix.objects.filter(data_flow_object_aliases__in=destination_aliases).distinct()
-        destinations_ip_ranges = IPRange.objects.filter(data_flow_object_aliases__in=destination_aliases).distinct()
-        destinations_ip_addresses = _get_resolved_ip_addresses(destination_aliases)
+        destinations_prefixes = (
+            Prefix.objects.restrict(request.user, "view")
+            .filter(data_flow_object_aliases__in=destination_aliases)
+            .distinct()
+        )
+        destinations_ip_ranges = (
+            IPRange.objects.restrict(request.user, "view")
+            .filter(data_flow_object_aliases__in=destination_aliases)
+            .distinct()
+        )
+        destinations_ip_addresses = _get_resolved_ip_addresses(destination_aliases).restrict(request.user, "view")
 
         # Prepare tables
         sources_prefixes_table = PrefixTable(sources_prefixes, orderable=False)

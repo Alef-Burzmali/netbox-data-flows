@@ -1,5 +1,3 @@
-from django.db.models import Count
-
 from netbox.views import generic
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 
@@ -7,6 +5,7 @@ from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
 from netbox_data_flows import filtersets, forms, models, tables
 from netbox_data_flows.utils.helpers import object_list_to_string
+from netbox_data_flows.utils.views import annotate_objectalias_counts
 
 __all__ = (
     "ObjectAliasView",
@@ -41,15 +40,14 @@ class GetRelatedDataFlowsMixin(GetRelatedModelsMixin):
         return super().get_related_models(request, instance, omit=omit, extra=related_models)
 
 
+class ObjectAliasTableMixin:
+    def get_queryset(self, request):
+        return annotate_objectalias_counts(super().get_queryset(request), request.user)
+
+
 @register_model_view(models.ObjectAlias, "list", path="", detail=False)
-class ObjectAliasListView(generic.ObjectListView):
-    queryset = models.ObjectAlias.objects.annotate(
-        prefix_count=Count("prefixes", distinct=True),
-        ip_range_count=Count("ip_ranges", distinct=True),
-        ip_address_count=Count("ip_addresses", distinct=True),
-        dataflow_source_count=Count("dataflow_sources", distinct=True),
-        dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-    ).order_by(*models.ObjectAlias._meta.ordering)
+class ObjectAliasListView(ObjectAliasTableMixin, generic.ObjectListView):
+    queryset = models.ObjectAlias.objects.all()
     table = tables.ObjectAliasTable
     filterset = filtersets.ObjectAliasFilterSet
     filterset_form = forms.ObjectAliasFilterForm
@@ -62,16 +60,22 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = self.get_related_models(request, instance)
 
-        prefix_table = PrefixTable(instance.prefixes.all())
+        prefixes = instance.prefixes.restrict(request.user, "view")
+        ip_ranges = instance.ip_ranges.restrict(request.user, "view")
+        ip_addresses = instance.ip_addresses.restrict(request.user, "view")
+
+        prefix_table = PrefixTable(prefixes)
         prefix_table.configure(request)
 
-        ip_range_table = IPRangeTable(instance.ip_ranges.all())
+        ip_range_table = IPRangeTable(ip_ranges)
         ip_range_table.configure(request)
 
-        ip_address_table = IPAddressTable(instance.ip_addresses.all())
+        ip_address_table = IPAddressTable(ip_addresses)
         ip_address_table.configure(request)
 
-        resolved_ip_addresses = instance.get_resolved_ip_addresses(include_direct_assignments=False)
+        resolved_ip_addresses = instance.get_resolved_ip_addresses(include_direct_assignments=False).restrict(
+            request.user, "view"
+        )
         resolved_ip_address_table = IPAddressTable(resolved_ip_addresses)
         resolved_ip_address_table.configure(request)
 
@@ -79,8 +83,11 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
             "device_tags": object_list_to_string(instance.device_tags.all(), linkify=True),
             "related_models": related_models,
             "prefix_table": prefix_table,
+            "prefix_count": prefixes.count(),
             "ip_range_table": ip_range_table,
+            "ip_range_count": ip_ranges.count(),
             "ip_address_table": ip_address_table,
+            "ip_address_count": ip_addresses.count(),
             "resolved_ip_address_count": resolved_ip_addresses.count(),
             "resolved_ip_address_table": resolved_ip_address_table,
             "virtual_machine_tags": object_list_to_string(instance.virtual_machine_tags.all(), linkify=True),
@@ -91,11 +98,11 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
 class ObjectAliasDataFlowView(generic.ObjectView):
     queryset = models.ObjectAlias.objects.all()
     template_name = "netbox_data_flows/objectalias_dataflows.html"
+    additional_permissions = ("netbox_data_flows.view_dataflow",)
 
     tab = ViewTab(
         label="Data Flows",
         permission="netbox_data_flows.view_dataflow",
-        badge=lambda o: o.dataflow_sources.count() + o.dataflow_destinations.count(),
         hide_if_empty=False,
     )
 
@@ -120,23 +127,15 @@ class ObjectAliasBulkImportView(generic.BulkImportView):
 
 
 @register_model_view(models.ObjectAlias, "bulk_edit", path="edit", detail=False)
-class ObjectAliasBulkEditView(generic.BulkEditView):
-    queryset = models.ObjectAlias.objects.annotate(
-        prefix_count=Count("prefixes", distinct=True),
-        ip_range_count=Count("ip_ranges", distinct=True),
-        ip_address_count=Count("ip_addresses", distinct=True),
-    ).order_by(*models.ObjectAlias._meta.ordering)
+class ObjectAliasBulkEditView(ObjectAliasTableMixin, generic.BulkEditView):
+    queryset = models.ObjectAlias.objects.all()
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable
     form = forms.ObjectAliasBulkEditForm
 
 
 @register_model_view(models.ObjectAlias, "bulk_delete", path="delete", detail=False)
-class ObjectAliasBulkDeleteView(generic.BulkDeleteView):
-    queryset = models.ObjectAlias.objects.annotate(
-        prefix_count=Count("prefixes", distinct=True),
-        ip_range_count=Count("ip_ranges", distinct=True),
-        ip_address_count=Count("ip_addresses", distinct=True),
-    ).order_by(*models.ObjectAlias._meta.ordering)
+class ObjectAliasBulkDeleteView(ObjectAliasTableMixin, generic.BulkDeleteView):
+    queryset = models.ObjectAlias.objects.all()
     filterset = filtersets.ObjectAliasFilterSet
     table = tables.ObjectAliasTable

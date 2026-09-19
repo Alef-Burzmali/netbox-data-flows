@@ -1,4 +1,4 @@
-from django.db.models import Count, Value
+from django.db.models import Prefetch, Value
 
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
@@ -9,24 +9,13 @@ from virtualization.models import VirtualMachine
 
 from netbox_data_flows import models, tables
 from netbox_data_flows.choices import ObjectAliasMatchingChoices
+from netbox_data_flows.utils.views import annotate_objectalias_counts
 
 __all__ = tuple()
 
 
 # NetBox models where we want to add a tab view
 MODELS = (Device, VirtualMachine, IPAddress, IPRange, Prefix)
-
-
-def _count_aliases_or_dataflows(obj):
-    aliases = models.ObjectAlias.objects.contains(obj).count()
-    if not aliases:
-        return 0  # cannot have a dataflow without an alias
-
-    dataflows = models.DataFlow.objects.sources_or_destinations(obj).count()
-
-    # return as string so "0" is considered non-empty
-    # we display the object aliases even without a data flow
-    return str(dataflows)
 
 
 class DataFlowListTabViewBase(generic.ObjectView):
@@ -48,12 +37,12 @@ class DataFlowListTabViewBase(generic.ObjectView):
 
     queryset = None
     template_name = "netbox_data_flows/dataflow_tab.html"
+    additional_permissions = ("netbox_data_flows.view_dataflow",)
 
+    # ViewTab callbacks have no request context, so they cannot safely count related objects.
     tab = ViewTab(
         label="Data Flows",
         permission="netbox_data_flows.view_dataflow",
-        badge=_count_aliases_or_dataflows,
-        hide_if_empty=True,
     )
 
     def get_extra_context(self, request, parent):
@@ -61,57 +50,45 @@ class DataFlowListTabViewBase(generic.ObjectView):
         INDIRECT = Value(ObjectAliasMatchingChoices.MATCHING_INDIRECT)
         TAGGED = Value(ObjectAliasMatchingChoices.MATCHING_TAGGED)
 
+        # Apply permissions before every UNION branch; filtering a combined QuerySet is not supported.
+        aliases = annotate_objectalias_counts(models.ObjectAlias.objects.restrict(request.user, "view"), request.user)
+        dataflows = models.DataFlow.objects.restrict(request.user, "view")
+
         aliases_table = tables.SourcedObjectAliasTable(
-            models.ObjectAlias.objects.annotate(
-                prefix_count=Count("prefixes", distinct=True),
-                ip_range_count=Count("ip_ranges", distinct=True),
-                ip_address_count=Count("ip_addresses", distinct=True),
-                dataflow_source_count=Count("dataflow_sources", distinct=True),
-                dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                result_source=DIRECT,
-            )
+            aliases.annotate(result_source=DIRECT)
             .contains(parent, direct=True)
-            .union(
-                models.ObjectAlias.objects.annotate(
-                    prefix_count=Count("prefixes", distinct=True),
-                    ip_range_count=Count("ip_ranges", distinct=True),
-                    ip_address_count=Count("ip_addresses", distinct=True),
-                    dataflow_source_count=Count("dataflow_sources", distinct=True),
-                    dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                    result_source=TAGGED,
-                ).contains(parent, tagged=True)
-            )
-            .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
-            .union(
-                models.ObjectAlias.objects.annotate(
-                    prefix_count=Count("prefixes", distinct=True),
-                    ip_range_count=Count("ip_ranges", distinct=True),
-                    ip_address_count=Count("ip_addresses", distinct=True),
-                    dataflow_source_count=Count("dataflow_sources", distinct=True),
-                    dataflow_destination_count=Count("dataflow_destinations", distinct=True),
-                    result_source=INDIRECT,
-                ).contains(parent, indirect=True)
-            )
+            .union(aliases.annotate(result_source=TAGGED).contains(parent, tagged=True))
+            .union(aliases.annotate(result_source=INDIRECT).contains(parent, indirect=True))
             .order_by(*(("result_source",) + models.ObjectAlias._meta.ordering))
         )
         aliases_table.configure(request)
 
         dataflow_sources_table = tables.SourcedDataFlowTable(
-            models.DataFlow.objects.sources(parent, direct=True)
+            dataflows.sources(parent, direct=True)
             .annotate(result_source=DIRECT)
-            .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.sources(parent, indirect=True).annotate(result_source=INDIRECT))
-            .union(models.DataFlow.objects.sources(parent, tagged=True).annotate(result_source=TAGGED))
+            .prefetch_related(
+                "application",
+                "group",
+                Prefetch("sources", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+                Prefetch("destinations", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+            )
+            .union(dataflows.sources(parent, indirect=True).annotate(result_source=INDIRECT))
+            .union(dataflows.sources(parent, tagged=True).annotate(result_source=TAGGED))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_sources_table.configure(request)
 
         dataflow_destinations_table = tables.SourcedDataFlowTable(
-            models.DataFlow.objects.destinations(parent, direct=True)
+            dataflows.destinations(parent, direct=True)
             .annotate(result_source=DIRECT)
-            .prefetch_related("application", "group", "sources", "destinations")
-            .union(models.DataFlow.objects.destinations(parent, indirect=True).annotate(result_source=INDIRECT))
-            .union(models.DataFlow.objects.destinations(parent, tagged=True).annotate(result_source=TAGGED))
+            .prefetch_related(
+                "application",
+                "group",
+                Prefetch("sources", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+                Prefetch("destinations", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
+            )
+            .union(dataflows.destinations(parent, indirect=True).annotate(result_source=INDIRECT))
+            .union(dataflows.destinations(parent, tagged=True).annotate(result_source=TAGGED))
             .order_by(*(("result_source",) + models.DataFlow._meta.ordering))
         )
         dataflow_destinations_table.configure(request)
