@@ -41,8 +41,16 @@ class GetRelatedDataFlowsMixin(GetRelatedModelsMixin):
 
 
 class ObjectAliasTableMixin:
+    """
+    Annotate the Object Alias queryset with related object counts and re-apply ordering.
+
+    Re-applying ordering is required due to the JOINs performed by annotate.
+    """
+
     def get_queryset(self, request):
-        return annotate_objectalias_counts(super().get_queryset(request), request.user)
+        queryset = super().get_queryset(request)
+        queryset = annotate_objectalias_counts(queryset, request.user)
+        return queryset.order_by(*models.ObjectAlias._meta.ordering)
 
 
 @register_model_view(models.ObjectAlias, "list", path="", detail=False)
@@ -103,6 +111,7 @@ class ObjectAliasDataFlowView(generic.ObjectView):
     tab = ViewTab(
         label="Data Flows",
         permission="netbox_data_flows.view_dataflow",
+        badge=lambda o: o.dataflow_sources.count() + o.dataflow_destinations.count(),
         hide_if_empty=False,
     )
 
