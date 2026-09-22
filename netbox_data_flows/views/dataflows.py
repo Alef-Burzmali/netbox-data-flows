@@ -1,5 +1,3 @@
-from django.db.models import Prefetch
-
 from netbox.views import generic
 from utilities.views import ViewTab, register_model_view
 
@@ -7,6 +5,7 @@ from ipam.models import IPAddress, IPRange, Prefix
 from ipam.tables import IPAddressTable, IPRangeTable, PrefixTable
 
 from netbox_data_flows import filtersets, forms, models, tables
+from netbox_data_flows.utils.views import prefetch_dataflow_related_objects
 
 __all__ = (
     "DataFlowView",
@@ -35,14 +34,7 @@ class DataFlowListView(generic.ObjectListView):
     filterset_form = forms.DataFlowFilterForm
 
     def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .prefetch_related(
-                Prefetch("sources", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
-                Prefetch("destinations", queryset=models.ObjectAlias.objects.restrict(request.user, "view")),
-            )
-        )
+        return prefetch_dataflow_related_objects(super().get_queryset(request), request.user)
 
 
 @register_model_view(models.DataFlow)

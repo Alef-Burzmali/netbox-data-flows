@@ -1,10 +1,12 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from netbox.plugins.utils import get_plugin_config
 from utilities.views import GetRelatedModelsMixin
+
+from netbox_data_flows.models import ObjectAlias
 
 
 def annotate_objectalias_counts(queryset, user):
@@ -24,6 +26,20 @@ def annotate_objectalias_counts(queryset, user):
     # Permissions would be enforced with:
     # Count(..., filter=Q(**{f"{relation}__in": model.objects.restrict(user, "view")}))
     return queryset.annotate(**{name: Count(relation, distinct=True) for name, relation in relations})
+
+
+def prefetch_dataflow_related_objects(queryset, user):
+    """
+    Prefetch the data flow group, application and source and destinations aliases.
+
+    Enforce permissions for the object aliases.
+    """
+    return queryset.prefetch_related(
+        "application",
+        "group",
+        Prefetch("sources", queryset=ObjectAlias.objects.restrict(user, "view")),
+        Prefetch("destinations", queryset=ObjectAlias.objects.restrict(user, "view")),
+    )
 
 
 class GetRelatedCustomFieldModelsMixin(GetRelatedModelsMixin):
