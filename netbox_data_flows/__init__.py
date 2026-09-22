@@ -15,7 +15,7 @@ class DataFlowsConfig(PluginConfig):
         "top_level_menu": True,
         "application_custom_field": None,
     }
-    min_version = "4.7.0"
+    min_version = "4.7.1"
     max_version = "4.7.99"
 
 
