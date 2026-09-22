@@ -18,6 +18,22 @@ __all__ = tuple()
 MODELS = (Device, VirtualMachine, IPAddress, IPRange, Prefix)
 
 
+def _count_aliases_or_dataflows(obj):
+    # We align with NetBox behaviour (e.g. ClusterVirtualMachinesView)
+    # and count all objects, even those not visible by the user
+    # i.e.: permissions are not applied
+
+    aliases = models.ObjectAlias.objects.contains(obj).count()
+    if not aliases:
+        return 0  # cannot have a dataflow without an alias
+
+    dataflows = models.DataFlow.objects.sources_or_destinations(obj).count()
+
+    # return as string so "0" is considered non-empty
+    # we display the object aliases even without a data flow
+    return str(dataflows)
+
+
 class DataFlowListTabViewBase(generic.ObjectView):
     """Add a tab with ObjectAlias and DataFlows to built-in models."""
 
@@ -39,10 +55,11 @@ class DataFlowListTabViewBase(generic.ObjectView):
     template_name = "netbox_data_flows/dataflow_tab.html"
     additional_permissions = ("netbox_data_flows.view_dataflow",)
 
-    # ViewTab callbacks have no request context, so they cannot safely count related objects.
     tab = ViewTab(
         label="Data Flows",
         permission="netbox_data_flows.view_dataflow",
+        badge=_count_aliases_or_dataflows,
+        hide_if_empty=True,
     )
 
     def get_extra_context(self, request, parent):

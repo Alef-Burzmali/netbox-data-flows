@@ -1,31 +1,29 @@
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import Count, Q
+from django.db.models import Count
 
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from netbox.plugins.utils import get_plugin_config
 from utilities.views import GetRelatedModelsMixin
 
-from ipam.models import IPAddress, IPRange, Prefix
-
-from netbox_data_flows.models import DataFlow
-
 
 def annotate_objectalias_counts(queryset, user):
-    """Count only related objects the user is permitted to view."""
+    """
+    Annotate an Object Alias queryset with related object counts.
+
+    We align with NetBox behaviour and count all objects, even if not visible by the user.
+    """
     relations = (
-        ("prefix_count", "prefixes", Prefix),
-        ("ip_range_count", "ip_ranges", IPRange),
-        ("ip_address_count", "ip_addresses", IPAddress),
-        ("dataflow_source_count", "dataflow_sources", DataFlow),
-        ("dataflow_destination_count", "dataflow_destinations", DataFlow),
+        ("prefix_count", "prefixes"),
+        ("ip_range_count", "ip_ranges"),
+        ("ip_address_count", "ip_addresses"),
+        ("dataflow_source_count", "dataflow_sources"),
+        ("dataflow_destination_count", "dataflow_destinations"),
     )
-    return queryset.annotate(
-        **{
-            name: Count(relation, filter=Q(**{f"{relation}__in": model.objects.restrict(user, "view")}), distinct=True)
-            for name, relation, model in relations
-        }
-    )
+
+    # Permissions would be enforced with:
+    # Count(..., filter=Q(**{f"{relation}__in": model.objects.restrict(user, "view")}))
+    return queryset.annotate(**{name: Count(relation, distinct=True) for name, relation in relations})
 
 
 class GetRelatedCustomFieldModelsMixin(GetRelatedModelsMixin):
