@@ -58,6 +58,16 @@ class ObjectAliasFilterSet(PrimaryModelFilterSet):
         label="Virtual Machine tag (ID)",
     )
 
+    interface_tags = ModelMultipleChoiceFilter(
+        queryset=Tag.objects.all(),
+        label="Interface tag (ID)",
+    )
+    interface_tag_operator = MultipleChoiceFilter(
+        choices=choices.TagOperatorChoices,
+    )
+    machine_tag_operator = MultipleChoiceFilter(
+        choices=choices.TagOperatorChoices,
+    )
     tag_matching_rule = MultipleChoiceFilter(
         choices=choices.TagMatchingRuleChoices,
     )

@@ -105,7 +105,40 @@ Three tag matching rules are available:
 * OOB IP only: only the out-of-band IP of the device is matched (VM have no OOB IP).
 * All IPs: any IP address assigned to any interface of the device or virtual machine are matched.
 
-When device or virtual machine tags are selected, the alias resolves to all IP Addresses currently assigned to interfaces of matching objects.
+The machine tags, IP matching rule and optional interface tags are separate selectors:
+
+| Field | Values / default | Meaning |
+| --- | --- | --- |
+| `machine_tag_operator` | `any` (default), `all` | Match at least one or every selected tag on the same machine. Applied separately to `device_tags` and `virtual_machine_tags`. |
+| `interface_tags` | Tags; empty by default | Restrict dynamic IPs to interfaces of the selected machines carrying these tags. |
+| `interface_tag_operator` | `any` (default), `all` | Match at least one or every selected tag on the same interface, independently of the machine operator. |
+
+A machine selector with no tags selects no machines of that type. Device and virtual machine results are combined. Interface tags alone do not select machines globally. The alias's own `tags` field remains metadata, separate from these selectors.
+
+Interface tags further restrict the IP matching rule: `primary` or `oob` addresses must also be assigned to a matching interface. `all` means all assigned IPs **after** applying the interface filter; it does not mean all tags must match. The `oob` rule uses the device's NetBox OOB IP field, not an interface tag named OOB. VMs can use interfaces tagged OOB with the `all` rule.
+
+All tags must match on a single object when using the `all` operator. Tags on different machines or interfaces cannot satisfy a selector together. Only directly assigned IPs are included; parent or child interfaces do not inherit tag selection. Multiple IPv4 and IPv6 addresses on a selected interface are included according to the IP matching rule. Interface and IP statuses are not implicitly filtered.
+
+An empty interface selector preserves the existing IP matching behavior. A nonempty selector with no matching interface or address contributes no dynamic IPs, without falling back to another interface. Static members remain included independently of all tag selectors. Duplicate IP objects are returned once. Resolution uses the current tags and IP assignments, without copying dynamic IPs into static membership.
+
+The REST API accepts tag IDs for all selector lists. For example, if ALPHA, BETA and OOB have IDs 101, 102 and 201:
+
+```json
+{
+  "name": "example_oob",
+  "virtual_machine_tags": [101, 102],
+  "machine_tag_operator": "all",
+  "tag_matching_rule": "all",
+  "interface_tags": [201],
+  "interface_tag_operator": "any"
+}
+```
+
+This selects the OOB-tagged interfaces of VMs carrying both ALPHA and BETA. Additional interface tags with `interface_tag_operator=any` select alternative interfaces, while `all` requires every tag on the same interface.
+
+Omitted fields in a REST PATCH retain their values; `interface_tags: []` removes the interface filter. Both operators default to `any`, preserving existing aliases. Operators are also optional CSV columns; dynamic tag lists are managed through the UI or REST API. In bulk editing, use the interface tag clear option to remove that selector.
+
+The REST API exposes the selectors and static members. Its `ip_addresses` field contains only static IP members; dynamic IPs are displayed in the alias details and data flow Targets tab.
 
 There is no defined meaning for an empty object alias, but it can be used when:
 * The aliased object is not documented in NetBox (e.g.: third party public IP addresses)
@@ -115,4 +148,4 @@ When filtering object aliases or displaying them in a device or virtual machine'
 
 * Direct: are the prefixes, IP ranges and IP addresses explicitly added to an object alias.
 * Indirect: are prefixes, IP ranges or IP addresses that are fully within another prefix or IP range which are added to the object alias.
-* Tagged: are the IP addresses of a device or virtual machine that are tagged by a tag added to the object alias.
+* Tagged: are the IP addresses selected dynamically by the machine tags, IP matching rule and optional interface tags described above.

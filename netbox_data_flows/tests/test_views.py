@@ -595,6 +595,9 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
             "tags": [t.pk for t in tags],
             "virtual_machine_tags": [tags[1].pk],
             "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_PRIMARY,
+            "machine_tag_operator": choices.TagOperatorChoices.OPERATOR_ALL,
+            "interface_tag_operator": choices.TagOperatorChoices.OPERATOR_ALL,
+            "interface_tags": [tags[2].pk],
         }
 
         cls.csv_data = (
@@ -620,6 +623,9 @@ class ObjectAliasTestCase(PluginUrlBase, OverrideQueryCountTests, ViewTestCases.
             "device_tags": [tags[0].pk],
             "virtual_machine_tags": [tags[1].pk],
             "tag_matching_rule": choices.TagMatchingRuleChoices.MATCHING_OOB,
+            "machine_tag_operator": choices.TagOperatorChoices.OPERATOR_ANY,
+            "interface_tag_operator": choices.TagOperatorChoices.OPERATOR_ANY,
+            "interface_tags": [tags[1].pk],
         }
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=["*"], EXEMPT_EXCLUDE_MODELS=[])
