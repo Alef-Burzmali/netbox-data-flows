@@ -8,6 +8,7 @@ __all__ = (
     "ICMPv6TypeChoices",
     "ObjectAliasMatchingChoices",
     "TagMatchingRuleChoices",
+    "TagOperatorChoices",
     "TargetIsEmptyChoice",
 )
 
@@ -173,6 +174,18 @@ class TagMatchingRuleChoices(ChoiceSet):
         (MATCHING_ALL, "All IPs", "green"),
         (MATCHING_PRIMARY, "Primary IPs", "blue"),
         (MATCHING_OOB, "OOB IPs", "orange"),
+    )
+
+
+class TagOperatorChoices(ChoiceSet):
+    """Operators for matching the tags of a single object."""
+
+    OPERATOR_ANY = "any"
+    OPERATOR_ALL = "all"
+
+    CHOICES = (
+        (OPERATOR_ANY, "Any tag (OR)"),
+        (OPERATOR_ALL, "All tags (AND)"),
     )
 
 

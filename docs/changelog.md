@@ -11,6 +11,7 @@ Indirect and tagged matching for object alias membership, based on parent prefix
 * Dropping support for NetBox 4.6.
 * Indirect matching based on parent Prefix or IP Range when identifying applicable objet aliases.
 * Device and virtual machine tags to match primary, oob or all assigned IP addresses to an object alias dynamically.
+* Independent any/all tag operators for machines and interfaces, with an optional interface tag filter for dynamic alias IPs. Existing aliases retain any-tag matching and no interface restriction.
 
 ## Versions v1.5 - 2026-01
 
