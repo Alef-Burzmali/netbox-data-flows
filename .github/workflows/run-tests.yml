@@ -108,6 +108,7 @@ jobs:
           echo >> netbox/netbox/configuration_testing.py
           echo "PLUGINS = ['netbox_data_flows']" >> netbox/netbox/configuration_testing.py
           echo >> netbox/netbox/configuration_testing.py
+          mkdir -p netbox/project-static/docs
 
       - name: Check missing migrations
         working-directory: netbox
