@@ -89,6 +89,7 @@ class ObjectAliasView(GetRelatedDataFlowsMixin, generic.ObjectView):
 
         return {
             "device_tags": object_list_to_string(instance.device_tags.all(), linkify=True),
+            "interface_tags": object_list_to_string(instance.interface_tags.all(), linkify=True),
             "related_models": related_models,
             "prefix_table": prefix_table,
             "prefix_count": prefixes.count(),
