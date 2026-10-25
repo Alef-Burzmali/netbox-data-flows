@@ -1,7 +1,7 @@
 Description
 
 ## Compatibility
-NetBox: >=4.5.0
+NetBox: >=4.7.1
 Python: >=3.12
 
 The test suite is run on all patch versions of the current minor version of NetBox, but only on the latest patch versions of older supported minors.
